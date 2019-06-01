@@ -13,7 +13,7 @@ public class Spawner : MonoBehaviour
     private bool musicStarted = false;
 
     private string jsonString = File.ReadAllText(@"D:\Unity Projects\BeatSaber\BeatSaber\Playlists\Cascada - Every Time We Touch.json");
-    private List<Notes> NotesToSpawn = new List<Notes>();
+    private List<Note> NotesToSpawn = new List<Note>();
 
     private void Start()
     {
@@ -23,7 +23,7 @@ public class Spawner : MonoBehaviour
         var notes = json.GetArray("_notes");
         foreach (var note in notes)
         {
-            var n = new Notes
+            var n = new Note
             {
                 Hand = (Type)note.Obj.GetNumber("_type"),
                 CutDirection = (CutDirection)note.Obj.GetNumber("_cutDirection"),
@@ -34,8 +34,6 @@ public class Spawner : MonoBehaviour
 
             NotesToSpawn.Add(n);
         }
-
-        GetComponent<AudioSource>().PlayDelayed(5f);
     }
 
     void Update()
@@ -46,7 +44,7 @@ public class Spawner : MonoBehaviour
             musicStarted = true;
         }
 
-        Notes maybe = NotesToSpawn.Where(t => timer >= t.Time).LastOrDefault();
+        Note maybe = NotesToSpawn.Where(t => timer >= t.Time).LastOrDefault();
         if (maybe != null)
         {
             NotesToSpawn.Remove(maybe);
@@ -120,36 +118,37 @@ public class Spawner : MonoBehaviour
 
         timer += Time.deltaTime;
     }
+}
 
-    public class Notes
+public class Note
+{
+    public double Time { get; set; }
+    public double TimeInSeconds { get; set; }
+    public int LineIndex { get; set; }
+    public int LineLayer { get; set; }
+    public Type Hand { get; set; }
+    public CutDirection CutDirection { get; set; }
+
+    public override bool Equals(object obj)
     {
-        public double Time { get; set;}
-        public int LineIndex { get; set; }
-        public int LineLayer { get; set; }
-        public Type Hand { get; set; }
-        public CutDirection CutDirection { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            return Time == ((Notes)obj).Time && LineIndex == ((Notes)obj).LineIndex && LineLayer == ((Notes)obj).LineLayer;
-        }
+        return Time == ((Note)obj).Time && LineIndex == ((Note)obj).LineIndex && LineLayer == ((Note)obj).LineLayer;
     }
+}
 
-    public enum Type
-    {
-        LEFT = 0,
-        RIGHT = 1
-    }
+public enum Type
+{
+    LEFT = 0,
+    RIGHT = 1
+}
 
-    public enum CutDirection
-    {
-        TOP = 1,
-        BOTTOM = 0,
-        LEFT = 2,
-        RIGHT = 3,
-        TOPLEFT = 6,
-        TOPRIGHT = 7,
-        BOTTOMLEFT = 4,
-        BOTTOMRIGHT = 5
-    }
+public enum CutDirection
+{
+    TOP = 1,
+    BOTTOM = 0,
+    LEFT = 2,
+    RIGHT = 3,
+    TOPLEFT = 6,
+    TOPRIGHT = 7,
+    BOTTOMLEFT = 4,
+    BOTTOMRIGHT = 5
 }

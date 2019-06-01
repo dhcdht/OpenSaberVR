@@ -90,6 +90,7 @@ GameObject:
   - component: {fileID: 2267269557703769180}
   - component: {fileID: 2267269557703769183}
   - component: {fileID: 2267269557703769155}
+  - component: {fileID: 7735831082280574881}
   m_Layer: 8
   m_Name: Red Cube
   m_TagString: Untagged
@@ -177,8 +178,23 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2267269557703769182}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c047ee147e0fc1f4e9a62f676317c772, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7735831082280574881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2267269557703769182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6555c85f10c6e2d46a44fe1bec838b07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AnticipationPosition: 0
+  Speed: 0
+  WarmUpPosition: 0
