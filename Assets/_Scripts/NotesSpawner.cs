@@ -1,7 +1,6 @@
 ﻿using Boomlagoon.JSON;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 
 public class NotesSpawner : MonoBehaviour
@@ -9,7 +8,7 @@ public class NotesSpawner : MonoBehaviour
     public GameObject[] Cubes;
     public Transform[] SpawnPoints;
 
-    private string jsonString = File.ReadAllText(@"D:\Unity Projects\OpenSaber\Playlists\Cascada - Every Time We Touch.json");
+    private string jsonString = File.ReadAllText(@"D:\Unity Projects\OpenSaber\Assets\_Music\358-211\Bangarang\Expert.json");
     private List<Note> NotesToSpawn = new List<Note>();
     private double BeatsPerMinute;
 
@@ -154,5 +153,38 @@ public class NotesSpawner : MonoBehaviour
         handling.AnticipationPosition = (float) (-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET);
         handling.Speed = (float)beatSpeed;
         handling.WarmUpPosition = -beatWarmupTime * beatWarmupSpeed;
+    }
+
+    public class Note
+    {
+        public double Time { get; set; }
+        public double TimeInSeconds { get; set; }
+        public int LineIndex { get; set; }
+        public int LineLayer { get; set; }
+        public Type Hand { get; set; }
+        public CutDirection CutDirection { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return Time == ((Note)obj).Time && LineIndex == ((Note)obj).LineIndex && LineLayer == ((Note)obj).LineLayer;
+        }
+    }
+
+    public enum Type
+    {
+        LEFT = 0,
+        RIGHT = 1
+    }
+
+    public enum CutDirection
+    {
+        TOP = 1,
+        BOTTOM = 0,
+        LEFT = 2,
+        RIGHT = 3,
+        TOPLEFT = 6,
+        TOPRIGHT = 7,
+        BOTTOMLEFT = 4,
+        BOTTOMRIGHT = 5
     }
 }
