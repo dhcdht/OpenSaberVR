@@ -34,3 +34,6 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+Assets/_Music/
+Logs/
+Playlists/
