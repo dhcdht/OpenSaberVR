@@ -1,4 +1,15 @@
-﻿using Boomlagoon.JSON;
+﻿/*
+ * The spawner code and also the correct timing stuff was taken from the project:
+ * BeatSaver Viewer (https://github.com/supermedium/beatsaver-viewer) and ported to C#.
+ * 
+ * To be more precisly most of the code in the Update() method was ported to C# by me 
+ * from their project.
+ * 
+ * Without that project this project won't exist, so thank you very much for releasing 
+ * the source code under MIT license!
+ */
+
+using Boomlagoon.JSON;
 using System;
 using System.Collections.Generic;
 using System.IO;
