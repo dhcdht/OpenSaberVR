@@ -1,14 +1,17 @@
 ﻿using Boomlagoon.JSON;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class NotesSpawner : MonoBehaviour
 {
     public GameObject[] Cubes;
     public Transform[] SpawnPoints;
 
-    private string jsonString = File.ReadAllText(@"D:\Unity Projects\OpenSaber\Assets\_Music\358-211\Bangarang\Expert.json");
+    private string jsonString;
+    private string audioFilePath;
     private List<Note> NotesToSpawn = new List<Note>();
     private double BeatsPerMinute;
 
@@ -21,12 +24,52 @@ public class NotesSpawner : MonoBehaviour
     private double beatWarmupTime = BeatsConstants.BEAT_WARMUP_TIME / 1000;
     private double beatWarmupSpeed = BeatsConstants.BEAT_WARMUP_SPEED;
 
-    AudioSource audioSource;
+    private AudioSource audioSource;
 
-    // Start is called before the first frame update
     void Start()
     {
+        string path = Path.Combine(Application.dataPath + "/Playlists");
+        if (Directory.Exists(path))
+        {
+            foreach (var dir in Directory.GetDirectories(path))
+            {
+                if (Directory.Exists(dir))
+                {
+                    if(Directory.GetFiles(dir, "info.json").Length > 0)
+                    {
+                        JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir,"info.json")));
+                        var difficultiyLevels = infoFile.GetArray("difficultyLevels");
+                        foreach (var level in difficultiyLevels)
+                        {
+                            audioFilePath = Path.Combine(dir, level.Obj.GetString("audioPath"));
+                            jsonString = File.ReadAllText(Path.Combine(dir, level.Obj.GetString("jsonPath")));
+                            break;
+                        }
+                    }
+                }
+
+                if(!String.IsNullOrWhiteSpace(audioFilePath) || !String.IsNullOrWhiteSpace(jsonString))
+                {
+                    break;
+                }
+            } 
+        }
+
         audioSource = GetComponent<AudioSource>();
+
+        var www = new WWW("file:///" + audioFilePath);
+        var audioClip = www.GetAudioClip();
+        while (audioClip.loadState != AudioDataLoadState.Loaded)
+        {
+            if(audioClip.loadState == AudioDataLoadState.Failed)
+            {
+                Debug.Log("Can't load audio clip " + audioFilePath);
+                break;
+            }
+        }
+
+        audioSource.clip = audioClip; 
+
         JSONObject json = JSONObject.Parse(jsonString);
 
         var bpm = json.GetNumber("_beatsPerMinute");
@@ -39,7 +82,7 @@ public class NotesSpawner : MonoBehaviour
                 CutDirection = (CutDirection)note.Obj.GetNumber("_cutDirection"),
                 LineIndex = (int)note.Obj.GetNumber("_lineIndex"),
                 LineLayer = (int)note.Obj.GetNumber("_lineLayer"),
-                TimeInSeconds = (note.Obj.GetNumber("_time") / bpm) * 60, // -5
+                TimeInSeconds = (note.Obj.GetNumber("_time") / bpm) * 60,
                 Time = (note.Obj.GetNumber("_time"))
             };
 
@@ -47,10 +90,9 @@ public class NotesSpawner : MonoBehaviour
         }
 
         BeatsPerMinute = bpm;
-        BeatsPreloadTimeTotal = (beatAnticipationTime + beatWarmupTime);// * 1000;
+        BeatsPreloadTimeTotal = (beatAnticipationTime + beatWarmupTime);
     }
 
-    // Update is called once per frame
     void Update()
     {
         var prevBeatsTime = BeatsTime;
@@ -167,6 +209,18 @@ public class NotesSpawner : MonoBehaviour
         public override bool Equals(object obj)
         {
             return Time == ((Note)obj).Time && LineIndex == ((Note)obj).LineIndex && LineLayer == ((Note)obj).LineLayer;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -702342995;
+            hashCode = hashCode * -1521134295 + Time.GetHashCode();
+            hashCode = hashCode * -1521134295 + TimeInSeconds.GetHashCode();
+            hashCode = hashCode * -1521134295 + LineIndex.GetHashCode();
+            hashCode = hashCode * -1521134295 + LineLayer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Hand.GetHashCode();
+            hashCode = hashCode * -1521134295 + CutDirection.GetHashCode();
+            return hashCode;
         }
     }
 
