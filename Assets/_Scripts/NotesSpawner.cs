@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class NotesSpawner : MonoBehaviour
 {
@@ -19,10 +18,10 @@ public class NotesSpawner : MonoBehaviour
     private double? BeatsPreloadTime = 0;
     private double BeatsPreloadTimeTotal = 0;
 
-    private double beatAnticipationTime = 1.1;
-    private double beatSpeed = 8.0;
-    private double beatWarmupTime = BeatsConstants.BEAT_WARMUP_TIME / 1000;
-    private double beatWarmupSpeed = BeatsConstants.BEAT_WARMUP_SPEED;
+    private readonly double beatAnticipationTime = 1.1;
+    private readonly double beatSpeed = 8.0;
+    private readonly double beatWarmupTime = BeatsConstants.BEAT_WARMUP_TIME / 1000;
+    private readonly double beatWarmupSpeed = BeatsConstants.BEAT_WARMUP_SPEED;
 
     private AudioSource audioSource;
 
@@ -33,18 +32,15 @@ public class NotesSpawner : MonoBehaviour
         {
             foreach (var dir in Directory.GetDirectories(path))
             {
-                if (Directory.Exists(dir))
+                if (Directory.Exists(dir) && Directory.GetFiles(dir, "info.json").Length > 0)
                 {
-                    if(Directory.GetFiles(dir, "info.json").Length > 0)
+                    JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir, "info.json")));
+                    var difficultiyLevels = infoFile.GetArray("difficultyLevels");
+                    foreach (var level in difficultiyLevels)
                     {
-                        JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir,"info.json")));
-                        var difficultiyLevels = infoFile.GetArray("difficultyLevels");
-                        foreach (var level in difficultiyLevels)
-                        {
-                            audioFilePath = Path.Combine(dir, level.Obj.GetString("audioPath"));
-                            jsonString = File.ReadAllText(Path.Combine(dir, level.Obj.GetString("jsonPath")));
-                            break;
-                        }
+                        audioFilePath = Path.Combine(dir, level.Obj.GetString("audioPath"));
+                        jsonString = File.ReadAllText(Path.Combine(dir, level.Obj.GetString("jsonPath")));
+                        break;
                     }
                 }
 

@@ -6,13 +6,6 @@ public class CubeHandling : MonoBehaviour
     public float Speed;
     public double WarmUpPosition;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void LateUpdate()
     {
         if (transform.position.z < AnticipationPosition)
