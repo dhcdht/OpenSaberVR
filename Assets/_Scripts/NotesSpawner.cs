@@ -18,11 +18,13 @@ using UnityEngine;
 public class NotesSpawner : MonoBehaviour
 {
     public GameObject[] Cubes;
+    public GameObject Wall;
     public Transform[] SpawnPoints;
 
     private string jsonString;
     private string audioFilePath;
     private List<Note> NotesToSpawn = new List<Note>();
+    private List<Obstacle> ObstaclesToSpawn = new List<Obstacle>();
     private double BeatsPerMinute;
 
     private double BeatsTime = 0;
@@ -80,12 +82,14 @@ public class NotesSpawner : MonoBehaviour
         JSONObject json = JSONObject.Parse(jsonString);
 
         var bpm = json.GetNumber("_beatsPerMinute");
+
+        //Notes
         var notes = json.GetArray("_notes");
         foreach (var note in notes)
         {
             var n = new Note
             {
-                Hand = (Type)note.Obj.GetNumber("_type"),
+                Hand = (NoteType)note.Obj.GetNumber("_type"),
                 CutDirection = (CutDirection)note.Obj.GetNumber("_cutDirection"),
                 LineIndex = (int)note.Obj.GetNumber("_lineIndex"),
                 LineLayer = (int)note.Obj.GetNumber("_lineLayer"),
@@ -95,6 +99,23 @@ public class NotesSpawner : MonoBehaviour
 
             NotesToSpawn.Add(n);
         }
+
+        //Obstacles
+        //var obstacles = json.GetArray("_obstacles");
+        //foreach (var obstacle in obstacles)
+        //{
+        //    var o = new Obstacle
+        //    {
+        //        Type = (ObstacleType)obstacle.Obj.GetNumber("_type"),
+        //        Duration = obstacle.Obj.GetNumber("_duration"),
+        //        LineIndex = (int)obstacle.Obj.GetNumber("_lineIndex"),
+        //        TimeInSeconds = (obstacle.Obj.GetNumber("_time") / bpm) * 60,
+        //        Time = (obstacle.Obj.GetNumber("_time")),
+        //        Width = (obstacle.Obj.GetNumber("_width"))
+        //    };
+
+        //    ObstaclesToSpawn.Add(o);
+        //}
 
         BeatsPerMinute = bpm;
         BeatsPreloadTimeTotal = (beatAnticipationTime + beatWarmupTime);
@@ -117,6 +138,8 @@ public class NotesSpawner : MonoBehaviour
         }
 
         double msPerBeat = 1000 * 60 / BeatsPerMinute;
+
+        //Notes
         for (int i = 0; i < NotesToSpawn.Count; ++i)
         {
             var noteTime = NotesToSpawn[i].Time * msPerBeat;
@@ -126,6 +149,18 @@ public class NotesSpawner : MonoBehaviour
                 GenerateNote(NotesToSpawn[i]);
             }
         }
+
+        //Obstacles
+        for (int i = 0; i < ObstaclesToSpawn.Count; ++i)
+        {
+            var noteTime = ObstaclesToSpawn[i].Time * msPerBeat;
+            if (noteTime > prevBeatsTime && noteTime <= BeatsTime)
+            {
+                ObstaclesToSpawn[i].Time = noteTime;
+                GenerateObstacle(ObstaclesToSpawn[i]);
+            }
+        }
+
 
         if (BeatsPreloadTime == null) { return; }
 
@@ -204,13 +239,32 @@ public class NotesSpawner : MonoBehaviour
         handling.WarmUpPosition = -beatWarmupTime * beatWarmupSpeed;
     }
 
+    public void GenerateObstacle(Obstacle obstacle)
+    {
+        double WALL_THICKNESS = 0.5;
+
+        double durationSeconds = 60 * (obstacle.Duration / BeatsPerMinute);
+
+        GameObject wall = Instantiate(Wall, SpawnPoints[obstacle.LineIndex]);
+
+        var wallHandling = wall.GetComponent<ObstacleHandling>();
+        wallHandling.AnticipationPosition = (float)(-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET);
+        wallHandling.Speed = (float)beatSpeed;
+        wallHandling.WarmUpPosition = -beatWarmupTime * beatWarmupSpeed;
+        wallHandling.Width = obstacle.Width * WALL_THICKNESS;
+        wallHandling.Ceiling = obstacle.Type == ObstacleType.CEILING;
+        wallHandling.Duration = obstacle.Duration;
+
+        //wall.transform.localScale = new Vector3((float)wallHandling.Width, wall.transform.localScale.y, wall.transform.localScale.z);
+    }
+
     public class Note
     {
         public double Time { get; set; }
         public double TimeInSeconds { get; set; }
         public int LineIndex { get; set; }
         public int LineLayer { get; set; }
-        public Type Hand { get; set; }
+        public NoteType Hand { get; set; }
         public CutDirection CutDirection { get; set; }
 
         public override bool Equals(object obj)
@@ -231,7 +285,7 @@ public class NotesSpawner : MonoBehaviour
         }
     }
 
-    public enum Type
+    public enum NoteType
     {
         LEFT = 0,
         RIGHT = 1
@@ -248,4 +302,23 @@ public class NotesSpawner : MonoBehaviour
         BOTTOMLEFT = 4,
         BOTTOMRIGHT = 5
     }
+
+    public class Obstacle
+    {
+        internal double TimeInSeconds;
+        internal double Time;
+        internal int LineIndex;
+        internal double Duration;
+        internal ObstacleType Type;
+        internal double Width;
+    }
+
+    public enum ObstacleType
+    {
+        WALL = 0,
+        CEILING = 1
+    }
 }
+
+
+
