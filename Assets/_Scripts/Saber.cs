@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
-using EzySlice;
-using System.Linq;
 
 public class Saber : MonoBehaviour
 {
     public LayerMask layer;
     private Vector3 previousPos;
+    private Slice slicer;
+
+    private void Start()
+    {
+        slicer = GetComponentInChildren<Slice>();
+    }
 
     void Update()
     {
@@ -14,7 +18,7 @@ public class Saber : MonoBehaviour
         {
             if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130)
             {
-                var cutted = SliceObject(hit.transform.gameObject);
+                var cutted = slicer.SliceObject(hit.transform.gameObject);
                 var go = Instantiate(hit.transform.gameObject);
                
                 go.GetComponent<CubeHandling>().enabled = false;
@@ -43,18 +47,4 @@ public class Saber : MonoBehaviour
         previousPos = transform.position;
     }
 
-    public GameObject[] SliceObject(GameObject obj, Material crossSectionMaterial = null)
-    {
-        return obj.SliceInstantiate(transform.position, transform.up, crossSectionMaterial);
-    }
-
-#if UNITY_EDITOR
-    public void OnDrawGizmos()
-    {
-        EzySlice.Plane cuttingPlane = new EzySlice.Plane();
-        cuttingPlane.Compute(transform);
-        cuttingPlane.OnDebugDraw();
-    }
-
-#endif
 }
