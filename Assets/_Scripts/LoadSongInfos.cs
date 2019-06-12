@@ -7,10 +7,21 @@ using UnityEngine.UI;
 public class LoadSongInfos : MonoBehaviour
 {
     public List<Song> AllSongs = new List<Song>();
-    public int CurrentSong = 0;
+    public int CurrentSong
+    {
+        get
+        {
+            return Songsettings.CurrentSongIndex;
+        }
+        set
+        {
+            Songsettings.CurrentSongIndex = value;
+        }
+    }
 
     public RawImage Cover;
     public Text Description;
+    public SongSettings Songsettings;
 
     private void OnEnable()
     {
@@ -46,10 +57,12 @@ public class LoadSongInfos : MonoBehaviour
     public Song NextSong()
     {
         CurrentSong++;
-        if(CurrentSong > AllSongs.Count)
+        if(CurrentSong > AllSongs.Count - 1)
         {
             CurrentSong = 0;
         }
+
+        Songsettings.CurrentSong = AllSongs[CurrentSong];
 
         return AllSongs[CurrentSong];
     }
@@ -62,6 +75,8 @@ public class LoadSongInfos : MonoBehaviour
             CurrentSong = AllSongs.Count - 1;
         }
 
+        Songsettings.CurrentSong = AllSongs[CurrentSong];
+
         return AllSongs[CurrentSong];
     }
 
@@ -69,14 +84,14 @@ public class LoadSongInfos : MonoBehaviour
     {
         return AllSongs[CurrentSong];
     }
+}
 
-    public class Song
-    {
-        public string Path { get; set; }
-        public string Name { get; set; }
-        public string SubName {get;set;}
-        public string BPM { get; set; }
-        public string CoverImagePath { get; set; }
-        public List<string> Difficulties { get; set; }
-    }
+public class Song
+{
+    public string Path { get; set; }
+    public string Name { get; set; }
+    public string SubName { get; set; }
+    public string BPM { get; set; }
+    public string CoverImagePath { get; set; }
+    public List<string> Difficulties { get; set; }
 }

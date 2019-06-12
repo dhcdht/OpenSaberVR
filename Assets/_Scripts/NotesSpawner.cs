@@ -38,30 +38,25 @@ public class NotesSpawner : MonoBehaviour
 
     private AudioSource audioSource;
 
+    private SongSettings Songsettings;
+
     void Start()
     {
-        string path = Path.Combine(Application.dataPath + "/Playlists");
+        Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        string path = Songsettings.CurrentSong.Path;
         if (Directory.Exists(path))
         {
-            foreach (var dir in Directory.GetDirectories(path))
+            if (Directory.GetFiles(path, "info.json").Length > 0)
             {
-                if (Directory.Exists(dir) && Directory.GetFiles(dir, "info.json").Length > 0)
+                JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(path, "info.json")));
+                var difficultiyLevels = infoFile.GetArray("difficultyLevels");
+                foreach (var level in difficultiyLevels)
                 {
-                    JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir, "info.json")));
-                    var difficultiyLevels = infoFile.GetArray("difficultyLevels");
-                    foreach (var level in difficultiyLevels)
-                    {
-                        audioFilePath = Path.Combine(dir, level.Obj.GetString("audioPath"));
-                        jsonString = File.ReadAllText(Path.Combine(dir, level.Obj.GetString("jsonPath")));
-                        break;
-                    }
-                }
-
-                if(!String.IsNullOrWhiteSpace(audioFilePath) || !String.IsNullOrWhiteSpace(jsonString))
-                {
+                    audioFilePath = Path.Combine(path, level.Obj.GetString("audioPath"));
+                    jsonString = File.ReadAllText(Path.Combine(path, level.Obj.GetString("jsonPath")));
                     break;
                 }
-            } 
+            }
         }
 
         audioSource = GetComponent<AudioSource>();
