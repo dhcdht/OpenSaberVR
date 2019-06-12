@@ -21,7 +21,12 @@ public class LoadSongInfos : MonoBehaviour
 
     public RawImage Cover;
     public Text Description;
-    public SongSettings Songsettings;
+    private SongSettings Songsettings;
+
+    private void Awake()
+    {
+        Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+    }
 
     private void OnEnable()
     {

@@ -11,9 +11,11 @@
 
 using Boomlagoon.JSON;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NotesSpawner : MonoBehaviour
 {
@@ -39,6 +41,7 @@ public class NotesSpawner : MonoBehaviour
     private AudioSource audioSource;
 
     private SongSettings Songsettings;
+    private bool menuLoadInProgress = false;
 
     void Start()
     {
@@ -123,7 +126,14 @@ public class NotesSpawner : MonoBehaviour
         if (BeatsPreloadTime == null)
         {
             if (!audioSource.isPlaying)
+            {
+                if (!menuLoadInProgress)
+                {
+                    menuLoadInProgress = true;
+                    StartCoroutine(LoadMenu());
+                }
                 return;
+            }
 
             BeatsTime = (audioSource.time + beatAnticipationTime + beatWarmupTime) * 1000;
         }
@@ -156,7 +166,6 @@ public class NotesSpawner : MonoBehaviour
             }
         }
 
-
         if (BeatsPreloadTime == null) { return; }
 
         if (BeatsPreloadTime.Value >= BeatsPreloadTimeTotal)
@@ -170,6 +179,12 @@ public class NotesSpawner : MonoBehaviour
             // Continue preload.
             BeatsPreloadTime += Time.deltaTime;
         }
+    }
+
+    IEnumerator LoadMenu()
+    {
+        yield return new WaitForSeconds(5);
+        SceneManager.LoadScene("Menu", LoadSceneMode.Single);
     }
 
     void GenerateNote(Note note)

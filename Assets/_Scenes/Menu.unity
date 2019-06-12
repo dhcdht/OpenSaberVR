@@ -361,7 +361,7 @@ Transform:
   m_GameObject: {fileID: 242257814}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.51, z: 12.79}
-  m_LocalScale: {x: 30, y: 30, z: 100}
+  m_LocalScale: {x: 30, y: 30, z: 160.75}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -1866,8 +1866,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1064304044}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.3888655, y: -3.0748065, z: 5.9684362}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -2.3888655, y: -3.0748065, z: 1.7756}
+  m_LocalScale: {x: 1, y: 1, z: 1.6146}
   m_Children:
   - {fileID: 1800072997}
   - {fileID: 1956182343}
@@ -1978,8 +1978,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305562545}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.3888655, y: -3.0748065, z: 5.9684362}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -2.3888655, y: -3.0748065, z: 1.7756}
+  m_LocalScale: {x: 1, y: 1, z: 1.6146}
   m_Children:
   - {fileID: 1347135496}
   - {fileID: 425413431}
@@ -2463,6 +2463,19 @@ MonoBehaviour:
   _head: {fileID: 1719034717}
   _ears: {fileID: 885015545}
   wireframe: 0
+--- !u!114 &1845700146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1845700128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: c5db7bd10fb06224f9f37bc358b18717, type: 2}
 --- !u!1 &1883786150
 GameObject:
   m_ObjectHideFlags: 0
@@ -2959,7 +2972,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Cover: {fileID: 2053387501}
   Description: {fileID: 1781341881}
-  Songsettings: {fileID: 1684214072}
 --- !u!222 &2098133050
 CanvasRenderer:
   m_ObjectHideFlags: 0
