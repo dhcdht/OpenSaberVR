@@ -99,4 +99,5 @@ public class Song
     public string BPM { get; set; }
     public string CoverImagePath { get; set; }
     public List<string> Difficulties { get; set; }
+    public string SelectedDifficulty { get; set; }
 }
