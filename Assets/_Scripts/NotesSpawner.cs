@@ -55,9 +55,12 @@ public class NotesSpawner : MonoBehaviour
                 var difficultiyLevels = infoFile.GetArray("difficultyLevels");
                 foreach (var level in difficultiyLevels)
                 {
-                    audioFilePath = Path.Combine(path, level.Obj.GetString("audioPath"));
-                    jsonString = File.ReadAllText(Path.Combine(path, level.Obj.GetString("jsonPath")));
-                    break;
+                    if (level.Obj.GetString("difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
+                    {
+                        audioFilePath = Path.Combine(path, level.Obj.GetString("audioPath"));
+                        jsonString = File.ReadAllText(Path.Combine(path, level.Obj.GetString("jsonPath")));
+                        break;
+                    }
                 }
             }
         }

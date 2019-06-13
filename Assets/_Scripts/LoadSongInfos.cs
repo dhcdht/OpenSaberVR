@@ -56,6 +56,13 @@ public class LoadSongInfos : MonoBehaviour
                     AllSongs.Add(song);
                 }
             }
+
+            // TODO, must be changed
+            if (AllSongs != null && AllSongs.Count > 1)
+            {
+                CurrentSong = 0;
+                Songsettings.CurrentSong = AllSongs[CurrentSong];
+            }
         }
     }
 
@@ -69,7 +76,7 @@ public class LoadSongInfos : MonoBehaviour
 
         Songsettings.CurrentSong = AllSongs[CurrentSong];
 
-        return AllSongs[CurrentSong];
+        return Songsettings.CurrentSong;
     }
 
     public Song PreviousSong()
@@ -82,12 +89,12 @@ public class LoadSongInfos : MonoBehaviour
 
         Songsettings.CurrentSong = AllSongs[CurrentSong];
 
-        return AllSongs[CurrentSong];
+        return Songsettings.CurrentSong;
     }
 
     public Song GetCurrentSong()
     {
-        return AllSongs[CurrentSong];
+        return Songsettings.CurrentSong;
     }
 }
 
