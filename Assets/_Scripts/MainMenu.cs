@@ -11,10 +11,12 @@ public class MainMenu : MonoBehaviour
     public GameObject PanelAreYouSure;
     public GameObject LevelChooser;
     public GameObject LevelButtonTemplate;
+    public GameObject Title;
     private string InitialDescription = String.Empty;
 
     public void ShowSongs()
     {
+        Title.gameObject.SetActive(false);
         PanelAreYouSure.gameObject.SetActive(false);
         LevelChooser.gameObject.SetActive(false);
         SongChooser.gameObject.SetActive(true);
@@ -132,6 +134,7 @@ public class MainMenu : MonoBehaviour
 
     public void AreYouSure()
     {
+        Title.gameObject.SetActive(false);
         SongChooser.gameObject.SetActive(false);
         LevelChooser.gameObject.SetActive(false);
         PanelAreYouSure.gameObject.SetActive(true);
@@ -140,6 +143,7 @@ public class MainMenu : MonoBehaviour
     public void No()
     {
         PanelAreYouSure.gameObject.SetActive(false);
+        Title.gameObject.SetActive(true);
     }
 
     public void Yes()
