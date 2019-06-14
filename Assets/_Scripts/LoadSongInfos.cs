@@ -35,22 +35,25 @@ public class LoadSongInfos : MonoBehaviour
         {
             foreach (var dir in Directory.GetDirectories(path))
             {
-                if (Directory.Exists(dir) && Directory.GetFiles(dir, "info.json").Length > 0)
+                if (Directory.Exists(dir) && Directory.GetFiles(dir, "info.dat").Length > 0)
                 {
-                    JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir, "info.json")));
+                    JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir, "info.dat")));
 
                     var song = new Song();
                     song.Path = dir;
-                    song.Name = infoFile.GetString("songName");
-                    song.SubName = infoFile.GetString("songSubName");
-                    song.BPM = infoFile.GetNumber("beatsPerMinute").ToString();
-                    song.CoverImagePath = Path.Combine(dir, infoFile.GetString("coverImagePath"));
+                    song.Name = infoFile.GetString("_songName");
+                    song.SubName = infoFile.GetString("_songSubName");
+                    song.BPM = infoFile.GetNumber("_beatsPerMinute").ToString();
+                    song.CoverImagePath = Path.Combine(dir, infoFile.GetString("_coverImageFilename"));
                     song.Difficulties = new List<string>();
 
-                    var difficultiyLevels = infoFile.GetArray("difficultyLevels");
-                    foreach (var level in difficultiyLevels)
+                    var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
+                    foreach (var beatmapSets in difficultyBeatmapSets)
                     {
-                        song.Difficulties.Add(level.Obj.GetString("difficulty"));
+                        foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
+                        {
+                            song.Difficulties.Add(difficultyBeatmaps.Obj.GetString("_difficulty"));
+                        }
                     }
 
                     AllSongs.Add(song);

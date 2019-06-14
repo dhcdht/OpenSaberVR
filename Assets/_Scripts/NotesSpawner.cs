@@ -49,17 +49,21 @@ public class NotesSpawner : MonoBehaviour
         string path = Songsettings.CurrentSong.Path;
         if (Directory.Exists(path))
         {
-            if (Directory.GetFiles(path, "info.json").Length > 0)
+            if (Directory.GetFiles(path, "info.dat").Length > 0)
             {
-                JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(path, "info.json")));
-                var difficultiyLevels = infoFile.GetArray("difficultyLevels");
-                foreach (var level in difficultiyLevels)
+                JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(path, "info.dat")));
+
+                var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
+                foreach (var beatmapSets in difficultyBeatmapSets)
                 {
-                    if (level.Obj.GetString("difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
+                    foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
                     {
-                        audioFilePath = Path.Combine(path, level.Obj.GetString("audioPath"));
-                        jsonString = File.ReadAllText(Path.Combine(path, level.Obj.GetString("jsonPath")));
-                        break;
+                        if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
+                        {
+                            audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
+                            jsonString = File.ReadAllText(Path.Combine(path, difficultyBeatmaps.Obj.GetString("_beatmapFilename")));
+                            break;
+                        }
                     }
                 }
             }
@@ -68,7 +72,7 @@ public class NotesSpawner : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         var www = new WWW("file:///" + audioFilePath);
-        var audioClip = www.GetAudioClip();
+        var audioClip = www.GetAudioClip(true, false, AudioType.OGGVORBIS);
         while (audioClip.loadState != AudioDataLoadState.Loaded)
         {
             if(audioClip.loadState == AudioDataLoadState.Failed)
@@ -82,7 +86,7 @@ public class NotesSpawner : MonoBehaviour
 
         JSONObject json = JSONObject.Parse(jsonString);
 
-        var bpm = json.GetNumber("_beatsPerMinute");
+        var bpm = Convert.ToDouble(Songsettings.CurrentSong.BPM);
 
         //Notes
         var notes = json.GetArray("_notes");
