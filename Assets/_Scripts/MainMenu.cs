@@ -108,13 +108,13 @@ public class MainMenu : MonoBehaviour
                 case 3:
                     buttonsCreated[0].GetComponent<RectTransform>().localPosition = new Vector3(-287, buttonsCreated[0].GetComponent<RectTransform>().position.y);
                     buttonsCreated[1].GetComponent<RectTransform>().localPosition = new Vector3(0, buttonsCreated[1].GetComponent<RectTransform>().position.y);
-                    buttonsCreated[3].GetComponent<RectTransform>().localPosition = new Vector3(287, buttonsCreated[3].GetComponent<RectTransform>().position.y);
+                    buttonsCreated[2].GetComponent<RectTransform>().localPosition = new Vector3(287, buttonsCreated[2].GetComponent<RectTransform>().position.y);
                     break;
                 case 4:
                     buttonsCreated[0].GetComponent<RectTransform>().localPosition = new Vector3(-430, buttonsCreated[0].GetComponent<RectTransform>().localPosition.y);
                     buttonsCreated[1].GetComponent<RectTransform>().localPosition = new Vector3(-144, buttonsCreated[1].GetComponent<RectTransform>().localPosition.y);
-                    buttonsCreated[3].GetComponent<RectTransform>().localPosition = new Vector3(144, buttonsCreated[3].GetComponent<RectTransform>().localPosition.y);
-                    buttonsCreated[4].GetComponent<RectTransform>().localPosition = new Vector3(430, buttonsCreated[4].GetComponent<RectTransform>().localPosition.y);
+                    buttonsCreated[2].GetComponent<RectTransform>().localPosition = new Vector3(144, buttonsCreated[2].GetComponent<RectTransform>().localPosition.y);
+                    buttonsCreated[3].GetComponent<RectTransform>().localPosition = new Vector3(430, buttonsCreated[3].GetComponent<RectTransform>().localPosition.y);
                     break;
                 default:
                     break;
