@@ -23,14 +23,14 @@ public class MainMenu : MonoBehaviour
 
     public void ShowSongs()
     {
-        Songsettings.CurrentSong = SongInfos.AllSongs[SongInfos.CurrentSong];
-
         if (SongInfos.AllSongs.Count == 0)
         {
             Title.gameObject.SetActive(false);
             NoSongsFound.gameObject.SetActive(true);
             return;
         }
+
+        Songsettings.CurrentSong = SongInfos.AllSongs[SongInfos.CurrentSong];
 
         Title.gameObject.SetActive(false);
         PanelAreYouSure.gameObject.SetActive(false);
