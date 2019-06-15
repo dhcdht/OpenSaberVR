@@ -20,7 +20,10 @@ public class LoadSongInfos : MonoBehaviour
     }
 
     public RawImage Cover;
-    public Text Description;
+    public Text SongName;
+    public Text Artist;
+    public Text BPM;
+    public Text Levels;
     private SongSettings Songsettings;
 
     private void Awake()
@@ -58,13 +61,6 @@ public class LoadSongInfos : MonoBehaviour
 
                     AllSongs.Add(song);
                 }
-            }
-
-            // TODO, must be changed
-            if (AllSongs != null && AllSongs.Count > 1)
-            {
-                CurrentSong = 0;
-                Songsettings.CurrentSong = AllSongs[CurrentSong];
             }
         }
     }

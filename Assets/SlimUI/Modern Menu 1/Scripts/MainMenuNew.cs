@@ -64,10 +64,6 @@ public class MainMenuNew : MonoBehaviour {
 	[Tooltip("Highlight Image for when GENERAL Sub-Tab is selected in KEY BINDINGS")]
 	public GameObject lineGeneral;
 
-    public GameObject SongChooser;
-    public LoadSongInfos SongInfos;
-    private string InitialDescription;
-
     void Start(){
 		//CameraObject = transform.GetComponent<Animator>();
 	}
@@ -78,61 +74,6 @@ public class MainMenuNew : MonoBehaviour {
 		newGameBtn.gameObject.SetActive(true);
 		loadGameBtn.gameObject.SetActive(true);
 	}
-
-    public void ShowSongs()
-    {
-        SongChooser.gameObject.SetActive(true);
-        var song = SongInfos.GetCurrentSong();
-
-        var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        InitialDescription = chooser.Description.text;
-        chooser.Description.text = String.Format(chooser.Description.text, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
-
-        WWW www = new WWW("file:///" + song.CoverImagePath);
-        while (!www.isDone)
-        {
-            
-        }
-        
-        chooser.Cover.texture = www.texture;
-    }
-
-    public void NextSong()
-    {
-        var song = SongInfos.NextSong();
-
-        var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
-
-        WWW www = new WWW("file:///" + song.CoverImagePath);
-        while (!www.isDone)
-        {
-
-        }
-
-        chooser.Cover.texture = www.texture;
-    }
-
-    public void PreviousSong()
-    {
-        var song = SongInfos.PreviousSong();
-
-        var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
-
-        WWW www = new WWW("file:///" + song.CoverImagePath);
-        while (!www.isDone)
-        {
-
-        }
-
-        chooser.Cover.texture = www.texture;
-    }
-
-    public void LoadSong()
-    {
-        SceneManager.LoadScene("OpenSaber", LoadSceneMode.Single);
-    }
 
     public void NewGame(){
 		if(sceneName != ""){

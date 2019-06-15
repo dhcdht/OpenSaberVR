@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -13,16 +13,24 @@ public class MainMenu : MonoBehaviour
     public GameObject LevelButtonTemplate;
     public GameObject Title;
     public GameObject NoSongsFound;
-    private string InitialDescription = String.Empty;
+
+    private SongSettings Songsettings;
+
+    private void Awake()
+    {
+        Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+    }
 
     public void ShowSongs()
     {
-        //if (SongInfos.AllSongs.Count == 0)
-        //{
-        //    Title.gameObject.SetActive(false);
-        //    NoSongsFound.gameObject.SetActive(true);
-        //    return;
-        //}
+        Songsettings.CurrentSong = SongInfos.AllSongs[SongInfos.CurrentSong];
+
+        if (SongInfos.AllSongs.Count == 0)
+        {
+            Title.gameObject.SetActive(false);
+            NoSongsFound.gameObject.SetActive(true);
+            return;
+        }
 
         Title.gameObject.SetActive(false);
         PanelAreYouSure.gameObject.SetActive(false);
@@ -30,51 +38,57 @@ public class MainMenu : MonoBehaviour
         SongChooser.gameObject.SetActive(true);
         var song = SongInfos.GetCurrentSong();
 
-        var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        if (String.IsNullOrWhiteSpace(InitialDescription))
-            InitialDescription = chooser.Description.text;
+        SongInfos.SongName.text = song.Name;
+        SongInfos.Artist.text = song.AuthorName;
+        SongInfos.BPM.text = song.BPM;
+        SongInfos.Levels.text = song.Difficulties.Count.ToString();
 
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
+        byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
+        Texture2D sampleTexture = new Texture2D(2, 2);
+        bool isLoaded = sampleTexture.LoadImage(byteArray);
 
-        WWW www = new WWW("file:///" + song.CoverImagePath);
-        while (!www.isDone)
+        if (isLoaded)
         {
-
+            SongInfos.Cover.texture = sampleTexture;
         }
-
-        chooser.Cover.texture = www.texture;
     }
 
     public void NextSong()
     {
         var song = SongInfos.NextSong();
 
-        var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
+        SongInfos.SongName.text = song.Name;
+        SongInfos.Artist.text = song.AuthorName;
+        SongInfos.BPM.text = song.BPM;
+        SongInfos.Levels.text = song.Difficulties.Count.ToString();
 
-        WWW www = new WWW("file:///" + song.CoverImagePath);
-        while (!www.isDone)
+        byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
+        Texture2D sampleTexture = new Texture2D(2, 2);
+        bool isLoaded = sampleTexture.LoadImage(byteArray);
+
+        if (isLoaded)
         {
-
+            SongInfos.Cover.texture = sampleTexture;
         }
-
-        chooser.Cover.texture = www.texture;
     }
 
     public void PreviousSong()
     {
         var song = SongInfos.PreviousSong();
 
-        var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
+        SongInfos.SongName.text = song.Name;
+        SongInfos.Artist.text = song.AuthorName;
+        SongInfos.BPM.text = song.BPM;
+        SongInfos.Levels.text = song.Difficulties.Count.ToString();
 
-        WWW www = new WWW("file:///" + song.CoverImagePath);
-        while (!www.isDone)
+        byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
+        Texture2D sampleTexture = new Texture2D(2, 2);
+        bool isLoaded = sampleTexture.LoadImage(byteArray);
+
+        if (isLoaded)
         {
-
+            SongInfos.Cover.texture = sampleTexture;
         }
-
-        chooser.Cover.texture = www.texture;
     }
 
     public void LoadSong()
