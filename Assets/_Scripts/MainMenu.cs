@@ -12,10 +12,18 @@ public class MainMenu : MonoBehaviour
     public GameObject LevelChooser;
     public GameObject LevelButtonTemplate;
     public GameObject Title;
+    public GameObject NoSongsFound;
     private string InitialDescription = String.Empty;
 
     public void ShowSongs()
     {
+        //if (SongInfos.AllSongs.Count == 0)
+        //{
+        //    Title.gameObject.SetActive(false);
+        //    NoSongsFound.gameObject.SetActive(true);
+        //    return;
+        //}
+
         Title.gameObject.SetActive(false);
         PanelAreYouSure.gameObject.SetActive(false);
         LevelChooser.gameObject.SetActive(false);
@@ -26,7 +34,7 @@ public class MainMenu : MonoBehaviour
         if (String.IsNullOrWhiteSpace(InitialDescription))
             InitialDescription = chooser.Description.text;
 
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.SubName, song.BPM, song.Difficulties.Count);
+        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
 
         WWW www = new WWW("file:///" + song.CoverImagePath);
         while (!www.isDone)
@@ -42,7 +50,7 @@ public class MainMenu : MonoBehaviour
         var song = SongInfos.NextSong();
 
         var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.SubName, song.BPM, song.Difficulties.Count);
+        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
 
         WWW www = new WWW("file:///" + song.CoverImagePath);
         while (!www.isDone)
@@ -58,7 +66,7 @@ public class MainMenu : MonoBehaviour
         var song = SongInfos.PreviousSong();
 
         var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.SubName, song.BPM, song.Difficulties.Count);
+        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
 
         WWW www = new WWW("file:///" + song.CoverImagePath);
         while (!www.isDone)
@@ -134,6 +142,7 @@ public class MainMenu : MonoBehaviour
 
     public void AreYouSure()
     {
+        NoSongsFound.gameObject.SetActive(false);
         Title.gameObject.SetActive(false);
         SongChooser.gameObject.SetActive(false);
         LevelChooser.gameObject.SetActive(false);

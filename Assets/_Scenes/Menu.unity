@@ -819,17 +819,25 @@ PrefabInstance:
       propertyPath: m_isInputParsingRequired
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 1169934543, guid: 37d6f3449994d7d45bbd24d84c2c6626, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3836919870330003582, guid: 37d6f3449994d7d45bbd24d84c2c6626,
+    - target: {fileID: 8871409089122566221, guid: 37d6f3449994d7d45bbd24d84c2c6626,
         type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
+      propertyPath: SongInfos
+      value: 
+      objectReference: {fileID: 770543025}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37d6f3449994d7d45bbd24d84c2c6626, type: 3}
+--- !u!114 &770543025 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2098133049, guid: 37d6f3449994d7d45bbd24d84c2c6626,
+    type: 3}
+  m_PrefabInstance: {fileID: 770543024}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18e69b8e5ac72ac44ba38607a171ecd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &885015545 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 439042, guid: 4d293c8e162f3874b982baadd71153d2,

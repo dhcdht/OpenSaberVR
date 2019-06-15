@@ -86,7 +86,7 @@ public class MainMenuNew : MonoBehaviour {
 
         var chooser = SongChooser.GetComponent<LoadSongInfos>();
         InitialDescription = chooser.Description.text;
-        chooser.Description.text = String.Format(chooser.Description.text, song.Name, song.SubName, song.BPM, song.Difficulties.Count);
+        chooser.Description.text = String.Format(chooser.Description.text, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
 
         WWW www = new WWW("file:///" + song.CoverImagePath);
         while (!www.isDone)
@@ -102,7 +102,7 @@ public class MainMenuNew : MonoBehaviour {
         var song = SongInfos.NextSong();
 
         var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.SubName, song.BPM, song.Difficulties.Count);
+        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
 
         WWW www = new WWW("file:///" + song.CoverImagePath);
         while (!www.isDone)
@@ -118,7 +118,7 @@ public class MainMenuNew : MonoBehaviour {
         var song = SongInfos.PreviousSong();
 
         var chooser = SongChooser.GetComponent<LoadSongInfos>();
-        chooser.Description.text = String.Format(InitialDescription, song.Name, song.SubName, song.BPM, song.Difficulties.Count);
+        chooser.Description.text = String.Format(InitialDescription, song.Name, song.AuthorName, song.BPM, song.Difficulties.Count);
 
         WWW www = new WWW("file:///" + song.CoverImagePath);
         while (!www.isDone)

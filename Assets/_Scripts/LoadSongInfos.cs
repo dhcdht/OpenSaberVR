@@ -42,7 +42,7 @@ public class LoadSongInfos : MonoBehaviour
                     var song = new Song();
                     song.Path = dir;
                     song.Name = infoFile.GetString("_songName");
-                    song.SubName = infoFile.GetString("_songSubName");
+                    song.AuthorName = infoFile.GetString("_songAuthorName");
                     song.BPM = infoFile.GetNumber("_beatsPerMinute").ToString();
                     song.CoverImagePath = Path.Combine(dir, infoFile.GetString("_coverImageFilename"));
                     song.Difficulties = new List<string>();
@@ -105,7 +105,7 @@ public class Song
 {
     public string Path { get; set; }
     public string Name { get; set; }
-    public string SubName { get; set; }
+    public string AuthorName { get; set; }
     public string BPM { get; set; }
     public string CoverImagePath { get; set; }
     public List<string> Difficulties { get; set; }
