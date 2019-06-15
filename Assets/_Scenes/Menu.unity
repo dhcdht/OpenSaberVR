@@ -807,10 +807,6 @@ PrefabInstance:
       propertyPath: m_isInputParsingRequired
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 895749794, guid: 37d6f3449994d7d45bbd24d84c2c6626, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 895749797, guid: 37d6f3449994d7d45bbd24d84c2c6626, type: 3}
       propertyPath: m_Mesh
       value: 
