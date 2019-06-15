@@ -1,0 +1,31 @@
+*******************************************
+
+Thank you for downloading the Modern UI Menu Template! We hope that you find 
+it easy to use and easy to implement into your game! 
+
+If you want to learn how to make this project from scratch, I have a 
+YouTube tutorial series that walks you through every step. This version 
+has been converted to C# but the YouTube version was written in JavaScript 
+since it was a while ago. The base scripts are all there and you can 
+customize them as you wish. This project is free to use and I hope to see 
+somecool variations of it in the future!
+
+*******************************************
+
+Here are the links to the 4 part series:
+
+Part 1: https://www.youtube.com/watch?v=54of3yxrEGI&t=
+Part 2: https://www.youtube.com/watch?v=B4zwO0fPbEo&t=
+Part 3: https://www.youtube.com/watch?v=gXiibrLE5KE&t=
+Part 4: https://www.youtube.com/watch?v=69BfFxCqRAY&t=
+
+*******************************************
+*******************************************
+
+For questions about the asset or support, please email me at: andrei@shulgach.com
+For the Online Documentation, select "SlimUI Online Documentation" under the "Window" Tab
+
+*******************************************
+*******************************************
+
+Version 1.0.5

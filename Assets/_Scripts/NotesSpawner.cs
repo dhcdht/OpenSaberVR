@@ -11,9 +11,11 @@
 
 using Boomlagoon.JSON;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NotesSpawner : MonoBehaviour
 {
@@ -38,36 +40,39 @@ public class NotesSpawner : MonoBehaviour
 
     private AudioSource audioSource;
 
+    private SongSettings Songsettings;
+    private bool menuLoadInProgress = false;
+
     void Start()
     {
-        string path = Path.Combine(Application.dataPath + "/Playlists");
+        Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        string path = Songsettings.CurrentSong.Path;
         if (Directory.Exists(path))
         {
-            foreach (var dir in Directory.GetDirectories(path))
+            if (Directory.GetFiles(path, "info.dat").Length > 0)
             {
-                if (Directory.Exists(dir) && Directory.GetFiles(dir, "info.json").Length > 0)
+                JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(path, "info.dat")));
+
+                var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
+                foreach (var beatmapSets in difficultyBeatmapSets)
                 {
-                    JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir, "info.json")));
-                    var difficultiyLevels = infoFile.GetArray("difficultyLevels");
-                    foreach (var level in difficultiyLevels)
+                    foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
                     {
-                        audioFilePath = Path.Combine(dir, level.Obj.GetString("audioPath"));
-                        jsonString = File.ReadAllText(Path.Combine(dir, level.Obj.GetString("jsonPath")));
-                        break;
+                        if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
+                        {
+                            audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
+                            jsonString = File.ReadAllText(Path.Combine(path, difficultyBeatmaps.Obj.GetString("_beatmapFilename")));
+                            break;
+                        }
                     }
                 }
-
-                if(!String.IsNullOrWhiteSpace(audioFilePath) || !String.IsNullOrWhiteSpace(jsonString))
-                {
-                    break;
-                }
-            } 
+            }
         }
 
         audioSource = GetComponent<AudioSource>();
 
         var www = new WWW("file:///" + audioFilePath);
-        var audioClip = www.GetAudioClip();
+        var audioClip = www.GetAudioClip(true, false, AudioType.OGGVORBIS);
         while (audioClip.loadState != AudioDataLoadState.Loaded)
         {
             if(audioClip.loadState == AudioDataLoadState.Failed)
@@ -81,7 +86,7 @@ public class NotesSpawner : MonoBehaviour
 
         JSONObject json = JSONObject.Parse(jsonString);
 
-        var bpm = json.GetNumber("_beatsPerMinute");
+        var bpm = Convert.ToDouble(Songsettings.CurrentSong.BPM);
 
         //Notes
         var notes = json.GetArray("_notes");
@@ -128,7 +133,14 @@ public class NotesSpawner : MonoBehaviour
         if (BeatsPreloadTime == null)
         {
             if (!audioSource.isPlaying)
+            {
+                if (!menuLoadInProgress)
+                {
+                    menuLoadInProgress = true;
+                    StartCoroutine(LoadMenu());
+                }
                 return;
+            }
 
             BeatsTime = (audioSource.time + beatAnticipationTime + beatWarmupTime) * 1000;
         }
@@ -161,7 +173,6 @@ public class NotesSpawner : MonoBehaviour
             }
         }
 
-
         if (BeatsPreloadTime == null) { return; }
 
         if (BeatsPreloadTime.Value >= BeatsPreloadTimeTotal)
@@ -175,6 +186,12 @@ public class NotesSpawner : MonoBehaviour
             // Continue preload.
             BeatsPreloadTime += Time.deltaTime;
         }
+    }
+
+    IEnumerator LoadMenu()
+    {
+        yield return new WaitForSeconds(5);
+        SceneManager.LoadScene("Menu", LoadSceneMode.Single);
     }
 
     void GenerateNote(Note note)
