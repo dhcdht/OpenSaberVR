@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using VRTK;
 
 public class Saber : MonoBehaviour
 {
@@ -6,9 +7,25 @@ public class Saber : MonoBehaviour
     private Vector3 previousPos;
     private Slice slicer;
 
+    private float impactMagnifier = 120f;
+    private float collisionForce = 0f;
+    private float maxCollisionForce = 4000f;
+    private VRTK_ControllerReference controllerReference;
+
     private void Start()
     {
         slicer = GetComponentInChildren<Slice>();
+        controllerReference = VRTK_ControllerReference.GetControllerReference(GetComponentInChildren<VRTK_ControllerEvents>().gameObject);
+    }
+
+    private void Pulse()
+    {
+        if (VRTK_ControllerReference.IsValid(controllerReference))
+        {
+            collisionForce = VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier;
+            var hapticStrength = collisionForce / maxCollisionForce;
+            VRTK_ControllerHaptics.TriggerHapticPulse(controllerReference, hapticStrength, 0.5f, 0.01f);
+        }
     }
 
     void Update()
@@ -40,11 +57,12 @@ public class Saber : MonoBehaviour
 
                 go.transform.SetPositionAndRotation(hit.transform.position, hit.transform.rotation);
 
+                Pulse();
+
                 Destroy(hit.transform.gameObject);
                 Destroy(go, 2f);
             }
         }
         previousPos = transform.position;
     }
-
 }
