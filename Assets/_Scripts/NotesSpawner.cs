@@ -14,7 +14,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 public class NotesSpawner : MonoBehaviour
@@ -75,14 +77,14 @@ public class NotesSpawner : MonoBehaviour
         var audioClip = www.GetAudioClip(true, false, AudioType.OGGVORBIS);
         while (audioClip.loadState != AudioDataLoadState.Loaded)
         {
-            if(audioClip.loadState == AudioDataLoadState.Failed)
+            if (audioClip.loadState == AudioDataLoadState.Failed)
             {
                 Debug.Log("Can't load audio clip " + audioFilePath);
                 break;
             }
         }
 
-        audioSource.clip = audioClip; 
+        audioSource.clip = audioClip;
 
         JSONObject json = JSONObject.Parse(jsonString);
 
