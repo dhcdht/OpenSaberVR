@@ -14,10 +14,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using VRTK;
 
 public class NotesSpawner : MonoBehaviour
 {
@@ -44,9 +43,12 @@ public class NotesSpawner : MonoBehaviour
 
     private SongSettings Songsettings;
     private bool menuLoadInProgress = false;
+    private bool audioLoaded = false;
 
     void Start()
     {
+        Debug.Log("Start from NotesSpawner is called...");
+
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         string path = Songsettings.CurrentSong.Path;
         if (Directory.Exists(path))
@@ -73,18 +75,7 @@ public class NotesSpawner : MonoBehaviour
 
         audioSource = GetComponent<AudioSource>();
 
-        var www = new WWW("file:///" + audioFilePath);
-        var audioClip = www.GetAudioClip(true, false, AudioType.OGGVORBIS);
-        while (audioClip.loadState != AudioDataLoadState.Loaded)
-        {
-            if (audioClip.loadState == AudioDataLoadState.Failed)
-            {
-                Debug.Log("Can't load audio clip " + audioFilePath);
-                break;
-            }
-        }
-
-        audioSource.clip = audioClip;
+        StartCoroutine("LoadAudio");
 
         JSONObject json = JSONObject.Parse(jsonString);
 
@@ -126,6 +117,27 @@ public class NotesSpawner : MonoBehaviour
 
         BeatsPerMinute = bpm;
         BeatsPreloadTimeTotal = (beatAnticipationTime + beatWarmupTime);
+    }
+
+    private IEnumerator LoadAudio()
+    {
+        var www = new WWW("file:///" + audioFilePath);
+        while (!www.isDone)
+            yield return null;
+
+        var audioClip = www.GetAudioClip(false, false, AudioType.OGGVORBIS);
+
+        //while (audioClip.loadState != AudioDataLoadState.Loaded)
+        //{
+        //    if (audioClip.loadState == AudioDataLoadState.Failed)
+        //    {
+        //        Debug.Log("Can't load audio clip " + audioFilePath);
+        //        break;
+        //    }
+        //}
+
+        audioSource.clip = audioClip;
+        audioLoaded = true;
     }
 
     void Update()
@@ -179,9 +191,12 @@ public class NotesSpawner : MonoBehaviour
 
         if (BeatsPreloadTime.Value >= BeatsPreloadTimeTotal)
         {
-            // Finished preload.
-            BeatsPreloadTime = null;
-            audioSource.Play();
+            if (audioLoaded)
+            {
+                // Finished preload.
+                BeatsPreloadTime = null;
+                audioSource.Play();
+            }
         }
         else
         {
@@ -193,7 +208,8 @@ public class NotesSpawner : MonoBehaviour
     IEnumerator LoadMenu()
     {
         yield return new WaitForSeconds(5);
-        SceneManager.LoadScene("Menu", LoadSceneMode.Single);
+        yield return SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Additive);
+        yield return SceneManager.UnloadSceneAsync("OpenSaber");
     }
 
     void GenerateNote(Note note)
