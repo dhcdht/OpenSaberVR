@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VRTK;
 
 public class NotesSpawner : MonoBehaviour
 {
@@ -42,6 +41,7 @@ public class NotesSpawner : MonoBehaviour
     private AudioSource audioSource;
 
     private SongSettings Songsettings;
+    private SceneHandling SceneHandling;
     private bool menuLoadInProgress = false;
     private bool audioLoaded = false;
 
@@ -50,6 +50,7 @@ public class NotesSpawner : MonoBehaviour
         Debug.Log("Start from NotesSpawner is called...");
 
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
         string path = Songsettings.CurrentSong.Path;
         if (Directory.Exists(path))
         {
@@ -127,15 +128,6 @@ public class NotesSpawner : MonoBehaviour
 
         var audioClip = www.GetAudioClip(false, false, AudioType.OGGVORBIS);
 
-        //while (audioClip.loadState != AudioDataLoadState.Loaded)
-        //{
-        //    if (audioClip.loadState == AudioDataLoadState.Failed)
-        //    {
-        //        Debug.Log("Can't load audio clip " + audioFilePath);
-        //        break;
-        //    }
-        //}
-
         audioSource.clip = audioClip;
         audioLoaded = true;
     }
@@ -208,8 +200,9 @@ public class NotesSpawner : MonoBehaviour
     IEnumerator LoadMenu()
     {
         yield return new WaitForSeconds(5);
-        yield return SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Additive);
-        yield return SceneManager.UnloadSceneAsync("OpenSaber");
+
+        yield return SceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
+        yield return SceneHandling.UnloadScene("OpenSaber");
     }
 
     void GenerateNote(Note note)

@@ -4,7 +4,6 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using VRTK;
 
 public class MainMenu : MonoBehaviour
 {
@@ -17,10 +16,12 @@ public class MainMenu : MonoBehaviour
     public GameObject NoSongsFound;
 
     private SongSettings Songsettings;
+    private SceneHandling SceneHandling;
 
     private void Awake()
     {
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
     }
 
     public void ShowSongs()
@@ -157,8 +158,8 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator LoadSongScene()
     {
-        yield return SceneManager.LoadSceneAsync("OpenSaber", LoadSceneMode.Additive);
-        yield return SceneManager.UnloadSceneAsync("Menu");
+        yield return SceneHandling.LoadScene("OpenSaber", LoadSceneMode.Additive);
+        yield return SceneHandling.UnloadScene("Menu");
     }
 
     public void AreYouSure()
