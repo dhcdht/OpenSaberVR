@@ -14,7 +14,6 @@ public class Saber : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Start from Saber is called...");
         slicer = GetComponentInChildren<Slice>(true);
         var controllerEvent = GetComponentInChildren<VRTK_ControllerEvents>(true);
         if (controllerEvent != null && controllerEvent.gameObject != null)

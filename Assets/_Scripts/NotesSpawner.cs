@@ -47,8 +47,6 @@ public class NotesSpawner : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Start from NotesSpawner is called...");
-
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
         string path = Songsettings.CurrentSong.Path;

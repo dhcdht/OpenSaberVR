@@ -7,7 +7,6 @@ public class Slice : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Start from Slice is called...");
         mat = mat = GetComponent<Renderer>().material;
     }
 
