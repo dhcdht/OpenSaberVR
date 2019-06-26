@@ -46,6 +46,9 @@ public class SceneHandling : MonoBehaviour
 
     private void MenuSceneLoaded()
     {
+        if (!VRTK_Loaded)
+            return;
+
         LeftSaber.SetActive(false);
         LeftShaft.SetActive(false);
         
