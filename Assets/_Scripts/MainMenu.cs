@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,10 +16,12 @@ public class MainMenu : MonoBehaviour
     public GameObject NoSongsFound;
 
     private SongSettings Songsettings;
+    private SceneHandling SceneHandling;
 
     private void Awake()
     {
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
     }
 
     public void ShowSongs()
@@ -102,8 +105,7 @@ public class MainMenu : MonoBehaviour
                     continue;
 
                 Destroy(gameObj.gameObject);
-            }         
-
+            }
 
             SongChooser.gameObject.SetActive(false);
             PanelAreYouSure.gameObject.SetActive(false);
@@ -151,7 +153,13 @@ public class MainMenu : MonoBehaviour
     private void StartSceneWithDifficulty(string difficulty)
     {
         SongInfos.GetCurrentSong().SelectedDifficulty = difficulty;
-        SceneManager.LoadScene("OpenSaber", LoadSceneMode.Single);
+        StartCoroutine(LoadSongScene());
+    }
+
+    private IEnumerator LoadSongScene()
+    {
+        yield return SceneHandling.LoadScene("OpenSaber", LoadSceneMode.Additive);
+        yield return SceneHandling.UnloadScene("Menu");
     }
 
     public void AreYouSure()

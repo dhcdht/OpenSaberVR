@@ -14,8 +14,12 @@ public class Saber : MonoBehaviour
 
     private void Start()
     {
-        slicer = GetComponentInChildren<Slice>();
-        controllerReference = VRTK_ControllerReference.GetControllerReference(GetComponentInChildren<VRTK_ControllerEvents>().gameObject);
+        slicer = GetComponentInChildren<Slice>(true);
+        var controllerEvent = GetComponentInChildren<VRTK_ControllerEvents>(true);
+        if (controllerEvent != null && controllerEvent.gameObject != null)
+        {
+            controllerReference = VRTK_ControllerReference.GetControllerReference(controllerEvent.gameObject);
+        }
     }
 
     private void Pulse()
@@ -25,6 +29,14 @@ public class Saber : MonoBehaviour
             collisionForce = VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier;
             var hapticStrength = collisionForce / maxCollisionForce;
             VRTK_ControllerHaptics.TriggerHapticPulse(controllerReference, hapticStrength, 0.5f, 0.01f);
+        }
+        else
+        {
+            var controllerEvent = GetComponentInChildren<VRTK_ControllerEvents>();
+            if (controllerEvent != null && controllerEvent.gameObject != null)
+            {
+                controllerReference = VRTK_ControllerReference.GetControllerReference(controllerEvent.gameObject);
+            }
         }
     }
 
