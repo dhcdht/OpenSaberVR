@@ -1,0 +1,7 @@
+All assets which are in this folder are freely available on the Unity Asset Store or from other free sources and are distributed under their license.
+
+EzySlice is available on GitHub (https://github.com/DavidArayan/ezy-slice) under MIT license.
+VRTK is available on GitHub (https://github.com/ExtendRealityLtd/VRTK) and on the Asset Store under MIT license.
+Boomlagoon JSON is available on BitBucket (https://bitbucket.org/boomlagoon/boomlagoon-json/src) under zlib license.
+PostProcessing and TextMeshPro are delivered from Unity itself in the Unity 3D Editor.
+SlimUI is available in the Asset Store (https://assetstore.unity.com/packages/templates/packs/3d-modern-menu-116144) and is free to use.

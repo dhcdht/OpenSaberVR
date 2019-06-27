@@ -6,6 +6,8 @@ TagManager:
   tags:
   - projectile
   - FxTemporaire
+  - SongSettings
+  - SceneHandling
   layers:
   - Default
   - TransparentFX
