@@ -14,6 +14,7 @@ public class MainMenu : MonoBehaviour
     public GameObject LevelButtonTemplate;
     public GameObject Title;
     public GameObject NoSongsFound;
+    public AudioSource SongPreview;
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
@@ -54,6 +55,35 @@ public class MainMenu : MonoBehaviour
         {
             SongInfos.Cover.texture = sampleTexture;
         }
+
+        StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
+    }
+
+    AudioClip previewAudioClip = null;
+    bool PlayNewPreview = false;
+
+    public IEnumerator PreviewSong(string audioFilePath)
+    {
+        SongPreview.Stop();
+        previewAudioClip = null;
+        PlayNewPreview = true;
+        var www = new WWW("file:///" + audioFilePath);
+        while (!www.isDone)
+            yield return www;
+
+        previewAudioClip = www.GetAudioClip(false, false, AudioType.OGGVORBIS);
+    }
+
+    private void FixedUpdate()
+    {
+        if (previewAudioClip != null && PlayNewPreview)
+        {
+            PlayNewPreview = false;
+            SongPreview.Stop();
+            SongPreview.clip = previewAudioClip;
+            SongPreview.time = 40f;
+            SongPreview.Play();
+        }
     }
 
     public void NextSong()
@@ -73,6 +103,8 @@ public class MainMenu : MonoBehaviour
         {
             SongInfos.Cover.texture = sampleTexture;
         }
+
+        StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
     }
 
     public void PreviousSong()
@@ -92,10 +124,13 @@ public class MainMenu : MonoBehaviour
         {
             SongInfos.Cover.texture = sampleTexture;
         }
+
+        StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
     }
 
     public void LoadSong()
     {
+        SongPreview.Stop();
         var song = SongInfos.GetCurrentSong();
         if(song.Difficulties.Count > 1)
         {

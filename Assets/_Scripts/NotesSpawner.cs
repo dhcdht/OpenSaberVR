@@ -122,7 +122,7 @@ public class NotesSpawner : MonoBehaviour
     {
         var www = new WWW("file:///" + audioFilePath);
         while (!www.isDone)
-            yield return null;
+            yield return www;
 
         var audioClip = www.GetAudioClip(false, false, AudioType.OGGVORBIS);
 
