@@ -8,6 +8,7 @@ TagManager:
   - FxTemporaire
   - SongSettings
   - SceneHandling
+  - CubeNonDirection
   layers:
   - Default
   - TransparentFX

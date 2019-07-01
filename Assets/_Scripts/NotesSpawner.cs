@@ -222,6 +222,12 @@ public class NotesSpawner : MonoBehaviour
                 break;
         }
 
+        if (note.CutDirection == CutDirection.NONDIRECTION)
+        {
+            // the nondirection cubes are stored at the index+2 in the array
+            note.Hand += 2;
+        }
+
         GameObject cube = Instantiate(Cubes[(int)note.Hand], SpawnPoints[point]);
         cube.transform.localPosition = Vector3.zero;
 
@@ -252,6 +258,9 @@ public class NotesSpawner : MonoBehaviour
                 break;
             case CutDirection.BOTTOMRIGHT:
                 rotation = 125f;
+                break;
+            case CutDirection.NONDIRECTION:
+                rotation = 0f;
                 break;
             default:
                 break;
@@ -326,7 +335,8 @@ public class NotesSpawner : MonoBehaviour
         TOPLEFT = 6,
         TOPRIGHT = 7,
         BOTTOMLEFT = 4,
-        BOTTOMRIGHT = 5
+        BOTTOMRIGHT = 5,
+        NONDIRECTION = 8
     }
 
     public class Obstacle

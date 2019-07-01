@@ -45,36 +45,55 @@ public class Saber : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.forward, out hit, 1f, layer))
         {
-            if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130)
+            if (!string.IsNullOrWhiteSpace(hit.transform.tag) && hit.transform.CompareTag("CubeNonDirection"))
             {
-                var cutted = slicer.SliceObject(hit.transform.gameObject);
-                var go = Instantiate(hit.transform.gameObject);
-               
-                go.GetComponent<CubeHandling>().enabled = false;
-                go.GetComponentInChildren<BoxCollider>().enabled = false;
-                go.layer = 0;
-
-                foreach (var renderer in go.transform.GetComponentsInChildren<MeshRenderer>())
+                if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130 ||
+                    Vector3.Angle(transform.position - previousPos, hit.transform.right) > 130 ||
+                    Vector3.Angle(transform.position - previousPos, -hit.transform.up) > 130 ||
+                    Vector3.Angle(transform.position - previousPos, -hit.transform.right) > 130)
                 {
-                    renderer.enabled = false;
+                    SliceObject(hit.transform);
                 }
-
-                foreach (var cut in cutted)
+            }
+            else
+            {
+                if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130)
                 {
-                    cut.transform.SetParent(go.transform);
-                    cut.AddComponent<BoxCollider>();
-                    var rigid = cut.AddComponent<Rigidbody>();
-                    rigid.useGravity = true;
+                    SliceObject(hit.transform);
                 }
-
-                go.transform.SetPositionAndRotation(hit.transform.position, hit.transform.rotation);
-
-                Pulse();
-
-                Destroy(hit.transform.gameObject);
-                Destroy(go, 2f);
             }
         }
+        
         previousPos = transform.position;
+    }
+
+    private void SliceObject(Transform hittedObject)
+    {
+        var cutted = slicer.SliceObject(hittedObject.gameObject);
+        var go = Instantiate(hittedObject.gameObject);
+
+        go.GetComponent<CubeHandling>().enabled = false;
+        go.GetComponentInChildren<BoxCollider>().enabled = false;
+        go.layer = 0;
+
+        foreach (var renderer in go.transform.GetComponentsInChildren<MeshRenderer>())
+        {
+            renderer.enabled = false;
+        }
+
+        foreach (var cut in cutted)
+        {
+            cut.transform.SetParent(go.transform);
+            cut.AddComponent<BoxCollider>();
+            var rigid = cut.AddComponent<Rigidbody>();
+            rigid.useGravity = true;
+        }
+
+        go.transform.SetPositionAndRotation(hittedObject.position, hittedObject.rotation);
+
+        Pulse();
+
+        Destroy(hittedObject.gameObject);
+        Destroy(go, 2f);
     }
 }
