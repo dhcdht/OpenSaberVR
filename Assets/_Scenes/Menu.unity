@@ -192,6 +192,11 @@ PrefabInstance:
       propertyPath: SongPreview
       value: 
       objectReference: {fileID: 770543026}
+    - target: {fileID: 1110868499932496828, guid: 37d6f3449994d7d45bbd24d84c2c6626,
+        type: 3}
+      propertyPath: m_Text
+      value: v0.1.1-dev by dev.play.repeat
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37d6f3449994d7d45bbd24d84c2c6626, type: 3}
 --- !u!1 &770543025 stripped
