@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -18,6 +20,9 @@ public class MainMenu : MonoBehaviour
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
+
+    AudioClip PreviewAudioClip = null;
+    bool PlayNewPreview = false;
 
     private void Awake()
     {
@@ -59,28 +64,37 @@ public class MainMenu : MonoBehaviour
         StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
     }
 
-    AudioClip previewAudioClip = null;
-    bool PlayNewPreview = false;
-
     public IEnumerator PreviewSong(string audioFilePath)
     {
         SongPreview.Stop();
-        previewAudioClip = null;
+        PreviewAudioClip = null;
         PlayNewPreview = true;
-        var www = new WWW("file:///" + audioFilePath);
-        while (!www.isDone)
-            yield return www;
 
-        previewAudioClip = www.GetAudioClip(false, false, AudioType.OGGVORBIS);
+        yield return null;
+
+        var downloadHandler = new DownloadHandlerAudioClip(Songsettings.CurrentSong.AudioFilePath, AudioType.OGGVORBIS);
+        downloadHandler.compressed = false;
+        downloadHandler.streamAudio = true;
+        var uwr = new UnityWebRequest(
+                Songsettings.CurrentSong.AudioFilePath,
+                UnityWebRequest.kHttpVerbGET,
+                downloadHandler,
+                null);
+
+        var request = uwr.SendWebRequest();
+        while(!request.isDone)
+            yield return null;
+
+        PreviewAudioClip = DownloadHandlerAudioClip.GetContent(uwr);
     }
 
     private void FixedUpdate()
     {
-        if (previewAudioClip != null && PlayNewPreview)
+        if (PreviewAudioClip != null && PlayNewPreview)
         {
             PlayNewPreview = false;
             SongPreview.Stop();
-            SongPreview.clip = previewAudioClip;
+            SongPreview.clip = PreviewAudioClip;
             SongPreview.time = 40f;
             SongPreview.Play();
         }
