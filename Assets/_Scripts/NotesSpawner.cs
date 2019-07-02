@@ -15,6 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 public class NotesSpawner : MonoBehaviour
@@ -120,13 +121,20 @@ public class NotesSpawner : MonoBehaviour
 
     private IEnumerator LoadAudio()
     {
-        var www = new WWW("file:///" + audioFilePath);
-        while (!www.isDone)
+        var downloadHandler = new DownloadHandlerAudioClip(Songsettings.CurrentSong.AudioFilePath, AudioType.OGGVORBIS);
+        downloadHandler.compressed = false;
+        downloadHandler.streamAudio = true;
+        var uwr = new UnityWebRequest(
+                Songsettings.CurrentSong.AudioFilePath,
+                UnityWebRequest.kHttpVerbGET,
+                downloadHandler,
+                null);
+
+        var request = uwr.SendWebRequest();
+        while (!request.isDone)
             yield return null;
 
-        var audioClip = www.GetAudioClip(false, false, AudioType.OGGVORBIS);
-
-        audioSource.clip = audioClip;
+        audioSource.clip = DownloadHandlerAudioClip.GetContent(uwr);
         audioLoaded = true;
     }
 
