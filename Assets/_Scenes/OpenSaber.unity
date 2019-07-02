@@ -832,6 +832,8 @@ MonoBehaviour:
   Cubes:
   - {fileID: 2267269557703769182, guid: 692a25303725e1f4189ee108bf85a219, type: 3}
   - {fileID: 5089034330109808136, guid: be05b17fb23b00c459481ccafe98a4f3, type: 3}
+  - {fileID: 2267269557703769182, guid: d1b9a357b66c1bb4d94ece8d834540b0, type: 3}
+  - {fileID: 5089034330109808136, guid: 651bdfd30a8c9e145bc376e53a71582a, type: 3}
   Wall: {fileID: 4307119938621768877, guid: 047102afd6534544fafcdc12fb9c83a7, type: 3}
   SpawnPoints:
   - {fileID: 370705722}

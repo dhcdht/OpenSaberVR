@@ -15,6 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 public class NotesSpawner : MonoBehaviour
@@ -120,13 +121,20 @@ public class NotesSpawner : MonoBehaviour
 
     private IEnumerator LoadAudio()
     {
-        var www = new WWW("file:///" + audioFilePath);
-        while (!www.isDone)
+        var downloadHandler = new DownloadHandlerAudioClip(Songsettings.CurrentSong.AudioFilePath, AudioType.OGGVORBIS);
+        downloadHandler.compressed = false;
+        downloadHandler.streamAudio = true;
+        var uwr = new UnityWebRequest(
+                Songsettings.CurrentSong.AudioFilePath,
+                UnityWebRequest.kHttpVerbGET,
+                downloadHandler,
+                null);
+
+        var request = uwr.SendWebRequest();
+        while (!request.isDone)
             yield return null;
 
-        var audioClip = www.GetAudioClip(false, false, AudioType.OGGVORBIS);
-
-        audioSource.clip = audioClip;
+        audioSource.clip = DownloadHandlerAudioClip.GetContent(uwr);
         audioLoaded = true;
     }
 
@@ -222,6 +230,12 @@ public class NotesSpawner : MonoBehaviour
                 break;
         }
 
+        if (note.CutDirection == CutDirection.NONDIRECTION)
+        {
+            // the nondirection cubes are stored at the index+2 in the array
+            note.Hand += 2;
+        }
+
         GameObject cube = Instantiate(Cubes[(int)note.Hand], SpawnPoints[point]);
         cube.transform.localPosition = Vector3.zero;
 
@@ -252,6 +266,9 @@ public class NotesSpawner : MonoBehaviour
                 break;
             case CutDirection.BOTTOMRIGHT:
                 rotation = 125f;
+                break;
+            case CutDirection.NONDIRECTION:
+                rotation = 0f;
                 break;
             default:
                 break;
@@ -326,7 +343,8 @@ public class NotesSpawner : MonoBehaviour
         TOPLEFT = 6,
         TOPRIGHT = 7,
         BOTTOMLEFT = 4,
-        BOTTOMRIGHT = 5
+        BOTTOMRIGHT = 5,
+        NONDIRECTION = 8
     }
 
     public class Obstacle
