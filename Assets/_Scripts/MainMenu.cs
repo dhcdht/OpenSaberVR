@@ -21,11 +21,14 @@ public class MainMenu : MonoBehaviour
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
 
+    private HighScore.HighScore score = new HighScore.HighScore();
+
     AudioClip PreviewAudioClip = null;
     bool PlayNewPreview = false;
 
     private void Awake()
     {
+        score.Init();
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
     }
