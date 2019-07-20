@@ -3932,6 +3932,11 @@ PrefabInstance:
       propertyPath: UseGlobalHighscore
       value: 
       objectReference: {fileID: 1435924948}
+    - target: {fileID: 8871409089122566221, guid: 37d6f3449994d7d45bbd24d84c2c6626,
+        type: 3}
+      propertyPath: Highscore
+      value: 
+      objectReference: {fileID: 1810893654}
     - target: {fileID: 1110868499932496828, guid: 37d6f3449994d7d45bbd24d84c2c6626,
         type: 3}
       propertyPath: m_Text
@@ -9771,7 +9776,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1810893655
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9812,6 +9817,7 @@ MonoBehaviour:
   Title: {fileID: 0}
   NoSongsFound: {fileID: 0}
   Settings: {fileID: 0}
+  Highscore: {fileID: 0}
   UseGlobalHighscore: {fileID: 0}
   Username: {fileID: 0}
   UserInputField: {fileID: 0}
@@ -12092,7 +12098,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2147340425
 RectTransform:
   m_ObjectHideFlags: 0

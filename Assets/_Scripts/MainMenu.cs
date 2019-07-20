@@ -17,6 +17,7 @@ public class MainMenu : MonoBehaviour
     public GameObject Title;
     public GameObject NoSongsFound;
     public GameObject Settings;
+    public GameObject Highscore;
     public Text UseGlobalHighscore;
     public Text Username;
     public InputField UserInputField;
@@ -32,7 +33,11 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
-        //score.Init();
+        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        {
+            StartCoroutine(InitializeGlobalHighscore());
+        }
+
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
     }
@@ -288,11 +293,26 @@ public class MainMenu : MonoBehaviour
         {
             PlayerPrefs.SetInt("UseGlobalHighscore", 1);
             UseGlobalHighscore.text = "on";
+            StartCoroutine(InitializeGlobalHighscore());
         }
         else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
         {
             PlayerPrefs.SetInt("UseGlobalHighscore", 0);
             UseGlobalHighscore.text = "off";
+        }
+    }
+
+    public IEnumerator InitializeGlobalHighscore()
+    {
+        yield return new WaitForSeconds(0.5f);
+        score.Init();
+    }
+
+    public void ShowHighscore()
+    {
+        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        {
+            Highscore.gameObject.SetActive(true);
         }
     }
 }
