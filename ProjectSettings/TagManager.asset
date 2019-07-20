@@ -9,6 +9,7 @@ TagManager:
   - SongSettings
   - SceneHandling
   - CubeNonDirection
+  - ScoreHandling
   layers:
   - Default
   - TransparentFX

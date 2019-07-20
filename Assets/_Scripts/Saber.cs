@@ -12,6 +12,8 @@ public class Saber : MonoBehaviour
     private float maxCollisionForce = 4000f;
     private VRTK_ControllerReference controllerReference;
 
+    private ScoreHandling scoreHandling;
+
     private void Start()
     {
         slicer = GetComponentInChildren<Slice>(true);
@@ -20,14 +22,18 @@ public class Saber : MonoBehaviour
         {
             controllerReference = VRTK_ControllerReference.GetControllerReference(controllerEvent.gameObject);
         }
+
+        scoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
     }
 
-    private void Pulse()
+    private float Pulse()
     {
+        var hapticStrength = 0f;
+
         if (VRTK_ControllerReference.IsValid(controllerReference))
         {
             collisionForce = VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier;
-            var hapticStrength = collisionForce / maxCollisionForce;
+            hapticStrength = collisionForce / maxCollisionForce;
             VRTK_ControllerHaptics.TriggerHapticPulse(controllerReference, hapticStrength, 0.5f, 0.01f);
         }
         else
@@ -38,6 +44,8 @@ public class Saber : MonoBehaviour
                 controllerReference = VRTK_ControllerReference.GetControllerReference(controllerEvent.gameObject);
             }
         }
+
+        return hapticStrength;
     }
 
     void Update()
@@ -91,9 +99,15 @@ public class Saber : MonoBehaviour
 
         go.transform.SetPositionAndRotation(hittedObject.position, hittedObject.rotation);
 
-        Pulse();
+        var strength = Pulse();
+        AddPointsToScore(strength);
 
         Destroy(hittedObject.gameObject);
         Destroy(go, 2f);
+    }
+
+    private void AddPointsToScore(float strength)
+    {
+        scoreHandling.IncreaseScore(System.Convert.ToInt32(10 + (strength * 100)));
     }
 }
