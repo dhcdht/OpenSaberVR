@@ -16,6 +16,10 @@ public class MainMenu : MonoBehaviour
     public GameObject LevelButtonTemplate;
     public GameObject Title;
     public GameObject NoSongsFound;
+    public GameObject Settings;
+    public Text UseGlobalHighscore;
+    public Text Username;
+    public InputField UserInputField;
     public AudioSource SongPreview;
 
     private SongSettings Songsettings;
@@ -28,7 +32,7 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
-        score.Init();
+        //score.Init();
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
     }
@@ -47,6 +51,7 @@ public class MainMenu : MonoBehaviour
         Title.gameObject.SetActive(false);
         PanelAreYouSure.gameObject.SetActive(false);
         LevelChooser.gameObject.SetActive(false);
+        Settings.gameObject.SetActive(false);
         SongChooser.gameObject.SetActive(true);
         var song = SongInfos.GetCurrentSong();
 
@@ -65,6 +70,56 @@ public class MainMenu : MonoBehaviour
         }
 
         StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
+    }
+
+    public void ShowSettings()
+    {
+        SongPreview.Stop();
+        Title.gameObject.SetActive(false);
+        PanelAreYouSure.gameObject.SetActive(false);
+        LevelChooser.gameObject.SetActive(false);
+        SongChooser.gameObject.SetActive(false);
+        NoSongsFound.gameObject.SetActive(false);
+
+        Settings.gameObject.SetActive(true);
+        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 0)
+        {
+            UseGlobalHighscore.text = "off";
+        }
+        else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        {
+            UseGlobalHighscore.text = "on";
+        }
+
+        if (string.IsNullOrWhiteSpace(PlayerPrefs.GetString("Username")))
+        {
+            Username.text = "Player" + Random.Range(0, int.MaxValue);
+            PlayerPrefs.SetString("Username", Username.text);
+        }
+        else
+        {
+            Username.text = PlayerPrefs.GetString("Username");
+        }
+    }
+
+    public void ClickKey(string character)
+    {
+        UserInputField.text += character;
+    }
+
+    public void Backspace()
+    {
+        if (UserInputField.text.Length > 0)
+        {
+            UserInputField.text = UserInputField.text.Substring(0, UserInputField.text.Length - 1);
+        }
+    }
+
+    public void SetUsername()
+    {
+        Username.text = UserInputField.text;
+        PlayerPrefs.SetString("Username", Username.text);
+        UserInputField.text = "";
     }
 
     public IEnumerator PreviewSong(string audioFilePath)
@@ -207,10 +262,12 @@ public class MainMenu : MonoBehaviour
 
     public void AreYouSure()
     {
+        SongPreview.Stop();
         NoSongsFound.gameObject.SetActive(false);
         Title.gameObject.SetActive(false);
         SongChooser.gameObject.SetActive(false);
         LevelChooser.gameObject.SetActive(false);
+        Settings.gameObject.SetActive(false);
         PanelAreYouSure.gameObject.SetActive(true);
     }
 
@@ -223,5 +280,19 @@ public class MainMenu : MonoBehaviour
     public void Yes()
     {
         Application.Quit();
+    }
+
+    public void SetGlobalHighscore()
+    {
+        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 0)
+        {
+            PlayerPrefs.SetInt("UseGlobalHighscore", 1);
+            UseGlobalHighscore.text = "on";
+        }
+        else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        {
+            PlayerPrefs.SetInt("UseGlobalHighscore", 0);
+            UseGlobalHighscore.text = "off";
+        }
     }
 }
