@@ -3,11 +3,16 @@
 public class ScoreHandling : MonoBehaviour
 {
     public long ActualScore = 0;
-    public int ComboFactor { get; private set; } = 1;
+    public int ComboFactor = 1;
 
     public void IncreaseScore(int value)
     {
-        ActualScore += value;
+        ActualScore += (value * ComboFactor);
+    }
+
+    public void DecreaseScore(int value)
+    {
+        ActualScore -= value;
     }
 
     public void IncreaseComboFactor()

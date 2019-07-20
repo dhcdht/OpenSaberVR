@@ -109,5 +109,6 @@ public class Saber : MonoBehaviour
     private void AddPointsToScore(float strength)
     {
         scoreHandling.IncreaseScore(System.Convert.ToInt32(10 + (strength * 100)));
+        scoreHandling.IncreaseComboFactor();
     }
 }
