@@ -140,10 +140,6 @@ namespace HighScore
 
         public void AddHighScoreToSong(string songHash, string userName, string difficulty, long score)
         {
-            CheckoutBranch();
-            UpdateRepo();
-            ResetRepo();
-
             if (!Directory.Exists(Path.Combine(HighScorePath, songHash)))
             {
                 Directory.CreateDirectory(Path.Combine(HighScorePath, songHash));
@@ -182,6 +178,9 @@ namespace HighScore
             }
             catch (NonFastForwardException)
             {
+                CheckoutBranch();
+                UpdateRepo();
+                ResetRepo();
                 AddHighScoreToSong(songHash, userName, difficulty, score);
             }
         }

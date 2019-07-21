@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Security.Cryptography;
+using System;
+using System.Text;
 
 public class LoadSongInfos : MonoBehaviour
 {
@@ -108,4 +111,21 @@ public class Song
     public string CoverImagePath { get; set; }
     public List<string> Difficulties { get; set; }
     public string SelectedDifficulty { get; set; }
+
+    public string Hash
+    {
+        get
+        {
+            using (SHA1 hashGen = SHA1.Create())
+            {
+                var hash = hashGen.ComputeHash(Encoding.UTF8.GetBytes(Name + AuthorName + BPM));
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    builder.Append(hash[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+    }
 }

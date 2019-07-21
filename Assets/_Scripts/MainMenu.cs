@@ -25,6 +25,7 @@ public class MainMenu : MonoBehaviour
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
+    private ScoreHandling ScoreHandling;
 
     private HighScore.HighScore score = new HighScore.HighScore();
 
@@ -40,6 +41,7 @@ public class MainMenu : MonoBehaviour
 
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
+        ScoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
     }
 
     public void ShowSongs()
@@ -261,6 +263,7 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator LoadSongScene()
     {
+        ScoreHandling.ResetScoreHandling();
         yield return SceneHandling.LoadScene("OpenSaber", LoadSceneMode.Additive);
         yield return SceneHandling.UnloadScene("Menu");
     }
@@ -304,8 +307,13 @@ public class MainMenu : MonoBehaviour
 
     public IEnumerator InitializeGlobalHighscore()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
         score.Init();
+
+        if (ScoreHandling.ActualScore > 0)
+        {
+            AddUserScoreToHighscore();
+        }
     }
 
     public void ShowHighscore()
@@ -314,5 +322,10 @@ public class MainMenu : MonoBehaviour
         {
             Highscore.gameObject.SetActive(true);
         }
+    }
+
+    private void AddUserScoreToHighscore()
+    {
+        score.AddHighScoreToSong(Songsettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), Songsettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
     }
 }
