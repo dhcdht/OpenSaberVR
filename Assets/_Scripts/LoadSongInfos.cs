@@ -52,15 +52,21 @@ public class LoadSongInfos : MonoBehaviour
                     song.BPM = infoFile.GetNumber("_beatsPerMinute").ToString();
                     song.CoverImagePath = Path.Combine(dir, infoFile.GetString("_coverImageFilename"));
                     song.AudioFilePath = Path.Combine(dir, infoFile.GetString("_songFilename"));
-                    song.Difficulties = new List<string>();
+                    song.PlayingMethods = new List<PlayingMethod>();
 
                     var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
                     foreach (var beatmapSets in difficultyBeatmapSets)
                     {
+                        PlayingMethod playingMethod = new PlayingMethod();
+                        playingMethod.CharacteristicName = beatmapSets.Obj.GetString("_beatmapCharacteristicName");
+                        playingMethod.Difficulties = new List<string>();
+
                         foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
                         {
-                            song.Difficulties.Add(difficultyBeatmaps.Obj.GetString("_difficulty"));
+                            playingMethod.Difficulties.Add(difficultyBeatmaps.Obj.GetString("_difficulty"));
                         }
+
+                        song.PlayingMethods.Add(playingMethod);
                     }
 
                     AllSongs.Add(song);
@@ -109,7 +115,8 @@ public class Song
     public string AuthorName { get; set; }
     public string BPM { get; set; }
     public string CoverImagePath { get; set; }
-    public List<string> Difficulties { get; set; }
+    public List<PlayingMethod> PlayingMethods { get; set; }
+    public int SelectedPlayingMethod { get; set; }
     public string SelectedDifficulty { get; set; }
 
     public string Hash
@@ -128,4 +135,10 @@ public class Song
             }
         }
     }
+}
+
+public class PlayingMethod
+{ 
+    public string CharacteristicName { get; set; }
+    public List<string> Difficulties { get; set; }
 }

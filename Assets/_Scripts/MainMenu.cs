@@ -65,7 +65,7 @@ public class MainMenu : MonoBehaviour
         SongInfos.SongName.text = song.Name;
         SongInfos.Artist.text = song.AuthorName;
         SongInfos.BPM.text = song.BPM;
-        SongInfos.Levels.text = song.Difficulties.Count.ToString();
+        SongInfos.Levels.text = song.PlayingMethods[0].Difficulties.Count.ToString();
 
         byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
         Texture2D sampleTexture = new Texture2D(2, 2);
@@ -172,7 +172,7 @@ public class MainMenu : MonoBehaviour
         SongInfos.SongName.text = song.Name;
         SongInfos.Artist.text = song.AuthorName;
         SongInfos.BPM.text = song.BPM;
-        SongInfos.Levels.text = song.Difficulties.Count.ToString();
+        SongInfos.Levels.text = song.PlayingMethods[0].Difficulties.Count.ToString();
 
         byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
         Texture2D sampleTexture = new Texture2D(2, 2);
@@ -193,7 +193,7 @@ public class MainMenu : MonoBehaviour
         SongInfos.SongName.text = song.Name;
         SongInfos.Artist.text = song.AuthorName;
         SongInfos.BPM.text = song.BPM;
-        SongInfos.Levels.text = song.Difficulties.Count.ToString();
+        SongInfos.Levels.text = song.PlayingMethods[0].Difficulties.Count.ToString();
 
         byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
         Texture2D sampleTexture = new Texture2D(2, 2);
@@ -211,7 +211,7 @@ public class MainMenu : MonoBehaviour
     {
         SongPreview.Stop();
         var song = SongInfos.GetCurrentSong();
-        if(song.Difficulties.Count > 1)
+        if (song.PlayingMethods[0].Difficulties.Count > 1)
         {
             foreach (var gameObj in LevelChooser.GetComponentsInChildren<Button>(true))
             {
@@ -227,12 +227,13 @@ public class MainMenu : MonoBehaviour
 
             var buttonsCreated = new List<GameObject>();
 
-            foreach (var difficulty in song.Difficulties)
+            PlayingMethod playingMethod = song.PlayingMethods[0];
+            foreach (var difficulty in playingMethod.Difficulties)
             {
                 var button = GameObject.Instantiate(LevelButtonTemplate, LevelChooser.transform);
 
                 button.GetComponentInChildren<Text>().text = difficulty;
-                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(difficulty));
+                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(0, difficulty));
                 button.SetActive(true);
                 buttonsCreated.Add(button);
             }
@@ -242,7 +243,6 @@ public class MainMenu : MonoBehaviour
             {
                 leftAlign -= ((-250 - 36) / 2);
             }
-
             foreach (var button in buttonsCreated)
             {
                 button.GetComponent<RectTransform>().localPosition = new Vector3(leftAlign, buttonsCreated[0].GetComponent<RectTransform>().localPosition.y);
@@ -251,12 +251,13 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            StartSceneWithDifficulty(song.Difficulties[0]);
+            StartSceneWithDifficulty(0, song.PlayingMethods[0].Difficulties[0]);
         }
     }
 
-    private void StartSceneWithDifficulty(string difficulty)
+    private void StartSceneWithDifficulty(int playingMethod, string difficulty)
     {
+        SongInfos.GetCurrentSong().SelectedPlayingMethod = playingMethod;
         SongInfos.GetCurrentSong().SelectedDifficulty = difficulty;
         StartCoroutine(LoadSongScene());
     }
