@@ -197,6 +197,19 @@ namespace HighScore
 
             return File.ReadAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty).Select(entry => new HighScoreEntry(entry)).ToList();
         }
+
+        public List<HighScoreEntry> GetFirstTenHighScoreOfSong(string songHash, string difficulty)
+        {
+            var completeHighscore = GetHighScoreOfSong(songHash, difficulty);
+            if (completeHighscore.Count > 0)
+            {
+                return completeHighscore.OrderBy(h => h.Score).Take(10).ToList();
+            }
+            else
+            {
+                return completeHighscore;
+            }
+        }
     }
 
     public class HighScoreEntry

@@ -4,6 +4,7 @@ public class ScoreHandling : MonoBehaviour
 {
     public long ActualScore = 0;
     public int ComboFactor = 1;
+    public long MissedNotes = 0;
 
     public void IncreaseScore(int value)
     {
@@ -24,6 +25,7 @@ public class ScoreHandling : MonoBehaviour
     {
         ResetComboFactor();
         ResetScore();
+        MissedNotes = 0;
     }
 
     public void ResetComboFactor()
@@ -34,5 +36,10 @@ public class ScoreHandling : MonoBehaviour
     public void ResetScore()
     {
         ActualScore = 0;
+    }
+
+    public void MissedNote()
+    {
+        MissedNotes++;
     }
 }

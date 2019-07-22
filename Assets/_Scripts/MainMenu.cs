@@ -34,10 +34,10 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
-        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
-        {
-            StartCoroutine(InitializeGlobalHighscore());
-        }
+        //if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        //{
+        //    StartCoroutine(InitializeGlobalHighscore());
+        //}
 
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
@@ -312,7 +312,7 @@ public class MainMenu : MonoBehaviour
 
         if (ScoreHandling.ActualScore > 0)
         {
-            AddUserScoreToHighscore();
+            //AddUserScoreToHighscore();
         }
     }
 
