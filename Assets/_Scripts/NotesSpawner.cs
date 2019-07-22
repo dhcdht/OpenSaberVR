@@ -1,4 +1,4 @@
-﻿/*
+/*
  * The spawner code and also the correct timing stuff was taken from the project:
  * BeatSaver Viewer (https://github.com/supermedium/beatsaver-viewer) and ported to C#.
  * 
@@ -22,7 +22,7 @@ public class NotesSpawner : MonoBehaviour
 {
     public GameObject[] Cubes;
     public GameObject Wall;
-    public Transform[] SpawnPoints;
+    public float _height = 0.3f;
 
     private string jsonString;
     private string audioFilePath;
@@ -213,68 +213,62 @@ public class NotesSpawner : MonoBehaviour
 
     void GenerateNote(Note note)
     {
-        int point = 0;
-
-        switch (note.LineLayer)
-        {
-            case 0:
-                point = note.LineIndex;
-                break;
-            case 1:
-                point = note.LineIndex + 4;
-                break;
-            case 2:
-                point = note.LineIndex + 8;
-                break;
-            default:
-                break;
-        }
-
         if (note.CutDirection == CutDirection.NONDIRECTION)
         {
             // the nondirection cubes are stored at the index+2 in the array
             note.Hand += 2;
         }
 
-        GameObject cube = Instantiate(Cubes[(int)note.Hand], SpawnPoints[point]);
-        cube.transform.localPosition = Vector3.zero;
-
+        GameObject cube = Instantiate(Cubes[(int)note.Hand], new Vector3(GetX(SetIndex(note.LineIndex)), GetY(note.LineLayer), transform.position.z + BeatsConstants.BEAT_WARMUP_SPEED * (Time.deltaTime / 1000)), Quaternion.identity);
+        
         float rotation = 0f;
+        Quaternion _Rotation = default;
 
         switch (note.CutDirection)
         {
-            case CutDirection.TOP:
-                rotation = 0f;
-                break;
             case CutDirection.BOTTOM:
-                rotation = 180f;
+                _Rotation.eulerAngles = new Vector3(0f, 0f, 180f);
                 break;
-            case CutDirection.LEFT:
-                rotation = 270f;
+            case CutDirection.TOP:
+                _Rotation = Quaternion.identity;
                 break;
             case CutDirection.RIGHT:
-                rotation = 90f;
+                _Rotation.eulerAngles = new Vector3(0f, 0f, 90f);
                 break;
-            case CutDirection.TOPLEFT:
-                rotation = 315f;
-                break;
-            case CutDirection.TOPRIGHT:
-                rotation = 45f;
+            case CutDirection.LEFT:
+                _Rotation.eulerAngles = new Vector3(0f, 0f, -90f);
                 break;
             case CutDirection.BOTTOMLEFT:
-                rotation = 225f;
+                _Rotation.eulerAngles = new Vector3(0f, 0f, -135f);
                 break;
             case CutDirection.BOTTOMRIGHT:
-                rotation = 125f;
+                _Rotation.eulerAngles = new Vector3(0f, 0f, 135f);
                 break;
-            case CutDirection.NONDIRECTION:
-                rotation = 0f;
+            case CutDirection.TOPLEFT:
+                _Rotation.eulerAngles = new Vector3(0f, 0f, -45f);
+                break;
+            case CutDirection.TOPRIGHT:
+                _Rotation.eulerAngles = new Vector3(0f, 0f, 45f);
                 break;
             default:
+                _Rotation = Quaternion.identity;
                 break;
         }
 
-        cube.transform.Rotate(transform.forward, rotation);
+        if ((int)note.CutDirection >= 1000 && (int)note.CutDirection <= 1360)
+        {
+            int angle = 1000 - (int)note.CutDirection;
+            _Rotation = default(Quaternion);
+            _Rotation.eulerAngles = new Vector3(0f, 0f, 1000 - (int)note.CutDirection);
+        }
+        else if ((int)note.CutDirection >= 2000 && (int)note.CutDirection <= 2360)
+        {
+            int angle = 2000 - (int)note.CutDirection;
+            _Rotation = default(Quaternion);
+            _Rotation.eulerAngles = new Vector3(0f, 0f, 2000 - (int)note.CutDirection);
+        }
+
+        cube.transform.localRotation = _Rotation;
 
         var handling = cube.GetComponent<CubeHandling>();
         handling.AnticipationPosition = (float) (-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET);
@@ -284,11 +278,11 @@ public class NotesSpawner : MonoBehaviour
 
     public void GenerateObstacle(Obstacle obstacle)
     {
-        double WALL_THICKNESS = 0.5;
+       /* double WALL_THICKNESS = 0.5;
 
         double durationSeconds = 60 * (obstacle.Duration / BeatsPerMinute);
 
-        GameObject wall = Instantiate(Wall, SpawnPoints[obstacle.LineIndex]);
+        GameObject wall = Instantiate(Wall, new Vector3(GetX(obstacle.LineIndex), obstacle.Type != ObstacleType.CEILING ? 0.1f : 1.3f, 0f), Quaternion.identity);
 
         var wallHandling = wall.GetComponent<ObstacleHandling>();
         wallHandling.AnticipationPosition = (float)(-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET);
@@ -298,7 +292,152 @@ public class NotesSpawner : MonoBehaviour
         wallHandling.Ceiling = obstacle.Type == ObstacleType.CEILING;
         wallHandling.Duration = obstacle.Duration;
 
-        //wall.transform.localScale = new Vector3((float)wallHandling.Width, wall.transform.localScale.y, wall.transform.localScale.z);
+        if (obstacle.Width >= 1000 ||
+            (((int)obstacle.Type >= 1000 && (int)obstacle.Type <= 4000) ||
+             ((int)obstacle.Type >= 4001 && (int)obstacle.Type <= 4005000)))
+        {
+            Mode mode = ((int)obstacle.Type >= 4001 && (int)obstacle.Type <= 4100000)
+                ? Mode.preciseHeightStart
+                : Mode.preciseHeight;
+            int height = 0;
+            int startHeight = 0;
+            if (mode == Mode.preciseHeightStart)
+            {
+                int value = (int)obstacle.Type;
+                value -= 4001;
+                height = value / 1000;
+                startHeight = value % 1000;
+            }
+            else
+            {
+                int value = (int)obstacle.Type;
+                height = value - 1000;
+            }
+
+            float num = 0;
+            if ((obstacle.Width >= 1000) || (mode == Mode.preciseHeightStart))
+            {
+
+                float width = (float)obstacle.Width - 1000;
+                float precisionLineWidth = 0.6f / 1000;
+                num = width * precisionLineWidth;
+
+            }
+            else
+                num = (float)obstacle.Width * 0.6f;
+
+            float num2 = (_endPos - (float)(-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET)).magnitude / (BeatsConstants.BEAT_WARMUP_SPEED / (float)beatSpeed);
+            float length = num2 * (float)(obstacle.Duration * (60 / BeatsPerMinute));
+            float multiplier = 1f;
+            if ((int)obstacle.Type >= 1000)
+            {
+                multiplier = (float)height / 1000f;
+            }
+            
+            wall.transform.localScale = new Vector3(num * 0.98f, _height * multiplier, length);
+        }
+        else
+        {
+            float num = (float)obstacle.Width * 0.6f;
+            float num2 = (this._endPos - (float)(-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET)).magnitude / (BeatsConstants.BEAT_WARMUP_SPEED / (float)beatSpeed);
+            float length = num2 * (float)(obstacle.Duration * (60 / BeatsPerMinute));
+
+            _height = (obstacle.Type != ObstacleType.CEILING) ? 3f : 1.5f;
+            
+            wall.transform.localScale = new Vector3(num * 0.98f, _height, length);
+        }*/
+    }
+
+    private float GetY(float lineLayer)
+    {
+        float delta = (1.9f - 1.4f);
+
+        if ((int)lineLayer >= 1000 || (int)lineLayer <= -1000)
+        {
+            return 1.4f - delta - delta + (((int)lineLayer) * (delta / 1000f));
+        }
+
+        if ((int)lineLayer > 2)
+        {
+
+            return 1.4f - delta + ((int)lineLayer * delta);
+        }
+
+        if ((int)lineLayer < 0)
+        {
+            return 1.4f - delta + ((int)lineLayer * delta);
+        }
+
+        if (lineLayer == 0)
+        {
+            return 0.85f;
+        }
+        if (lineLayer == 1)
+        {
+            return 1.4f;
+        }
+
+        return 1.9f;
+    }
+    public float GetX(float noteindex)
+    {
+        float num = (-1.5f + noteindex) * 0.6f; //-3f * 0.5f
+
+        if (noteindex >= 1000 || noteindex <= -1000)
+        {
+            num = 0.3f;
+
+            if (noteindex <= -1000)
+                noteindex += 2000;
+
+            num = num + (noteindex * (0.6f / 1000));
+        }
+
+        return num;
+    }
+    public float SetIndex(float lineIndex)
+    {
+        int newlaneCount = 0;
+        if (lineIndex > 3 || lineIndex < 0)
+        {
+            if (lineIndex >= 1000 || lineIndex <= -1000)
+            {
+                int newIndex = (int)lineIndex;
+                bool leftSide = false;
+                if (newIndex <= -1000)
+                {
+                    newIndex += 2000;
+                }
+
+                if (newIndex >= 4000)
+                    leftSide = true;
+
+
+                newIndex = 5000 - newIndex;
+                if (leftSide)
+                    newIndex -= 2000;
+
+                lineIndex = newIndex;
+            }
+
+            else if (lineIndex > 3)
+            {
+                int diff = (((int)lineIndex - 3) * 2);
+                newlaneCount = 4 + diff;
+                lineIndex = newlaneCount - diff - 1 - lineIndex;
+
+            }
+            else if (lineIndex < 0)
+            {
+                int diff = ((0 - (int)lineIndex)) * 2;
+                newlaneCount = 4 + diff;
+                lineIndex = newlaneCount - diff - 1 - lineIndex;
+            }
+
+            lineIndex = lineIndex < 0.6f * 3 ? Mathf.Abs(lineIndex) : -lineIndex;
+        }
+
+        return lineIndex;
     }
 
     public class Note
@@ -362,7 +501,10 @@ public class NotesSpawner : MonoBehaviour
         WALL = 0,
         CEILING = 1
     }
+
+    public enum Mode
+    {
+        preciseHeight,
+        preciseHeightStart
+    };
 }
-
-
-
