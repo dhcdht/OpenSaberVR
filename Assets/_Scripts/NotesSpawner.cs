@@ -125,7 +125,7 @@ public class NotesSpawner : MonoBehaviour
         ObstaclesToSpawn.Sort(ObsticaleCompare);
 
         BeatsPerMinute = bpm;
-        _noteSpeed = 32 * (60 / (float)BeatsPerMinute);
+        
         UpdateBeats();
     }
 
