@@ -42,7 +42,7 @@ public class CubeHandling : MonoBehaviour
             }
 
             Vector3 vector = new Vector3(_midPos.x, _midPos.y, 0);
-            vector.z = Mathf.LerpUnclamped(_midPos.z + BeatsConstants.SWORD_OFFSET * (_songTimeOffsetPercent > 0.5f ? 1 : _songTimeOffsetPercent * BeatsConstants.SWORD_OFFSET), _endPos.z + 2, _songTimeOffsetPercent);
+            vector.z = Mathf.LerpUnclamped(_midPos.z + BeatsConstants.SWORD_OFFSET * (_songTimeOffsetPercent > 0.5f ? 1 : _songTimeOffsetPercent * 2), _endPos.z + BeatsConstants.SWORD_OFFSET, _songTimeOffsetPercent);
             transform.position = vector;
         }
         else
