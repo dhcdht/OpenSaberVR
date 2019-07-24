@@ -22,7 +22,7 @@ public class NotesSpawner : MonoBehaviour
 {
     public GameObject[] Cubes;
     public GameObject Wall;
-    public float _height = 0.3f;
+    public GameObject CameraHead;
 
     private string jsonString;
     private string audioFilePath;
@@ -30,16 +30,18 @@ public class NotesSpawner : MonoBehaviour
     private List<Obstacle> ObstaclesToSpawn = new List<Obstacle>();
     private double BeatsPerMinute;
 
-    private double BeatsTime = 0;
-    private double? BeatsPreloadTime = 0;
-    private double BeatsPreloadTimeTotal = 0;
+    public int _noteIndex = 0;
+    public int _eventIndex = 0;
+    public int _obstilcleIndex = 0;
 
-    private readonly double beatAnticipationTime = 1.1;
-    private readonly double beatSpeed = 8.0;
-    private readonly double beatWarmupTime = BeatsConstants.BEAT_WARMUP_TIME / 1000;
-    private readonly double beatWarmupSpeed = BeatsConstants.BEAT_WARMUP_SPEED;
+    public float _BeatPerMin;
+    public float _BeatPerSec;
+    public float _SecPerBeat;
+    public float _spawnOffset;
+    public float _noteSpeed;
+    public float BeatsTime;
 
-    private AudioSource audioSource;
+    public AudioSource audioSource;
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
@@ -49,6 +51,7 @@ public class NotesSpawner : MonoBehaviour
     void Start()
     {
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        CameraHead = GameObject.FindGameObjectWithTag("MainCamera");
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
         string path = Songsettings.CurrentSong.Path;
         if (Directory.Exists(path))
@@ -64,6 +67,7 @@ public class NotesSpawner : MonoBehaviour
                     {
                         if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
                         {
+                            _noteSpeed = (float)difficultyBeatmaps.Obj.GetNumber("_noteJumpMovementSpeed");
                             audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
                             jsonString = File.ReadAllText(Path.Combine(path, difficultyBeatmaps.Obj.GetString("_beatmapFilename")));
                             break;
@@ -97,26 +101,99 @@ public class NotesSpawner : MonoBehaviour
 
             NotesToSpawn.Add(n);
         }
+        
+        var obstacles = json.GetArray("_obstacles");
+        foreach (var obstacle in obstacles)
+        {
+            var o = new Obstacle
+            {
+                Type = (ObstacleType)obstacle.Obj.GetNumber("_type"),
+                Duration = obstacle.Obj.GetNumber("_duration"),
+                LineIndex = (int)obstacle.Obj.GetNumber("_lineIndex"),
+                TimeInSeconds = (obstacle.Obj.GetNumber("_time") / bpm) * 60,
+                Time = (obstacle.Obj.GetNumber("_time")),
+                Width = (obstacle.Obj.GetNumber("_width"))
+            };
 
-        //Obstacles
-        //var obstacles = json.GetArray("_obstacles");
-        //foreach (var obstacle in obstacles)
-        //{
-        //    var o = new Obstacle
-        //    {
-        //        Type = (ObstacleType)obstacle.Obj.GetNumber("_type"),
-        //        Duration = obstacle.Obj.GetNumber("_duration"),
-        //        LineIndex = (int)obstacle.Obj.GetNumber("_lineIndex"),
-        //        TimeInSeconds = (obstacle.Obj.GetNumber("_time") / bpm) * 60,
-        //        Time = (obstacle.Obj.GetNumber("_time")),
-        //        Width = (obstacle.Obj.GetNumber("_width"))
-        //    };
+            ObstaclesToSpawn.Add(o);
+        }
 
-        //    ObstaclesToSpawn.Add(o);
-        //}
+        Comparison<Note> NoteCompare = (x, y) => x.Time.CompareTo(y.Time);
+        NotesToSpawn.Sort(NoteCompare);
+
+        Comparison<Obstacle> ObsticaleCompare = (x, y) => x.Time.CompareTo(y.Time);
+        ObstaclesToSpawn.Sort(ObsticaleCompare);
 
         BeatsPerMinute = bpm;
-        BeatsPreloadTimeTotal = (beatAnticipationTime + beatWarmupTime);
+        
+        UpdateBeats();
+    }
+
+    public void UpdateBeats()
+    {
+        _BeatPerMin = (float)BeatsPerMinute;
+        _BeatPerSec = 60 / _BeatPerMin;
+        _SecPerBeat = _BeatPerMin / 60;
+
+        UpdateSpawnTime();
+    }
+
+    public void UpdateSpawnTime()
+    {
+        _spawnOffset = BeatsConstants.BEAT_WARMUP_SPEED / _BeatPerMin + BeatsConstants.BEAT_WARMUP_OFFSET * 0.5f / _noteSpeed;
+    }
+
+    public void UpdateNotes()
+    {
+        for (int i = 0; i < NotesToSpawn.Count; i++)
+        {
+            if (_noteIndex < NotesToSpawn.Count && (NotesToSpawn[_noteIndex].Time * _BeatPerSec) - _spawnOffset < BeatsTime && audioSource.isPlaying)
+            {
+                SetupNoteData(NotesToSpawn[_noteIndex]);
+
+                _noteIndex++;
+            }
+        }
+    }
+
+    public void UpdateObstilcles()
+    {
+        for (int i = 0; i < ObstaclesToSpawn.Count; i++)
+        {
+            if (_obstilcleIndex < ObstaclesToSpawn.Count && ( ObstaclesToSpawn[_obstilcleIndex].Time * _BeatPerSec) - _spawnOffset < BeatsTime && audioSource.isPlaying)
+            {
+                SetupObstacleData(ObstaclesToSpawn[_obstilcleIndex]);
+                _obstilcleIndex++;
+            }
+        }
+    }
+
+    private void SetupObstacleData(Obstacle _obstacle)
+    {
+        Vector3 _startZ = transform.forward * (BeatsConstants.BEAT_WARMUP_SPEED + BeatsConstants.BEAT_WARMUP_OFFSET * 0.5f);
+        Vector3 _midZ = _startZ - transform.forward * BeatsConstants.BEAT_WARMUP_SPEED;
+        Vector3 _endZ = _startZ - transform.forward * (BeatsConstants.BEAT_WARMUP_OFFSET + BeatsConstants.BEAT_WARMUP_SPEED);
+
+        Vector3 noteXStart = new Vector3(GetX(_obstacle.LineIndex), _obstacle.Type != ObstacleType.CEILING ? 0.1f : 1.3f, 0f);
+        _startZ += noteXStart;
+        _midZ += noteXStart;
+        _endZ += noteXStart;
+
+        GenerateObstacle(_obstacle, _startZ, _midZ, _endZ);
+    }
+
+    private void SetupNoteData(Note _note)
+    {
+        Vector3 _startZ = transform.forward * (BeatsConstants.BEAT_WARMUP_SPEED + BeatsConstants.BEAT_WARMUP_OFFSET * 0.5f);
+        Vector3 _midZ = _startZ - transform.forward * BeatsConstants.BEAT_WARMUP_SPEED;
+        Vector3 _endZ = _startZ - transform.forward * (BeatsConstants.BEAT_WARMUP_OFFSET + BeatsConstants.BEAT_WARMUP_SPEED);
+
+        Vector3 noteXY = new Vector3(GetX(SetIndex(_note.LineIndex)), GetY(_note.LineLayer), 0);
+        //_startZ += noteXY;
+        _midZ += noteXY;
+        _endZ += noteXY;
+
+        GenerateNote(_note, _startZ, _midZ, _endZ);
     }
 
     private IEnumerator LoadAudio()
@@ -140,66 +217,25 @@ public class NotesSpawner : MonoBehaviour
 
     void Update()
     {
-        var prevBeatsTime = BeatsTime;
-
-        if (BeatsPreloadTime == null)
+        if (audioLoaded)
         {
-            if (!audioSource.isPlaying)
+            audioLoaded = false;
+            audioSource.Play();
+        }
+
+        BeatsTime = audioSource.time;
+        UpdateNotes();
+        UpdateObstilcles();
+
+        if (_noteIndex == NotesToSpawn.Count && _obstilcleIndex == ObstaclesToSpawn.Count && !audioSource.isPlaying)
+        {
+            if (!menuLoadInProgress)
             {
-                if (!menuLoadInProgress)
-                {
-                    menuLoadInProgress = true;
-                    StartCoroutine(LoadMenu());
-                }
-                return;
+                menuLoadInProgress = true;
+                StartCoroutine(LoadMenu());
             }
 
-            BeatsTime = (audioSource.time + beatAnticipationTime + beatWarmupTime) * 1000;
-        }
-        else
-        {
-            BeatsTime = BeatsPreloadTime.Value;
-        }
-
-        double msPerBeat = 1000 * 60 / BeatsPerMinute;
-
-        //Notes
-        for (int i = 0; i < NotesToSpawn.Count; ++i)
-        {
-            var noteTime = NotesToSpawn[i].Time * msPerBeat;
-            if (noteTime > prevBeatsTime && noteTime <= BeatsTime)
-            {
-                NotesToSpawn[i].Time = noteTime;
-                GenerateNote(NotesToSpawn[i]);
-            }
-        }
-
-        //Obstacles
-        for (int i = 0; i < ObstaclesToSpawn.Count; ++i)
-        {
-            var noteTime = ObstaclesToSpawn[i].Time * msPerBeat;
-            if (noteTime > prevBeatsTime && noteTime <= BeatsTime)
-            {
-                ObstaclesToSpawn[i].Time = noteTime;
-                GenerateObstacle(ObstaclesToSpawn[i]);
-            }
-        }
-
-        if (BeatsPreloadTime == null) { return; }
-
-        if (BeatsPreloadTime.Value >= BeatsPreloadTimeTotal)
-        {
-            if (audioLoaded)
-            {
-                // Finished preload.
-                BeatsPreloadTime = null;
-                audioSource.Play();
-            }
-        }
-        else
-        {
-            // Continue preload.
-            BeatsPreloadTime += Time.deltaTime;
+            return;
         }
     }
 
@@ -207,11 +243,11 @@ public class NotesSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
 
-        yield return SceneHandling.LoadScene("ScoreSummary", LoadSceneMode.Additive);
+        yield return SceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
         yield return SceneHandling.UnloadScene("OpenSaber");
     }
 
-    void GenerateNote(Note note)
+    void GenerateNote(Note note, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
     {
         if (note.CutDirection == CutDirection.NONDIRECTION)
         {
@@ -219,133 +255,16 @@ public class NotesSpawner : MonoBehaviour
             note.Hand += 2;
         }
 
-        GameObject cube = Instantiate(Cubes[(int)note.Hand], new Vector3(GetX(SetIndex(note.LineIndex)), GetY(note.LineLayer), transform.position.z + BeatsConstants.BEAT_WARMUP_SPEED * (Time.deltaTime / 1000)), Quaternion.identity);
-        
-        float rotation = 0f;
-        Quaternion _Rotation = default;
-
-        switch (note.CutDirection)
-        {
-            case CutDirection.BOTTOM:
-                _Rotation.eulerAngles = new Vector3(0f, 0f, 180f);
-                break;
-            case CutDirection.TOP:
-                _Rotation = Quaternion.identity;
-                break;
-            case CutDirection.RIGHT:
-                _Rotation.eulerAngles = new Vector3(0f, 0f, 90f);
-                break;
-            case CutDirection.LEFT:
-                _Rotation.eulerAngles = new Vector3(0f, 0f, -90f);
-                break;
-            case CutDirection.BOTTOMLEFT:
-                _Rotation.eulerAngles = new Vector3(0f, 0f, -135f);
-                break;
-            case CutDirection.BOTTOMRIGHT:
-                _Rotation.eulerAngles = new Vector3(0f, 0f, 135f);
-                break;
-            case CutDirection.TOPLEFT:
-                _Rotation.eulerAngles = new Vector3(0f, 0f, -45f);
-                break;
-            case CutDirection.TOPRIGHT:
-                _Rotation.eulerAngles = new Vector3(0f, 0f, 45f);
-                break;
-            default:
-                _Rotation = Quaternion.identity;
-                break;
-        }
-
-        if ((int)note.CutDirection >= 1000 && (int)note.CutDirection <= 1360)
-        {
-            int angle = 1000 - (int)note.CutDirection;
-            _Rotation = default(Quaternion);
-            _Rotation.eulerAngles = new Vector3(0f, 0f, 1000 - (int)note.CutDirection);
-        }
-        else if ((int)note.CutDirection >= 2000 && (int)note.CutDirection <= 2360)
-        {
-            int angle = 2000 - (int)note.CutDirection;
-            _Rotation = default(Quaternion);
-            _Rotation.eulerAngles = new Vector3(0f, 0f, 2000 - (int)note.CutDirection);
-        }
-
-        cube.transform.localRotation = _Rotation;
-
+        GameObject cube = Instantiate(Cubes[(int)note.Hand]);
         var handling = cube.GetComponent<CubeHandling>();
-        handling.AnticipationPosition = (float) (-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET);
-        handling.Speed = (float)beatSpeed;
-        handling.WarmUpPosition = -beatWarmupTime * beatWarmupSpeed;
+        handling.SetupNote(moveStartPos, moveEndPos, jumpEndPos, this, note);
     }
 
-    public void GenerateObstacle(Obstacle obstacle)
+    public void GenerateObstacle(Obstacle obstacle, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
     {
-       /* double WALL_THICKNESS = 0.5;
-
-        double durationSeconds = 60 * (obstacle.Duration / BeatsPerMinute);
-
-        GameObject wall = Instantiate(Wall, new Vector3(GetX(obstacle.LineIndex), obstacle.Type != ObstacleType.CEILING ? 0.1f : 1.3f, 0f), Quaternion.identity);
-
+        GameObject wall = Instantiate(Wall);
         var wallHandling = wall.GetComponent<ObstacleHandling>();
-        wallHandling.AnticipationPosition = (float)(-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET);
-        wallHandling.Speed = (float)beatSpeed;
-        wallHandling.WarmUpPosition = -beatWarmupTime * beatWarmupSpeed;
-        wallHandling.Width = obstacle.Width * WALL_THICKNESS;
-        wallHandling.Ceiling = obstacle.Type == ObstacleType.CEILING;
-        wallHandling.Duration = obstacle.Duration;
-
-        if (obstacle.Width >= 1000 ||
-            (((int)obstacle.Type >= 1000 && (int)obstacle.Type <= 4000) ||
-             ((int)obstacle.Type >= 4001 && (int)obstacle.Type <= 4005000)))
-        {
-            Mode mode = ((int)obstacle.Type >= 4001 && (int)obstacle.Type <= 4100000)
-                ? Mode.preciseHeightStart
-                : Mode.preciseHeight;
-            int height = 0;
-            int startHeight = 0;
-            if (mode == Mode.preciseHeightStart)
-            {
-                int value = (int)obstacle.Type;
-                value -= 4001;
-                height = value / 1000;
-                startHeight = value % 1000;
-            }
-            else
-            {
-                int value = (int)obstacle.Type;
-                height = value - 1000;
-            }
-
-            float num = 0;
-            if ((obstacle.Width >= 1000) || (mode == Mode.preciseHeightStart))
-            {
-
-                float width = (float)obstacle.Width - 1000;
-                float precisionLineWidth = 0.6f / 1000;
-                num = width * precisionLineWidth;
-
-            }
-            else
-                num = (float)obstacle.Width * 0.6f;
-
-            float num2 = (_endPos - (float)(-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET)).magnitude / (BeatsConstants.BEAT_WARMUP_SPEED / (float)beatSpeed);
-            float length = num2 * (float)(obstacle.Duration * (60 / BeatsPerMinute));
-            float multiplier = 1f;
-            if ((int)obstacle.Type >= 1000)
-            {
-                multiplier = (float)height / 1000f;
-            }
-            
-            wall.transform.localScale = new Vector3(num * 0.98f, _height * multiplier, length);
-        }
-        else
-        {
-            float num = (float)obstacle.Width * 0.6f;
-            float num2 = (this._endPos - (float)(-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET)).magnitude / (BeatsConstants.BEAT_WARMUP_SPEED / (float)beatSpeed);
-            float length = num2 * (float)(obstacle.Duration * (60 / BeatsPerMinute));
-
-            _height = (obstacle.Type != ObstacleType.CEILING) ? 3f : 1.5f;
-            
-            wall.transform.localScale = new Vector3(num * 0.98f, _height, length);
-        }*/
+        wallHandling.SetupObstacle(obstacle, this, moveStartPos ,moveEndPos, jumpEndPos);
     }
 
     private float GetY(float lineLayer)
@@ -507,4 +426,23 @@ public class NotesSpawner : MonoBehaviour
         preciseHeight,
         preciseHeightStart
     };
+
+    public static GameObject GetChildByName(GameObject parent, string childName)
+    {
+        GameObject _childObject = null;
+
+        Transform[] _Children = parent.transform.GetComponentsInChildren<Transform>(true);
+        foreach (Transform _child in _Children)
+        {
+            if (_child.gameObject.name == childName)
+            {
+                return _child.gameObject;
+            }
+        }
+
+        return _childObject;
+    }
 }
+
+
+
