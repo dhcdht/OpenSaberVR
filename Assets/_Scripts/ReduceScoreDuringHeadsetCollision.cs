@@ -21,6 +21,6 @@ public class ReduceScoreDuringHeadsetCollision : MonoBehaviour
     private void CollisionDetection_HeadsetCollisionDetect(object sender, VRTK.HeadsetCollisionEventArgs e)
     {
         ScoreHandling.ResetComboFactor();
-        ScoreHandling.DecreaseScore(1000);
+        ScoreHandling.DecreaseScore(100);
     }
 }
