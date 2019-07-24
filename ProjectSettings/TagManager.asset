@@ -10,6 +10,7 @@ TagManager:
   - SceneHandling
   - CubeNonDirection
   - ScoreHandling
+  - ExcludeTeleport
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - 
   - RedLayer
   - BlueLayer
-  - 
+  - Wall
   - 
   - 
   - 
