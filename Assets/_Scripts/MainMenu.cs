@@ -160,15 +160,38 @@ public class MainMenu : MonoBehaviour
             PanelAreYouSure.gameObject.SetActive(false);
             LevelChooser.gameObject.SetActive(true);
 
+            for (int i = 0; i < song.PlayingMethods.Count; i++)
+            {
+                PlayingMethod method = song.PlayingMethods[i];
+                var button = GameObject.Instantiate(LevelButtonTemplate, LevelChooser.transform);
+
+                button.GetComponentInChildren<Text>().text = method.CharacteristicName;
+                int curi = i;
+                button.GetComponentInChildren<Button>().onClick.AddListener(() => SelectPlayingMethod(curi));
+                button.SetActive(true);
+                if (i == SongInfos.GetCurrentSong().SelectedPlayingMethod)
+                {
+                    button.GetComponentInChildren<Button>().Select();
+                }
+
+                float left = (-250-36) * (song.PlayingMethods.Count/2);
+                if (song.PlayingMethods.Count % 2 == 0)
+                {
+                    left -= ((-250-36) / 2);
+                }
+                left += i*(250 + 36);
+                button.GetComponent<RectTransform>().localPosition = new Vector3(left, button.GetComponent<RectTransform>().localPosition.y);
+            }
+
             var buttonsCreated = new List<GameObject>();
 
-            PlayingMethod playingMethod = song.PlayingMethods[0];
+            PlayingMethod playingMethod = song.PlayingMethods[SongInfos.GetCurrentSong().SelectedPlayingMethod];
             foreach (var difficulty in playingMethod.Difficulties)
             {
                 var button = GameObject.Instantiate(LevelButtonTemplate, LevelChooser.transform);
 
                 button.GetComponentInChildren<Text>().text = difficulty;
-                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(0, difficulty));
+                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(Songsettings.CurrentSong.SelectedPlayingMethod, difficulty));
                 button.SetActive(true);
                 buttonsCreated.Add(button);
             }
@@ -180,7 +203,7 @@ public class MainMenu : MonoBehaviour
             }
             foreach (var button in buttonsCreated)
             {
-                button.GetComponent<RectTransform>().localPosition = new Vector3(leftAlign, buttonsCreated[0].GetComponent<RectTransform>().localPosition.y);
+                button.GetComponent<RectTransform>().localPosition = new Vector3(leftAlign, button.GetComponent<RectTransform>().localPosition.y - (104 + 36));
                 leftAlign += (250 + 36);
             }
         }
@@ -188,6 +211,12 @@ public class MainMenu : MonoBehaviour
         {
             StartSceneWithDifficulty(0, song.PlayingMethods[0].Difficulties[0]);
         }
+    }
+
+    private void SelectPlayingMethod(int playingMethod)
+    {
+        SongInfos.GetCurrentSong().SelectedPlayingMethod = playingMethod;
+        LoadSong();
     }
 
     private void StartSceneWithDifficulty(int playingMethod, string difficulty)
