@@ -212,6 +212,55 @@ namespace HighScore
         }
     }
 
+    public class HighScoreLocal
+    {
+        private readonly string HighScorePath = "./localhighscore";
+
+        public void Init()
+        {
+            if (!Directory.Exists(Path.Combine(HighScorePath)))
+            {
+                Directory.CreateDirectory(Path.Combine(HighScorePath));
+            }
+        }
+
+        public void AddHighScoreToSong(string songHash, string userName, string difficulty, long score)
+        {
+            if (!Directory.Exists(Path.Combine(HighScorePath, songHash)))
+            {
+                Directory.CreateDirectory(Path.Combine(HighScorePath, songHash));
+            }
+
+            var existingHighScores = GetHighScoreOfSong(songHash, difficulty);
+
+            existingHighScores.Add(new HighScoreEntry { Username = userName, Score = score });
+            File.WriteAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty, existingHighScores.Select(e => e.ToString()).ToArray());
+        }
+
+        public List<HighScoreEntry> GetHighScoreOfSong(string songHash, string difficulty)
+        {
+            if (!Directory.Exists(Path.Combine(HighScorePath, songHash)) || !File.Exists(Path.Combine(HighScorePath, songHash) + "/" + difficulty))
+            {
+                return new List<HighScoreEntry>();
+            }
+
+            return File.ReadAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty).Select(entry => new HighScoreEntry(entry)).ToList();
+        }
+
+        public List<HighScoreEntry> GetFirstTenHighScoreOfSong(string songHash, string difficulty)
+        {
+            var completeHighscore = GetHighScoreOfSong(songHash, difficulty);
+            if (completeHighscore.Count > 0)
+            {
+                return completeHighscore.OrderBy(h => h.Score).Take(10).ToList();
+            }
+            else
+            {
+                return completeHighscore;
+            }
+        }
+    }
+
     public class HighScoreEntry
     {
         public string Username;
