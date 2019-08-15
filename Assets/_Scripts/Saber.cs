@@ -53,21 +53,32 @@ public class Saber : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.forward, out hit, 1f, layer))
         {
-            if (!string.IsNullOrWhiteSpace(hit.transform.tag) && hit.transform.CompareTag("CubeNonDirection"))
+            float hapticStrength = 0f;
+
+            if (VRTK_ControllerReference.IsValid(controllerReference))
             {
-                if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130 ||
-                    Vector3.Angle(transform.position - previousPos, hit.transform.right) > 130 ||
-                    Vector3.Angle(transform.position - previousPos, -hit.transform.up) > 130 ||
-                    Vector3.Angle(transform.position - previousPos, -hit.transform.right) > 130)
-                {
-                    SliceObject(hit.transform);
-                }
+                collisionForce = VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier;
+                hapticStrength = collisionForce / maxCollisionForce;
             }
-            else
+
+            if (hapticStrength > 0.05f)
             {
-                if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130)
+                if (!string.IsNullOrWhiteSpace(hit.transform.tag) && hit.transform.CompareTag("CubeNonDirection"))
                 {
-                    SliceObject(hit.transform);
+                    if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130 ||
+                        Vector3.Angle(transform.position - previousPos, hit.transform.right) > 130 ||
+                        Vector3.Angle(transform.position - previousPos, -hit.transform.up) > 130 ||
+                        Vector3.Angle(transform.position - previousPos, -hit.transform.right) > 130)
+                    {
+                        SliceObject(hit.transform);
+                    }
+                }
+                else
+                {
+                    if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130)
+                    {
+                        SliceObject(hit.transform);
+                    }
                 }
             }
         }
@@ -109,6 +120,6 @@ public class Saber : MonoBehaviour
     private void AddPointsToScore(float strength)
     {
         scoreHandling.IncreaseScore(System.Convert.ToInt32(10 + (strength * 100)));
-        scoreHandling.IncreaseComboFactor();
+        scoreHandling.IncreaseComboHits();
     }
 }

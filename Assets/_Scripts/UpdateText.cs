@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class UpdateText : MonoBehaviour
 {
+    public TextMeshPro ComboHitValue;
     public TextMeshPro ComboFactorValue;
     public TextMeshPro ScoreValue;
 
@@ -15,6 +16,7 @@ public class UpdateText : MonoBehaviour
 
     void LateUpdate()
     {
+        ComboHitValue.text = $"{scoreHandling.ComboHits}";
         ComboFactorValue.text = $"{scoreHandling.ComboFactor}x";
         ScoreValue.text = scoreHandling.ActualScore.ToString();
     }

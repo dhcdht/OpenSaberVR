@@ -3,6 +3,7 @@
 public class ScoreHandling : MonoBehaviour
 {
     public long ActualScore = 0;
+    public int ComboHits = 0;
     public int ComboFactor = 1;
     public long MissedNotes = 0;
 
@@ -16,6 +17,16 @@ public class ScoreHandling : MonoBehaviour
         ActualScore -= value;
     }
 
+    public void IncreaseComboHits()
+    {
+        ComboHits++;
+        if (ComboHits == 10)
+        {
+            IncreaseComboFactor();
+            ResetComboHits();
+        }
+    }
+
     public void IncreaseComboFactor()
     {
         ComboFactor++;
@@ -24,6 +35,7 @@ public class ScoreHandling : MonoBehaviour
     public void ResetScoreHandling()
     {
         ResetComboFactor();
+        ResetComboHits();
         ResetScore();
         MissedNotes = 0;
     }
@@ -31,6 +43,12 @@ public class ScoreHandling : MonoBehaviour
     public void ResetComboFactor()
     {
         ComboFactor = 1;
+        ComboHits = 0;
+    }
+
+    public void ResetComboHits()
+    {
+        ComboHits = 0;
     }
 
     public void ResetScore()
