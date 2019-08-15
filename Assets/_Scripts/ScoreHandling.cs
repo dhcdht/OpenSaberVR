@@ -15,6 +15,10 @@ public class ScoreHandling : MonoBehaviour
     public void DecreaseScore(int value)
     {
         ActualScore -= value;
+        if (ActualScore < 0)
+        {
+            ActualScore = 0;
+        }
     }
 
     public void IncreaseComboHits()
