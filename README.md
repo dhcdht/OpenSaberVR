@@ -7,7 +7,7 @@ I started this project by accident and managed to get the main game logic up and
 
 Now you would maybe ask yourself what is a Beat Saber clone without any music? Yeah, you are right, it's nothing. But I have some vey good answer to this. Because of the great and wide community of the Beat Saber modders and there custom songs, you can use ANY song from their website and it will work in Open Saber VR. So just go to their websites [BeatSaver](https://beatsaver.com), [BeastSaber](https://bsaber.com) and download any song you want.
 
-At the moment Open Saber VR only supports the notes (beat blocks). Obstacles and mines are not supported but will be added in the future.
+At the moment Open Saber VR only supports the notes (beat blocks) and obstacles. Mines are not supported but will be added in the future. Also a global highscore was introduced, this is in very early alpha state and the highscore itself can be deleted/changed/resetted anytime during the alpha stage.
 
 If you are interested in helping/contributing to the project (no matter if you are a coding monkey or 3D artist or just have some ideas), feel free to contact me, I will be more than happy to have some help. You can find the complete source code here, so if you want to contribute, just have a look there.
 
@@ -27,10 +27,11 @@ After the song finished, just wait for 5 seconds and you will be pushed back to 
 
 ## Features
  - fully support for the songs from BeastSaber and BeatSaver
+ - global and local highscore
 
 
 ## Hints
- - Only HTC VIVE is tested, but it should also run on a Oculus Rift or Windows Mixed Reality Headset with SteamVR. If you have one of these, let me know if it works.
+ - Only HTC VIVE is tested by me, it was reported that Oculus Rift and also a Windows Mixed Reality Headset was working with SteamVR. If you have one which is not listed here, let me know if it works.
  - This is an early development version, so expect some bugs 
 
 

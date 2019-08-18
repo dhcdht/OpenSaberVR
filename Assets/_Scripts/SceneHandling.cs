@@ -97,7 +97,7 @@ public class SceneHandling : MonoBehaviour
         {
             SaberSceneLoaded();
         }
-        else if (sceneName == "Menu")
+        else if (sceneName == "Menu" || sceneName == "ScoreSummary")
         {
             MenuSceneLoaded();
         }

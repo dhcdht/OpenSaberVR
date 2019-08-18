@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/OpenSaber.unity
     guid: 37aa8d289046f3a48bb02b36f3113d87
+  - enabled: 1
+    path: Assets/_Scenes/ScoreSummary.unity
+    guid: e647770003f11f54aa9d7ae2870d1ad2
   m_configObjects: {}
