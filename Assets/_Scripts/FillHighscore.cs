@@ -25,7 +25,7 @@ public class FillHighscore : MonoBehaviour
         {
             HighScoreTitle.text = "GLOBAL HIGHSCORES";
 
-            highScore.AddHighScoreToSong(SongSettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), SongSettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
+            highScore.AddHighScoreToSong(SongSettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), SongSettings.CurrentSong.Name, SongSettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
             var highscoreList = highScore.GetFirstTenHighScoreOfSong(SongSettings.CurrentSong.Hash, SongSettings.CurrentSong.SelectedDifficulty);
             string formatString = Highscore[0].text;
 

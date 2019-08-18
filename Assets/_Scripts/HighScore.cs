@@ -138,7 +138,7 @@ namespace HighScore
             }
         }
 
-        public void AddHighScoreToSong(string songHash, string userName, string difficulty, long score)
+        public void AddHighScoreToSong(string songHash, string userName, string songName, string difficulty, long score)
         {
             if (!Directory.Exists(Path.Combine(HighScorePath, songHash)))
             {
@@ -170,7 +170,7 @@ namespace HighScore
             existingHighScores.Add(new HighScoreEntry { Username = userName, Score = score });
             File.WriteAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty, existingHighScores.Select(e => e.ToString()).ToArray());
 
-            CommitToRepo(songHash + "/" + difficulty, $"{songHash}: {userName} with {score} on {difficulty}");
+            CommitToRepo(songHash + "/" + difficulty, $"{songName}: {userName} with {score} on {difficulty}");
 
             try
             {
@@ -181,7 +181,7 @@ namespace HighScore
                 CheckoutBranch();
                 UpdateRepo();
                 ResetRepo();
-                AddHighScoreToSong(songHash, userName, difficulty, score);
+                AddHighScoreToSong(songHash, userName, songName, difficulty, score);
             }
         }
 

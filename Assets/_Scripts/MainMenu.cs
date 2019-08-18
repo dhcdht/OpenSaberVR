@@ -327,6 +327,6 @@ public class MainMenu : MonoBehaviour
 
     private void AddUserScoreToHighscore()
     {
-        score.AddHighScoreToSong(Songsettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), Songsettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
+        score.AddHighScoreToSong(Songsettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), Songsettings.CurrentSong.Name, Songsettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
     }
 }
