@@ -14,7 +14,7 @@ public class MissedCubeHandling : MonoBehaviour
         if(other.gameObject.layer == 8 || other.gameObject.layer == 9)
         {
             Destroy(other.gameObject);
-            scoreHandling.DecreaseScore(100);
+            scoreHandling.DecreaseScore(50);
             scoreHandling.ResetComboFactor();
         }
     }

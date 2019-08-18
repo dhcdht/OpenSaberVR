@@ -5,7 +5,6 @@ public class ReduceScoreDuringHeadsetCollision : MonoBehaviour
     private VRTK.VRTK_HeadsetCollision CollisionDetection;
     private ScoreHandling ScoreHandling;
 
-    // Start is called before the first frame update
     void Start()
     {
         CollisionDetection = GetComponent<VRTK.VRTK_HeadsetCollision>();
@@ -21,6 +20,6 @@ public class ReduceScoreDuringHeadsetCollision : MonoBehaviour
     private void CollisionDetection_HeadsetCollisionDetect(object sender, VRTK.HeadsetCollisionEventArgs e)
     {
         ScoreHandling.ResetComboFactor();
-        ScoreHandling.DecreaseScore(100);
+        ScoreHandling.DecreaseScore(20);
     }
 }
