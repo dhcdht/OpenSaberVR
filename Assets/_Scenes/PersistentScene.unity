@@ -1076,7 +1076,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeTillFade: 0
   blinkTransitionSpeed: 0.1
-  fadeColor: {r: 0.98039216, g: 0.3372549, b: 0.3372549, a: 1}
+  fadeColor: {r: 0.98039216, g: 0.3372549, b: 0.3372549, a: 0.3137255}
   targetListPolicy: {fileID: 0}
   headsetCollision: {fileID: 0}
   headsetFade: {fileID: 0}
@@ -1873,6 +1873,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ActualScore: 0
+  ComboHits: 0
   ComboFactor: 1
   MissedNotes: 0
 --- !u!4 &1907680166
