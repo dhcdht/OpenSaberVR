@@ -50,6 +50,12 @@ public class MainMenu : MonoBehaviour
         if (SongInfos.AllSongs.Count == 0)
         {
             Title.gameObject.SetActive(false);
+            PanelAreYouSure.gameObject.SetActive(false);
+            LevelChooser.gameObject.SetActive(false);
+            SongChooser.gameObject.SetActive(false);
+            Settings.gameObject.SetActive(false);
+            Credits.gameObject.SetActive(false);
+
             NoSongsFound.gameObject.SetActive(true);
             return;
         }
