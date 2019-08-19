@@ -18,6 +18,7 @@ public class MainMenu : MonoBehaviour
     public GameObject NoSongsFound;
     public GameObject Settings;
     public GameObject Highscore;
+    public GameObject Credits;
     public Text UseGlobalHighscore;
     public Text Username;
     public InputField UserInputField;
@@ -59,6 +60,7 @@ public class MainMenu : MonoBehaviour
         PanelAreYouSure.gameObject.SetActive(false);
         LevelChooser.gameObject.SetActive(false);
         Settings.gameObject.SetActive(false);
+        Credits.gameObject.SetActive(false);
         SongChooser.gameObject.SetActive(true);
         var song = SongInfos.GetCurrentSong();
 
@@ -87,6 +89,7 @@ public class MainMenu : MonoBehaviour
         LevelChooser.gameObject.SetActive(false);
         SongChooser.gameObject.SetActive(false);
         NoSongsFound.gameObject.SetActive(false);
+        Credits.gameObject.SetActive(false);
 
         Settings.gameObject.SetActive(true);
         if (PlayerPrefs.GetInt("UseGlobalHighscore") == 0)
@@ -107,6 +110,19 @@ public class MainMenu : MonoBehaviour
         {
             Username.text = PlayerPrefs.GetString("Username");
         }
+    }
+
+    public void ShowCredits()
+    {
+        SongPreview.Stop();
+        Title.gameObject.SetActive(false);
+        PanelAreYouSure.gameObject.SetActive(false);
+        LevelChooser.gameObject.SetActive(false);
+        SongChooser.gameObject.SetActive(false);
+        NoSongsFound.gameObject.SetActive(false);
+        Settings.gameObject.SetActive(false);
+
+        Credits.gameObject.SetActive(true);
     }
 
     public void ClickKey(string character)
@@ -277,6 +293,7 @@ public class MainMenu : MonoBehaviour
         SongChooser.gameObject.SetActive(false);
         LevelChooser.gameObject.SetActive(false);
         Settings.gameObject.SetActive(false);
+        Credits.gameObject.SetActive(false);
         PanelAreYouSure.gameObject.SetActive(true);
     }
 
