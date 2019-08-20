@@ -203,7 +203,7 @@ namespace HighScore
             var completeHighscore = GetHighScoreOfSong(songHash, difficulty);
             if (completeHighscore.Count > 0)
             {
-                return completeHighscore.OrderBy(h => h.Score).Take(10).ToList();
+                return completeHighscore.OrderByDescending(h => h.Score).Take(10).ToList();
             }
             else
             {
@@ -252,7 +252,7 @@ namespace HighScore
             var completeHighscore = GetHighScoreOfSong(songHash, difficulty);
             if (completeHighscore.Count > 0)
             {
-                return completeHighscore.OrderBy(h => h.Score).Take(10).ToList();
+                return completeHighscore.OrderByDescending(h => h.Score).Take(10).ToList();
             }
             else
             {
