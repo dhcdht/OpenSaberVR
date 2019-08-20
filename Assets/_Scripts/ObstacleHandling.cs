@@ -22,7 +22,7 @@ public class ObstacleHandling : MonoBehaviour
         float _songTimeOffset = _songTime - ((((float)_obstacle.Time * _refNotesSpawner._BeatPerSec) - _refNotesSpawner._spawnOffset) + (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin));
         float _songTimeOffsetPercent = _songTimeOffset / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
 
-        if (songTimeDistance >= BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin)
+        if (songTimeDistance >= BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin && _obstacle.Duration > 0)
         {
             float t = (songTimeDistance - (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin)) / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
             _timeJump.x = this._startPos.x;
