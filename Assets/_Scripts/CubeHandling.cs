@@ -27,7 +27,6 @@ public class CubeHandling : MonoBehaviour
         _songTime = _refNotesSpawner.audioSource.time + Time.smoothDeltaTime;
         float songTimeDistance = _songTime - (((float)_note.Time * _refNotesSpawner._BeatPerSec - _refNotesSpawner._spawnOffset));
 
-
         if (songTimeDistance >= BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin)
         {
             float _songTimeOffset = _songTime - (((float)_note.Time * _refNotesSpawner._BeatPerSec - _refNotesSpawner._spawnOffset) + (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin));
@@ -100,19 +99,6 @@ public class CubeHandling : MonoBehaviour
             default:
                 _Rotation = Quaternion.identity;
                 break;
-        }
-
-        if ((int)_note.CutDirection >= 1000 && (int)_note.CutDirection <= 1360)
-        {
-            int angle = 1000 - (int)_note.CutDirection;
-            _Rotation = default(Quaternion);
-            _Rotation.eulerAngles = new Vector3(0f, 0f, 1000 - (int)_note.CutDirection);
-        }
-        else if ((int)_note.CutDirection >= 2000 && (int)_note.CutDirection <= 2360)
-        {
-            int angle = 2000 - (int)_note.CutDirection;
-            _Rotation = default(Quaternion);
-            _Rotation.eulerAngles = new Vector3(0f, 0f, 2000 - (int)_note.CutDirection);
         }
 
         transform.localRotation = _Rotation;

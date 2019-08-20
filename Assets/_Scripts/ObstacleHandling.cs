@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using static NotesSpawner;
 
@@ -56,66 +54,15 @@ public class ObstacleHandling : MonoBehaviour
 
         _height = (_obstacle.Type != ObstacleType.CEILING) ? 3f : 1.5f;
 
-        if (_obstacle.Width >= 1000 ||
-            (((int)_obstacle.Type >= 1000 && (int)_obstacle.Type <= 4000) ||
-             ((int)_obstacle.Type >= 4001 && (int)_obstacle.Type <= 4005000)))
-        {
-            Mode mode = ((int)_obstacle.Type >= 4001 && (int)_obstacle.Type <= 4100000)
-                ? Mode.preciseHeightStart
-                : Mode.preciseHeight;
-            int height = 0;
-            int startHeight = 0;
-            if (mode == Mode.preciseHeightStart)
-            {
-                int value = (int)_obstacle.Type;
-                value -= 4001;
-                height = value / 1000;
-                startHeight = value % 1000;
-            }
-            else
-            {
-                int value = (int)_obstacle.Type;
-                height = value - 1000;
-            }
+        float num = (float)_obstacle.Width * 0.6f;
+        Vector3 b = new Vector3((num - 0.6f) * 0.5f, 0f, 0f);
+        _startPos = startPos + b;
+        _midPos = midPos + b;
+        _endPos = endPos + b;
+        float num2 = (_endPos - _midPos).magnitude / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
+        float length = num2 * ((float)_obstacle.Duration * _refNotesSpawner._BeatPerSec);
 
-            float num = 0;
-            if ((_obstacle.Width >= 1000) || (mode == Mode.preciseHeightStart))
-            {
-
-                float width = (float)_obstacle.Width - 1000;
-                float precisionLineWidth = 0.6f / 1000;
-                num = width * precisionLineWidth; //Change y of b for start height
-                Vector3 b = new Vector3((num - 0.6f) * 0.5f, 4 * ((float)startHeight / 1000), 0f);
-                _startPos = startPos + b;
-                _midPos = midPos + b;
-                _endPos = endPos + b;
-
-            }
-            else
-                num = (float)_obstacle.Width * 0.6f;
-
-            float num2 = (_endPos - _midPos).magnitude / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
-            float length = num2 * ((float)_obstacle.Duration * _refNotesSpawner._BeatPerSec);
-            float multiplier = 1f;
-            if ((int)_obstacle.Type >= 1000)
-            {
-                multiplier = (float)height / 1000f;
-            }
-
-            SetSize(num * 0.98f, _height * multiplier, length);
-        }
-        else
-        {
-            float num = (float)_obstacle.Width * 0.6f;
-            Vector3 b = new Vector3((num - 0.6f) * 0.5f, 0f, 0f);
-            _startPos = startPos + b;
-            _midPos = midPos + b;
-            _endPos = endPos + b;
-            float num2 = (_endPos - _midPos).magnitude / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
-            float length = num2 * ((float)_obstacle.Duration * _refNotesSpawner._BeatPerSec);
-            
-            SetSize(num * 0.98f, _height, length);
-        }
+        SetSize(num * 0.98f, _height, length);
 
         _startPos.z += BeatsConstants.SWORD_OFFSET;
         _midPos.z += BeatsConstants.SWORD_OFFSET;
