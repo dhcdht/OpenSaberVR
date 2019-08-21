@@ -1,5 +1,85 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1373074
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1373075}
+  - component: {fileID: 1373077}
+  - component: {fileID: 1373076}
+  m_Layer: 5
+  m_Name: AlphaWarning
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1373075
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1373074}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2147340425}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 40, y: 348}
+  m_SizeDelta: {x: 902, y: 149.9}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &1373077
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1373074}
+  m_CullTransparentMesh: 0
+--- !u!114 &1373076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1373074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.7490196, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_FontData:
+    m_Font: {fileID: 12800000, guid: 05846e8ee88bee74fab703ab6f2fb439, type: 3}
+    m_FontSize: 40
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 1
+    m_MaxSize: 60
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 'WARNING: The global highscore is at a very early alpha stage. It can be
+    cleared or turned off at any time without warning!'
 --- !u!1 &20476162
 GameObject:
   m_ObjectHideFlags: 0
@@ -1952,7 +2032,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -178.7, y: 272}
+  m_AnchoredPosition: {x: -178.7, y: 234.00002}
   m_SizeDelta: {x: 463.77, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &327909525
@@ -3197,16 +3277,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b66043b8e8422a54a91c644d32428461, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SongChooser: {fileID: 2098133045}
   SongInfos: {fileID: 1533566239}
-  PanelAreYouSure: {fileID: 413536798}
-  LevelChooser: {fileID: 3836919870330003582}
   LevelButtonTemplate: {fileID: 4798664112121031484}
-  Title: {fileID: 1169934543}
-  NoSongsFound: {fileID: 6966206419944217228}
-  Settings: {fileID: 2147340424}
-  Highscore: {fileID: 1810893654}
-  Credits: {fileID: 68187990}
+  MenuPanels:
+  - {fileID: 413536798}
+  - {fileID: 2098133045}
+  - {fileID: 3836919870330003582}
+  - {fileID: 1169934543}
+  - {fileID: 6966206419944217228}
+  - {fileID: 2147340424}
+  - {fileID: 68187990}
   UseGlobalHighscore: {fileID: 1435924948}
   Username: {fileID: 1519456041}
   UserInputField: {fileID: 2073364526}
@@ -9602,7 +9682,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 278, y: 205}
+  m_AnchoredPosition: {x: 278, y: 167.00002}
   m_SizeDelta: {x: 436, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1519456042
@@ -10365,7 +10445,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -195.99997, y: 205}
+  m_AnchoredPosition: {x: -195.99997, y: 167.00002}
   m_SizeDelta: {x: 429.62, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1633736647
@@ -11776,16 +11856,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b66043b8e8422a54a91c644d32428461, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SongChooser: {fileID: 0}
   SongInfos: {fileID: 1810893658}
-  PanelAreYouSure: {fileID: 0}
-  LevelChooser: {fileID: 0}
   LevelButtonTemplate: {fileID: 0}
-  Title: {fileID: 0}
-  NoSongsFound: {fileID: 0}
-  Settings: {fileID: 0}
-  Highscore: {fileID: 0}
-  Credits: {fileID: 0}
+  MenuPanels: []
   UseGlobalHighscore: {fileID: 0}
   Username: {fileID: 0}
   UserInputField: {fileID: 0}
@@ -13475,7 +13548,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 110, y: 272}
+  m_AnchoredPosition: {x: 110, y: 234}
   m_SizeDelta: {x: 97.1, y: 60.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2067590729
@@ -14461,6 +14534,7 @@ RectTransform:
   - {fileID: 2073364525}
   - {fileID: 1518810761}
   - {fileID: 450713329}
+  - {fileID: 1373075}
   m_Father: {fileID: 460059150}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
