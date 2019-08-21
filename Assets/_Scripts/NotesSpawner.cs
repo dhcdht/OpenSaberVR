@@ -1,4 +1,4 @@
-﻿/*
+/*
  * The spawner code and also the correct timing stuff was taken from the project:
  * BeatSaver Viewer (https://github.com/supermedium/beatsaver-viewer) and ported to C#.
  * 
@@ -22,7 +22,7 @@ public class NotesSpawner : MonoBehaviour
 {
     public GameObject[] Cubes;
     public GameObject Wall;
-    public Transform[] SpawnPoints;
+    public GameObject CameraHead;
 
     private string jsonString;
     private string audioFilePath;
@@ -30,16 +30,18 @@ public class NotesSpawner : MonoBehaviour
     private List<Obstacle> ObstaclesToSpawn = new List<Obstacle>();
     private double BeatsPerMinute;
 
-    private double BeatsTime = 0;
-    private double? BeatsPreloadTime = 0;
-    private double BeatsPreloadTimeTotal = 0;
+    public int _noteIndex = 0;
+    public int _eventIndex = 0;
+    public int _obstilcleIndex = 0;
 
-    private readonly double beatAnticipationTime = 1.1;
-    private readonly double beatSpeed = 8.0;
-    private readonly double beatWarmupTime = BeatsConstants.BEAT_WARMUP_TIME / 1000;
-    private readonly double beatWarmupSpeed = BeatsConstants.BEAT_WARMUP_SPEED;
+    public float _BeatPerMin;
+    public float _BeatPerSec;
+    public float _SecPerBeat;
+    public float _spawnOffset;
+    public float _noteSpeed;
+    public float BeatsTime;
 
-    private AudioSource audioSource;
+    public AudioSource audioSource;
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
@@ -49,6 +51,7 @@ public class NotesSpawner : MonoBehaviour
     void Start()
     {
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        CameraHead = GameObject.FindGameObjectWithTag("MainCamera");
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
         string path = Songsettings.CurrentSong.Path;
         if (Directory.Exists(path))
@@ -63,6 +66,7 @@ public class NotesSpawner : MonoBehaviour
                 {
                     if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
                     {
+                        _noteSpeed = (float)difficultyBeatmaps.Obj.GetNumber("_noteJumpMovementSpeed");
                         audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
                         jsonString = File.ReadAllText(Path.Combine(path, difficultyBeatmaps.Obj.GetString("_beatmapFilename")));
                         break;
@@ -95,26 +99,99 @@ public class NotesSpawner : MonoBehaviour
 
             NotesToSpawn.Add(n);
         }
+        
+        var obstacles = json.GetArray("_obstacles");
+        foreach (var obstacle in obstacles)
+        {
+            var o = new Obstacle
+            {
+                Type = (ObstacleType)obstacle.Obj.GetNumber("_type"),
+                Duration = obstacle.Obj.GetNumber("_duration"),
+                LineIndex = (int)obstacle.Obj.GetNumber("_lineIndex"),
+                TimeInSeconds = (obstacle.Obj.GetNumber("_time") / bpm) * 60,
+                Time = (obstacle.Obj.GetNumber("_time")),
+                Width = (obstacle.Obj.GetNumber("_width"))
+            };
 
-        //Obstacles
-        //var obstacles = json.GetArray("_obstacles");
-        //foreach (var obstacle in obstacles)
-        //{
-        //    var o = new Obstacle
-        //    {
-        //        Type = (ObstacleType)obstacle.Obj.GetNumber("_type"),
-        //        Duration = obstacle.Obj.GetNumber("_duration"),
-        //        LineIndex = (int)obstacle.Obj.GetNumber("_lineIndex"),
-        //        TimeInSeconds = (obstacle.Obj.GetNumber("_time") / bpm) * 60,
-        //        Time = (obstacle.Obj.GetNumber("_time")),
-        //        Width = (obstacle.Obj.GetNumber("_width"))
-        //    };
+            ObstaclesToSpawn.Add(o);
+        }
 
-        //    ObstaclesToSpawn.Add(o);
-        //}
+        Comparison<Note> NoteCompare = (x, y) => x.Time.CompareTo(y.Time);
+        NotesToSpawn.Sort(NoteCompare);
+
+        Comparison<Obstacle> ObsticaleCompare = (x, y) => x.Time.CompareTo(y.Time);
+        ObstaclesToSpawn.Sort(ObsticaleCompare);
 
         BeatsPerMinute = bpm;
-        BeatsPreloadTimeTotal = (beatAnticipationTime + beatWarmupTime);
+        
+        UpdateBeats();
+    }
+
+    public void UpdateBeats()
+    {
+        _BeatPerMin = (float)BeatsPerMinute;
+        _BeatPerSec = 60 / _BeatPerMin;
+        _SecPerBeat = _BeatPerMin / 60;
+
+        UpdateSpawnTime();
+    }
+
+    public void UpdateSpawnTime()
+    {
+        _spawnOffset = BeatsConstants.BEAT_WARMUP_SPEED / _BeatPerMin + BeatsConstants.BEAT_WARMUP_OFFSET * 0.5f / _noteSpeed;
+    }
+
+    public void UpdateNotes()
+    {
+        for (int i = 0; i < NotesToSpawn.Count; i++)
+        {
+            if (_noteIndex < NotesToSpawn.Count && (NotesToSpawn[_noteIndex].Time * _BeatPerSec) - _spawnOffset < BeatsTime && audioSource.isPlaying)
+            {
+                SetupNoteData(NotesToSpawn[_noteIndex]);
+
+                _noteIndex++;
+            }
+        }
+    }
+
+    public void UpdateObstilcles()
+    {
+        for (int i = 0; i < ObstaclesToSpawn.Count; i++)
+        {
+            if (_obstilcleIndex < ObstaclesToSpawn.Count && ( ObstaclesToSpawn[_obstilcleIndex].Time * _BeatPerSec) - _spawnOffset < BeatsTime && audioSource.isPlaying)
+            {
+                SetupObstacleData(ObstaclesToSpawn[_obstilcleIndex]);
+                _obstilcleIndex++;
+            }
+        }
+    }
+
+    private void SetupObstacleData(Obstacle _obstacle)
+    {
+        Vector3 _startZ = transform.forward * (BeatsConstants.BEAT_WARMUP_SPEED + BeatsConstants.BEAT_WARMUP_OFFSET * 0.5f);
+        Vector3 _midZ = _startZ - transform.forward * BeatsConstants.BEAT_WARMUP_SPEED;
+        Vector3 _endZ = _startZ - transform.forward * (BeatsConstants.BEAT_WARMUP_OFFSET + BeatsConstants.BEAT_WARMUP_SPEED);
+
+        Vector3 noteXStart = new Vector3(GetX(_obstacle.LineIndex), _obstacle.Type != ObstacleType.CEILING ? 0.1f : 1.3f, 0f);
+        _startZ += noteXStart;
+        _midZ += noteXStart;
+        _endZ += noteXStart;
+
+        GenerateObstacle(_obstacle, _startZ, _midZ, _endZ);
+    }
+
+    private void SetupNoteData(Note _note)
+    {
+        Vector3 _startZ = transform.forward * (BeatsConstants.BEAT_WARMUP_SPEED + BeatsConstants.BEAT_WARMUP_OFFSET * 0.5f);
+        Vector3 _midZ = _startZ - transform.forward * BeatsConstants.BEAT_WARMUP_SPEED;
+        Vector3 _endZ = _startZ - transform.forward * (BeatsConstants.BEAT_WARMUP_OFFSET + BeatsConstants.BEAT_WARMUP_SPEED);
+
+        Vector3 noteXY = new Vector3(GetX(SetIndex(_note.LineIndex)), GetY(_note.LineLayer), 0);
+        //_startZ += noteXY;
+        _midZ += noteXY;
+        _endZ += noteXY;
+
+        GenerateNote(_note, _startZ, _midZ, _endZ);
     }
 
     private IEnumerator LoadAudio()
@@ -138,66 +215,25 @@ public class NotesSpawner : MonoBehaviour
 
     void Update()
     {
-        var prevBeatsTime = BeatsTime;
-
-        if (BeatsPreloadTime == null)
+        if (audioLoaded)
         {
-            if (!audioSource.isPlaying)
+            audioLoaded = false;
+            audioSource.Play();
+        }
+
+        BeatsTime = audioSource.time;
+        UpdateNotes();
+        UpdateObstilcles();
+
+        if (_noteIndex == NotesToSpawn.Count && _obstilcleIndex == ObstaclesToSpawn.Count && !audioSource.isPlaying)
+        {
+            if (!menuLoadInProgress)
             {
-                if (!menuLoadInProgress)
-                {
-                    menuLoadInProgress = true;
-                    StartCoroutine(LoadMenu());
-                }
-                return;
+                menuLoadInProgress = true;
+                StartCoroutine(LoadMenu());
             }
 
-            BeatsTime = (audioSource.time + beatAnticipationTime + beatWarmupTime) * 1000;
-        }
-        else
-        {
-            BeatsTime = BeatsPreloadTime.Value;
-        }
-
-        double msPerBeat = 1000 * 60 / BeatsPerMinute;
-
-        //Notes
-        for (int i = 0; i < NotesToSpawn.Count; ++i)
-        {
-            var noteTime = NotesToSpawn[i].Time * msPerBeat;
-            if (noteTime > prevBeatsTime && noteTime <= BeatsTime)
-            {
-                NotesToSpawn[i].Time = noteTime;
-                GenerateNote(NotesToSpawn[i]);
-            }
-        }
-
-        //Obstacles
-        for (int i = 0; i < ObstaclesToSpawn.Count; ++i)
-        {
-            var noteTime = ObstaclesToSpawn[i].Time * msPerBeat;
-            if (noteTime > prevBeatsTime && noteTime <= BeatsTime)
-            {
-                ObstaclesToSpawn[i].Time = noteTime;
-                GenerateObstacle(ObstaclesToSpawn[i]);
-            }
-        }
-
-        if (BeatsPreloadTime == null) { return; }
-
-        if (BeatsPreloadTime.Value >= BeatsPreloadTimeTotal)
-        {
-            if (audioLoaded)
-            {
-                // Finished preload.
-                BeatsPreloadTime = null;
-                audioSource.Play();
-            }
-        }
-        else
-        {
-            // Continue preload.
-            BeatsPreloadTime += Time.deltaTime;
+            return;
         }
     }
 
@@ -205,98 +241,120 @@ public class NotesSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
 
-        yield return SceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
+        yield return SceneHandling.LoadScene("ScoreSummary", LoadSceneMode.Additive);
         yield return SceneHandling.UnloadScene("OpenSaber");
     }
 
-    void GenerateNote(Note note)
+    void GenerateNote(Note note, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
     {
-        int point = 0;
-
-        switch (note.LineLayer)
-        {
-            case 0:
-                point = note.LineIndex;
-                break;
-            case 1:
-                point = note.LineIndex + 4;
-                break;
-            case 2:
-                point = note.LineIndex + 8;
-                break;
-            default:
-                break;
-        }
-
         if (note.CutDirection == CutDirection.NONDIRECTION)
         {
             // the nondirection cubes are stored at the index+2 in the array
             note.Hand += 2;
         }
 
-        GameObject cube = Instantiate(Cubes[(int)note.Hand], SpawnPoints[point]);
-        cube.transform.localPosition = Vector3.zero;
-
-        float rotation = 0f;
-
-        switch (note.CutDirection)
-        {
-            case CutDirection.TOP:
-                rotation = 0f;
-                break;
-            case CutDirection.BOTTOM:
-                rotation = 180f;
-                break;
-            case CutDirection.LEFT:
-                rotation = 270f;
-                break;
-            case CutDirection.RIGHT:
-                rotation = 90f;
-                break;
-            case CutDirection.TOPLEFT:
-                rotation = 315f;
-                break;
-            case CutDirection.TOPRIGHT:
-                rotation = 45f;
-                break;
-            case CutDirection.BOTTOMLEFT:
-                rotation = 225f;
-                break;
-            case CutDirection.BOTTOMRIGHT:
-                rotation = 125f;
-                break;
-            case CutDirection.NONDIRECTION:
-                rotation = 0f;
-                break;
-            default:
-                break;
-        }
-
-        cube.transform.Rotate(transform.forward, rotation);
-
+        GameObject cube = Instantiate(Cubes[(int)note.Hand]);
         var handling = cube.GetComponent<CubeHandling>();
-        handling.AnticipationPosition = (float) (-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET);
-        handling.Speed = (float)beatSpeed;
-        handling.WarmUpPosition = -beatWarmupTime * beatWarmupSpeed;
+        handling.SetupNote(moveStartPos, moveEndPos, jumpEndPos, this, note);
     }
 
-    public void GenerateObstacle(Obstacle obstacle)
+    public void GenerateObstacle(Obstacle obstacle, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
     {
-        double WALL_THICKNESS = 0.5;
-
-        double durationSeconds = 60 * (obstacle.Duration / BeatsPerMinute);
-
-        GameObject wall = Instantiate(Wall, SpawnPoints[obstacle.LineIndex]);
-
+        GameObject wall = Instantiate(Wall);
         var wallHandling = wall.GetComponent<ObstacleHandling>();
-        wallHandling.AnticipationPosition = (float)(-beatAnticipationTime * beatSpeed - BeatsConstants.SWORD_OFFSET);
-        wallHandling.Speed = (float)beatSpeed;
-        wallHandling.WarmUpPosition = -beatWarmupTime * beatWarmupSpeed;
-        wallHandling.Width = obstacle.Width * WALL_THICKNESS;
-        wallHandling.Ceiling = obstacle.Type == ObstacleType.CEILING;
-        wallHandling.Duration = obstacle.Duration;
+        wallHandling.SetupObstacle(obstacle, this, moveStartPos ,moveEndPos, jumpEndPos);
+    }
 
-        //wall.transform.localScale = new Vector3((float)wallHandling.Width, wall.transform.localScale.y, wall.transform.localScale.z);
+    private float GetY(float lineLayer)
+    {
+        float delta = (1.9f - 1.4f);
+
+        if ((int)lineLayer >= 1000 || (int)lineLayer <= -1000)
+        {
+            return 1.4f - delta - delta + (((int)lineLayer) * (delta / 1000f));
+        }
+
+        if ((int)lineLayer > 2)
+        {
+
+            return 1.4f - delta + ((int)lineLayer * delta);
+        }
+
+        if ((int)lineLayer < 0)
+        {
+            return 1.4f - delta + ((int)lineLayer * delta);
+        }
+
+        if (lineLayer == 0)
+        {
+            return 0.85f;
+        }
+        if (lineLayer == 1)
+        {
+            return 1.4f;
+        }
+
+        return 1.9f;
+    }
+    public float GetX(float noteindex)
+    {
+        float num = (-1.5f + noteindex) * 0.6f; //-3f * 0.5f
+
+        if (noteindex >= 1000 || noteindex <= -1000)
+        {
+            num = 0.3f;
+
+            if (noteindex <= -1000)
+                noteindex += 2000;
+
+            num = num + (noteindex * (0.6f / 1000));
+        }
+
+        return num;
+    }
+    public float SetIndex(float lineIndex)
+    {
+        int newlaneCount = 0;
+        if (lineIndex > 3 || lineIndex < 0)
+        {
+            if (lineIndex >= 1000 || lineIndex <= -1000)
+            {
+                int newIndex = (int)lineIndex;
+                bool leftSide = false;
+                if (newIndex <= -1000)
+                {
+                    newIndex += 2000;
+                }
+
+                if (newIndex >= 4000)
+                    leftSide = true;
+
+
+                newIndex = 5000 - newIndex;
+                if (leftSide)
+                    newIndex -= 2000;
+
+                lineIndex = newIndex;
+            }
+
+            else if (lineIndex > 3)
+            {
+                int diff = (((int)lineIndex - 3) * 2);
+                newlaneCount = 4 + diff;
+                lineIndex = newlaneCount - diff - 1 - lineIndex;
+
+            }
+            else if (lineIndex < 0)
+            {
+                int diff = ((0 - (int)lineIndex)) * 2;
+                newlaneCount = 4 + diff;
+                lineIndex = newlaneCount - diff - 1 - lineIndex;
+            }
+
+            lineIndex = lineIndex < 0.6f * 3 ? Mathf.Abs(lineIndex) : -lineIndex;
+        }
+
+        return lineIndex;
     }
 
     public class Note
@@ -359,6 +417,28 @@ public class NotesSpawner : MonoBehaviour
     {
         WALL = 0,
         CEILING = 1
+    }
+
+    public enum Mode
+    {
+        preciseHeight,
+        preciseHeightStart
+    };
+
+    public static GameObject GetChildByName(GameObject parent, string childName)
+    {
+        GameObject _childObject = null;
+
+        Transform[] _Children = parent.transform.GetComponentsInChildren<Transform>(true);
+        foreach (Transform _child in _Children)
+        {
+            if (_child.gameObject.name == childName)
+            {
+                return _child.gameObject;
+            }
+        }
+
+        return _childObject;
     }
 }
 
