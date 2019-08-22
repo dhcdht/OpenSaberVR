@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -9,17 +10,19 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    public GameObject SongChooser;
     public LoadSongInfos SongInfos;
-    public GameObject PanelAreYouSure;
-    public GameObject LevelChooser;
     public GameObject LevelButtonTemplate;
-    public GameObject Title;
-    public GameObject NoSongsFound;
+    public GameObject[] MenuPanels;
+    public Text UseGlobalHighscore;
+    public Text Username;
+    public InputField UserInputField;
     public AudioSource SongPreview;
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
+    private ScoreHandling ScoreHandling;
+
+    private HighScore.HighScore score = new HighScore.HighScore();
 
     AudioClip PreviewAudioClip = null;
     bool PlayNewPreview = false;
@@ -28,29 +31,26 @@ public class MainMenu : MonoBehaviour
     {
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
+        ScoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
     }
 
     public void ShowSongs()
     {
         if (SongInfos.AllSongs.Count == 0)
         {
-            Title.gameObject.SetActive(false);
-            NoSongsFound.gameObject.SetActive(true);
+            DisplayPanel("NoSongsFound");
             return;
         }
 
         Songsettings.CurrentSong = SongInfos.AllSongs[SongInfos.CurrentSong];
 
-        Title.gameObject.SetActive(false);
-        PanelAreYouSure.gameObject.SetActive(false);
-        LevelChooser.gameObject.SetActive(false);
-        SongChooser.gameObject.SetActive(true);
+        DisplayPanel("SongChooser");
         var song = SongInfos.GetCurrentSong();
 
         SongInfos.SongName.text = song.Name;
         SongInfos.Artist.text = song.AuthorName;
         SongInfos.BPM.text = song.BPM;
-        SongInfos.Levels.text = song.Difficulties.Count.ToString();
+        SongInfos.Levels.text = song.PlayingMethods[0].Difficulties.Count.ToString();
 
         byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
         Texture2D sampleTexture = new Texture2D(2, 2);
@@ -62,6 +62,58 @@ public class MainMenu : MonoBehaviour
         }
 
         StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
+    }
+
+    public void ShowSettings()
+    {
+        SongPreview.Stop();
+
+        DisplayPanel("Settings");
+
+        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 0)
+        {
+            UseGlobalHighscore.text = "off";
+        }
+        else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        {
+            UseGlobalHighscore.text = "on";
+        }
+
+        if (string.IsNullOrWhiteSpace(PlayerPrefs.GetString("Username")))
+        {
+            Username.text = "Player" + Random.Range(0, int.MaxValue);
+            PlayerPrefs.SetString("Username", Username.text);
+        }
+        else
+        {
+            Username.text = PlayerPrefs.GetString("Username");
+        }
+    }
+
+    public void ShowCredits()
+    {
+        SongPreview.Stop();
+        DisplayPanel("Credits");
+    }
+
+    public void ClickKey(string character)
+    {
+        UserInputField.text += character;
+    }
+
+    public void Backspace()
+    {
+        if (UserInputField.text.Length > 0)
+        {
+            UserInputField.text = UserInputField.text.Substring(0, UserInputField.text.Length - 1);
+        }
+    }
+
+    public void SetUsername()
+    {
+        Username.text = UserInputField.text;
+        PlayerPrefs.SetString("Username", Username.text);
+        UserInputField.text = "";
     }
 
     public IEnumerator PreviewSong(string audioFilePath)
@@ -107,7 +159,7 @@ public class MainMenu : MonoBehaviour
         SongInfos.SongName.text = song.Name;
         SongInfos.Artist.text = song.AuthorName;
         SongInfos.BPM.text = song.BPM;
-        SongInfos.Levels.text = song.Difficulties.Count.ToString();
+        SongInfos.Levels.text = song.PlayingMethods[0].Difficulties.Count.ToString();
 
         byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
         Texture2D sampleTexture = new Texture2D(2, 2);
@@ -128,7 +180,7 @@ public class MainMenu : MonoBehaviour
         SongInfos.SongName.text = song.Name;
         SongInfos.Artist.text = song.AuthorName;
         SongInfos.BPM.text = song.BPM;
-        SongInfos.Levels.text = song.Difficulties.Count.ToString();
+        SongInfos.Levels.text = song.PlayingMethods[0].Difficulties.Count.ToString();
 
         byte[] byteArray = File.ReadAllBytes(song.CoverImagePath);
         Texture2D sampleTexture = new Texture2D(2, 2);
@@ -146,8 +198,10 @@ public class MainMenu : MonoBehaviour
     {
         SongPreview.Stop();
         var song = SongInfos.GetCurrentSong();
-        if(song.Difficulties.Count > 1)
+        if (song.PlayingMethods[0].Difficulties.Count > 1)
         {
+            var LevelChooser = MenuPanels.ToList().First(m => m.name == "DifficultChooser");
+
             foreach (var gameObj in LevelChooser.GetComponentsInChildren<Button>(true))
             {
                 if (gameObj.gameObject.name == "ButtonTemplate")
@@ -156,78 +210,110 @@ public class MainMenu : MonoBehaviour
                 Destroy(gameObj.gameObject);
             }
 
-            SongChooser.gameObject.SetActive(false);
-            PanelAreYouSure.gameObject.SetActive(false);
-            LevelChooser.gameObject.SetActive(true);
+            DisplayPanel("DifficultChooser");
 
             var buttonsCreated = new List<GameObject>();
 
-            foreach (var difficulty in song.Difficulties)
+            PlayingMethod playingMethod = song.PlayingMethods[0];
+            foreach (var difficulty in playingMethod.Difficulties)
             {
                 var button = GameObject.Instantiate(LevelButtonTemplate, LevelChooser.transform);
 
                 button.GetComponentInChildren<Text>().text = difficulty;
-                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(difficulty));
+                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(0, difficulty));
                 button.SetActive(true);
                 buttonsCreated.Add(button);
             }
 
-            switch (buttonsCreated.Count)
+            float leftAlign = (-250 - 36) * (buttonsCreated.Count / 2);
+            if (buttonsCreated.Count % 2 == 0)
             {
-                case 2:
-                    buttonsCreated[0].GetComponent<RectTransform>().localPosition = new Vector3(-287, buttonsCreated[0].GetComponent<RectTransform>().localPosition.y);
-                    buttonsCreated[1].GetComponent<RectTransform>().localPosition = new Vector3(287, buttonsCreated[1].GetComponent<RectTransform>().localPosition.y);
-                    break;
-                case 3:
-                    buttonsCreated[0].GetComponent<RectTransform>().localPosition = new Vector3(-287, buttonsCreated[0].GetComponent<RectTransform>().position.y);
-                    buttonsCreated[1].GetComponent<RectTransform>().localPosition = new Vector3(0, buttonsCreated[1].GetComponent<RectTransform>().position.y);
-                    buttonsCreated[2].GetComponent<RectTransform>().localPosition = new Vector3(287, buttonsCreated[2].GetComponent<RectTransform>().position.y);
-                    break;
-                case 4:
-                    buttonsCreated[0].GetComponent<RectTransform>().localPosition = new Vector3(-430, buttonsCreated[0].GetComponent<RectTransform>().localPosition.y);
-                    buttonsCreated[1].GetComponent<RectTransform>().localPosition = new Vector3(-144, buttonsCreated[1].GetComponent<RectTransform>().localPosition.y);
-                    buttonsCreated[2].GetComponent<RectTransform>().localPosition = new Vector3(144, buttonsCreated[2].GetComponent<RectTransform>().localPosition.y);
-                    buttonsCreated[3].GetComponent<RectTransform>().localPosition = new Vector3(430, buttonsCreated[3].GetComponent<RectTransform>().localPosition.y);
-                    break;
-                default:
-                    break;
+                leftAlign -= ((-250 - 36) / 2);
+            }
+            foreach (var button in buttonsCreated)
+            {
+                button.GetComponent<RectTransform>().localPosition = new Vector3(leftAlign, buttonsCreated[0].GetComponent<RectTransform>().localPosition.y);
+                leftAlign += (250 + 36);
             }
         }
         else
         {
-            StartSceneWithDifficulty(song.Difficulties[0]);
+            StartSceneWithDifficulty(0, song.PlayingMethods[0].Difficulties[0]);
         }
     }
 
-    private void StartSceneWithDifficulty(string difficulty)
+    private void StartSceneWithDifficulty(int playingMethod, string difficulty)
     {
+        SongInfos.GetCurrentSong().SelectedPlayingMethod = playingMethod;
         SongInfos.GetCurrentSong().SelectedDifficulty = difficulty;
         StartCoroutine(LoadSongScene());
     }
 
     private IEnumerator LoadSongScene()
     {
+        ScoreHandling.ResetScoreHandling();
         yield return SceneHandling.LoadScene("OpenSaber", LoadSceneMode.Additive);
         yield return SceneHandling.UnloadScene("Menu");
     }
 
     public void AreYouSure()
     {
-        NoSongsFound.gameObject.SetActive(false);
-        Title.gameObject.SetActive(false);
-        SongChooser.gameObject.SetActive(false);
-        LevelChooser.gameObject.SetActive(false);
-        PanelAreYouSure.gameObject.SetActive(true);
+        SongPreview.Stop();
+        DisplayPanel("AreYouSurePanel");
     }
 
     public void No()
     {
-        PanelAreYouSure.gameObject.SetActive(false);
-        Title.gameObject.SetActive(true);
+        DisplayPanel("Title");
     }
 
     public void Yes()
     {
         Application.Quit();
+    }
+
+    public void SetGlobalHighscore()
+    {
+        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 0)
+        {
+            PlayerPrefs.SetInt("UseGlobalHighscore", 1);
+            UseGlobalHighscore.text = "on";
+            StartCoroutine(InitializeGlobalHighscore());
+        }
+        else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        {
+            PlayerPrefs.SetInt("UseGlobalHighscore", 0);
+            UseGlobalHighscore.text = "off";
+        }
+    }
+
+    public IEnumerator InitializeGlobalHighscore()
+    {
+        yield return new WaitForSeconds(0.1f);
+        score.Init();
+
+        if (ScoreHandling.ActualScore > 0)
+        {
+            //AddUserScoreToHighscore();
+        }
+    }
+
+    //public void ShowHighscore()
+    //{
+    //    if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+    //    {
+    //        Highscore.gameObject.SetActive(true);
+    //    }
+    //}
+
+    //private void AddUserScoreToHighscore()
+    //{
+    //    score.AddHighScoreToSong(Songsettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), Songsettings.CurrentSong.Name, Songsettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
+    //}
+
+    public void DisplayPanel(string activatePanel)
+    {
+        MenuPanels.ToList().ForEach(m => m.SetActive(false));
+        MenuPanels.ToList().First(m => m.name == activatePanel).SetActive(true);
     }
 }
