@@ -17,7 +17,7 @@ Just download any song from BeatSaver or BeastSaber and unzip it to the "OpenSab
 
 
 ## Gameplay
-![alt text](https://img.itch.zone/aW1hZ2UvNDMyMDUzLzIyMDg1NjYucG5n/original/9NX9rx.png "")
+![alt text](https://img.itch.zone/aW1hZ2UvNDMyMDUzLzIyNDc2OTMucG5n/original/%2Bx5231.png "")
 If you know how to play Beat Saber then you are good to go. If not then it's really simple to play, just cut the notes (beat blocks) at the side where the glow bar is with the saber in the same color. The blue saber is the right hand, the red saber is the left hand. The notes will be only sliced if you hit with the correct saber on the correct side. Otherwise the block will just went through.
 
 There is no energy or anything right now, so you can't "loose" a game , the song will play until the end. Also there are no points right now, only some fun with the music.
