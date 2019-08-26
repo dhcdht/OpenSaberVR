@@ -13,6 +13,7 @@ public class Saber : MonoBehaviour
     private VRTK_ControllerReference controllerReference;
 
     private ScoreHandling scoreHandling;
+    private AudioHandling audioHandling;
 
     private void Start()
     {
@@ -24,6 +25,7 @@ public class Saber : MonoBehaviour
         }
 
         scoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
+        audioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
     }
 
     private float Pulse()
@@ -91,6 +93,8 @@ public class Saber : MonoBehaviour
         var cutted = slicer.SliceObject(hittedObject.gameObject);
         var go = Instantiate(hittedObject.gameObject);
 
+        var cubeHandling = hittedObject.gameObject.GetComponent<CubeHandling>();
+        var cutDirection = cubeHandling._note.CutDirection;
         go.GetComponent<CubeHandling>().enabled = false;
         go.GetComponentInChildren<BoxCollider>().enabled = false;
         go.layer = 0;
@@ -108,12 +112,18 @@ public class Saber : MonoBehaviour
             rigid.useGravity = true;
         }
 
+        var audioSource = go.AddComponent<AudioSource>();
+        audioSource.volume = 0.15f;
+        audioSource.clip = audioHandling.GetAudioClip(cutDirection);
+        audioSource.loop = false;
+
         go.transform.SetPositionAndRotation(hittedObject.position, hittedObject.rotation);
 
         var strength = Pulse();
         AddPointsToScore(strength);
 
         Destroy(hittedObject.gameObject);
+        audioSource.Play();
         Destroy(go, 2f);
     }
 
