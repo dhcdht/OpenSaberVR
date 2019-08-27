@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using VRTK;
+using DG.Tweening;
 
 public class Saber : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class Saber : MonoBehaviour
     private VRTK_ControllerReference controllerReference;
 
     private ScoreHandling scoreHandling;
+    private AudioHandling audioHandling;
+
+    private bool UseSoundFX = false;
 
     private void Start()
     {
@@ -24,6 +28,7 @@ public class Saber : MonoBehaviour
         }
 
         scoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
+        audioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
     }
 
     private float Pulse()
@@ -91,6 +96,10 @@ public class Saber : MonoBehaviour
         var cutted = slicer.SliceObject(hittedObject.gameObject);
         var go = Instantiate(hittedObject.gameObject);
 
+        var cubeHandling = hittedObject.gameObject.GetComponent<CubeHandling>();
+        var cutDirection = cubeHandling._note.CutDirection;
+        var lineIndex = cubeHandling._note.LineIndex;
+        var lineLayer = cubeHandling._note.LineLayer;
         go.GetComponent<CubeHandling>().enabled = false;
         go.GetComponentInChildren<BoxCollider>().enabled = false;
         go.layer = 0;
@@ -106,6 +115,18 @@ public class Saber : MonoBehaviour
             cut.AddComponent<BoxCollider>();
             var rigid = cut.AddComponent<Rigidbody>();
             rigid.useGravity = true;
+            cut.transform.DOScale(0, 1f);
+        }
+
+        AudioSource audioSource = null;
+
+        if (audioHandling.UseSoundFX)
+        {
+            audioSource = go.AddComponent<AudioSource>();
+            audioSource.volume = 0.15f;
+            audioSource.clip = audioHandling.GetAudioClip(cutDirection);
+            audioSource.loop = false;
+            audioSource.pitch = PitchValue(lineLayer);
         }
 
         go.transform.SetPositionAndRotation(hittedObject.position, hittedObject.rotation);
@@ -114,7 +135,24 @@ public class Saber : MonoBehaviour
         AddPointsToScore(strength);
 
         Destroy(hittedObject.gameObject);
+        audioSource?.Play();
         Destroy(go, 2f);
+    }
+
+    private float PitchValue(int lineLayer)
+    {
+        var pitch = 1.0f;
+
+        if (lineLayer == 0)
+        {
+            pitch = 0.5f;
+        }
+        else if (lineLayer == 2)
+        {
+            pitch = 1.5f;
+        }
+
+        return pitch;
     }
 
     private void AddPointsToScore(float strength)

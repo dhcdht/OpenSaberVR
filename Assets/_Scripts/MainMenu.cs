@@ -16,11 +16,13 @@ public class MainMenu : MonoBehaviour
     public Text UseGlobalHighscore;
     public Text Username;
     public InputField UserInputField;
+    public Text UseSoundFX;
     public AudioSource SongPreview;
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
     private ScoreHandling ScoreHandling;
+    private AudioHandling AudioHandling;
 
     private HighScore.HighScore score = new HighScore.HighScore();
 
@@ -32,6 +34,7 @@ public class MainMenu : MonoBehaviour
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
         ScoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
+        AudioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
     }
 
     public void ShowSongs()
@@ -77,6 +80,15 @@ public class MainMenu : MonoBehaviour
         else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
         {
             UseGlobalHighscore.text = "on";
+        }
+
+        if (PlayerPrefs.GetInt("UseSoundFX") == 0)
+        {
+            UseSoundFX.text = "off";
+        }
+        else if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        {
+            UseSoundFX.text = "on";
         }
 
         if (string.IsNullOrWhiteSpace(PlayerPrefs.GetString("Username")))
@@ -310,6 +322,22 @@ public class MainMenu : MonoBehaviour
     //{
     //    score.AddHighScoreToSong(Songsettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), Songsettings.CurrentSong.Name, Songsettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
     //}
+
+    public void SetSoundFX()
+    {
+        if (PlayerPrefs.GetInt("UseSoundFX") == 0)
+        {
+            PlayerPrefs.SetInt("UseSoundFX", 1);
+            UseSoundFX.text = "on";
+            AudioHandling.UseSoundFX = true;
+        }
+        else if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        {
+            PlayerPrefs.SetInt("UseSoundFX", 0);
+            UseSoundFX.text = "off";
+            AudioHandling.UseSoundFX = false;
+        }
+    }
 
     public void DisplayPanel(string activatePanel)
     {
