@@ -16,6 +16,8 @@ public class Saber : MonoBehaviour
     private ScoreHandling scoreHandling;
     private AudioHandling audioHandling;
 
+    private bool UseSoundFX = false;
+
     private void Start()
     {
         slicer = GetComponentInChildren<Slice>(true);
@@ -116,11 +118,16 @@ public class Saber : MonoBehaviour
             cut.transform.DOScale(0, 1f);
         }
 
-        var audioSource = go.AddComponent<AudioSource>();
-        audioSource.volume = 0.13f;
-        audioSource.clip = audioHandling.GetAudioClip(cutDirection);
-        audioSource.loop = false;
-        audioSource.pitch = PitchValue(lineLayer);
+        AudioSource audioSource = null;
+
+        if (audioHandling.UseSoundFX)
+        {
+            audioSource = go.AddComponent<AudioSource>();
+            audioSource.volume = 0.15f;
+            audioSource.clip = audioHandling.GetAudioClip(cutDirection);
+            audioSource.loop = false;
+            audioSource.pitch = PitchValue(lineLayer);
+        }
 
         go.transform.SetPositionAndRotation(hittedObject.position, hittedObject.rotation);
 
@@ -128,7 +135,7 @@ public class Saber : MonoBehaviour
         AddPointsToScore(strength);
 
         Destroy(hittedObject.gameObject);
-        audioSource.Play();
+        audioSource?.Play();
         Destroy(go, 2f);
     }
 

@@ -6,6 +6,19 @@ using static NotesSpawner;
 public class AudioHandling : MonoBehaviour
 {
     public AudioClip[] BeatHitSounds;
+    public bool UseSoundFX;
+
+    private void Awake()
+    {
+        if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        {
+            UseSoundFX = true;
+        }
+        else if (PlayerPrefs.GetInt("UseSoundFX") == 0)
+        {
+            UseSoundFX = false;
+        }
+    }
 
     public AudioClip GetAudioClip(CutDirection direction)
     {
