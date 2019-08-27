@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using VRTK;
+using DG.Tweening;
 
 public class Saber : MonoBehaviour
 {
@@ -95,6 +96,8 @@ public class Saber : MonoBehaviour
 
         var cubeHandling = hittedObject.gameObject.GetComponent<CubeHandling>();
         var cutDirection = cubeHandling._note.CutDirection;
+        var lineIndex = cubeHandling._note.LineIndex;
+        var lineLayer = cubeHandling._note.LineLayer;
         go.GetComponent<CubeHandling>().enabled = false;
         go.GetComponentInChildren<BoxCollider>().enabled = false;
         go.layer = 0;
@@ -110,12 +113,14 @@ public class Saber : MonoBehaviour
             cut.AddComponent<BoxCollider>();
             var rigid = cut.AddComponent<Rigidbody>();
             rigid.useGravity = true;
+            cut.transform.DOScale(0, 1f);
         }
 
         var audioSource = go.AddComponent<AudioSource>();
-        audioSource.volume = 0.15f;
+        audioSource.volume = 0.13f;
         audioSource.clip = audioHandling.GetAudioClip(cutDirection);
         audioSource.loop = false;
+        audioSource.pitch = PitchValue(lineLayer);
 
         go.transform.SetPositionAndRotation(hittedObject.position, hittedObject.rotation);
 
@@ -125,6 +130,22 @@ public class Saber : MonoBehaviour
         Destroy(hittedObject.gameObject);
         audioSource.Play();
         Destroy(go, 2f);
+    }
+
+    private float PitchValue(int lineLayer)
+    {
+        var pitch = 1.0f;
+
+        if (lineLayer == 0)
+        {
+            pitch = 0.5f;
+        }
+        else if (lineLayer == 2)
+        {
+            pitch = 1.5f;
+        }
+
+        return pitch;
     }
 
     private void AddPointsToScore(float strength)
