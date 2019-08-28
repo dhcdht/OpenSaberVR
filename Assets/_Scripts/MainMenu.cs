@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -9,23 +10,19 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    public GameObject SongChooser;
     public LoadSongInfos SongInfos;
-    public GameObject PanelAreYouSure;
-    public GameObject LevelChooser;
     public GameObject LevelButtonTemplate;
-    public GameObject Title;
-    public GameObject NoSongsFound;
-    public GameObject Settings;
-    public GameObject Highscore;
+    public GameObject[] MenuPanels;
     public Text UseGlobalHighscore;
     public Text Username;
     public InputField UserInputField;
+    public Text UseSoundFX;
     public AudioSource SongPreview;
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
     private ScoreHandling ScoreHandling;
+    private AudioHandling AudioHandling;
 
     private HighScore.HighScore score = new HighScore.HighScore();
 
@@ -34,32 +31,23 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
-        //if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
-        //{
-        //    StartCoroutine(InitializeGlobalHighscore());
-        //}
-
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
         ScoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
+        AudioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
     }
 
     public void ShowSongs()
     {
         if (SongInfos.AllSongs.Count == 0)
         {
-            Title.gameObject.SetActive(false);
-            NoSongsFound.gameObject.SetActive(true);
+            DisplayPanel("NoSongsFound");
             return;
         }
 
         Songsettings.CurrentSong = SongInfos.AllSongs[SongInfos.CurrentSong];
 
-        Title.gameObject.SetActive(false);
-        PanelAreYouSure.gameObject.SetActive(false);
-        LevelChooser.gameObject.SetActive(false);
-        Settings.gameObject.SetActive(false);
-        SongChooser.gameObject.SetActive(true);
+        DisplayPanel("SongChooser");
         var song = SongInfos.GetCurrentSong();
 
         SongInfos.SongName.text = song.Name;
@@ -82,13 +70,9 @@ public class MainMenu : MonoBehaviour
     public void ShowSettings()
     {
         SongPreview.Stop();
-        Title.gameObject.SetActive(false);
-        PanelAreYouSure.gameObject.SetActive(false);
-        LevelChooser.gameObject.SetActive(false);
-        SongChooser.gameObject.SetActive(false);
-        NoSongsFound.gameObject.SetActive(false);
 
-        Settings.gameObject.SetActive(true);
+        DisplayPanel("Settings");
+
         if (PlayerPrefs.GetInt("UseGlobalHighscore") == 0)
         {
             UseGlobalHighscore.text = "off";
@@ -96,6 +80,15 @@ public class MainMenu : MonoBehaviour
         else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
         {
             UseGlobalHighscore.text = "on";
+        }
+
+        if (PlayerPrefs.GetInt("UseSoundFX") == 0)
+        {
+            UseSoundFX.text = "off";
+        }
+        else if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        {
+            UseSoundFX.text = "on";
         }
 
         if (string.IsNullOrWhiteSpace(PlayerPrefs.GetString("Username")))
@@ -107,6 +100,12 @@ public class MainMenu : MonoBehaviour
         {
             Username.text = PlayerPrefs.GetString("Username");
         }
+    }
+
+    public void ShowCredits()
+    {
+        SongPreview.Stop();
+        DisplayPanel("Credits");
     }
 
     public void ClickKey(string character)
@@ -213,6 +212,8 @@ public class MainMenu : MonoBehaviour
         var song = SongInfos.GetCurrentSong();
         if (song.PlayingMethods[0].Difficulties.Count > 1)
         {
+            var LevelChooser = MenuPanels.ToList().First(m => m.name == "DifficultChooser");
+
             foreach (var gameObj in LevelChooser.GetComponentsInChildren<Button>(true))
             {
                 if (gameObj.gameObject.name == "ButtonTemplate")
@@ -221,9 +222,7 @@ public class MainMenu : MonoBehaviour
                 Destroy(gameObj.gameObject);
             }
 
-            SongChooser.gameObject.SetActive(false);
-            PanelAreYouSure.gameObject.SetActive(false);
-            LevelChooser.gameObject.SetActive(true);
+            DisplayPanel("DifficultChooser");
 
             for (int i = 0; i < song.PlayingMethods.Count; i++)
             {
@@ -301,18 +300,12 @@ public class MainMenu : MonoBehaviour
     public void AreYouSure()
     {
         SongPreview.Stop();
-        NoSongsFound.gameObject.SetActive(false);
-        Title.gameObject.SetActive(false);
-        SongChooser.gameObject.SetActive(false);
-        LevelChooser.gameObject.SetActive(false);
-        Settings.gameObject.SetActive(false);
-        PanelAreYouSure.gameObject.SetActive(true);
+        DisplayPanel("AreYouSurePanel");
     }
 
     public void No()
     {
-        PanelAreYouSure.gameObject.SetActive(false);
-        Title.gameObject.SetActive(true);
+        DisplayPanel("Title");
     }
 
     public void Yes()
@@ -346,16 +339,38 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public void ShowHighscore()
+    //public void ShowHighscore()
+    //{
+    //    if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+    //    {
+    //        Highscore.gameObject.SetActive(true);
+    //    }
+    //}
+
+    //private void AddUserScoreToHighscore()
+    //{
+    //    score.AddHighScoreToSong(Songsettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), Songsettings.CurrentSong.Name, Songsettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
+    //}
+
+    public void SetSoundFX()
     {
-        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        if (PlayerPrefs.GetInt("UseSoundFX") == 0)
         {
-            Highscore.gameObject.SetActive(true);
+            PlayerPrefs.SetInt("UseSoundFX", 1);
+            UseSoundFX.text = "on";
+            AudioHandling.UseSoundFX = true;
+        }
+        else if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        {
+            PlayerPrefs.SetInt("UseSoundFX", 0);
+            UseSoundFX.text = "off";
+            AudioHandling.UseSoundFX = false;
         }
     }
 
-    private void AddUserScoreToHighscore()
+    public void DisplayPanel(string activatePanel)
     {
-        score.AddHighScoreToSong(Songsettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), Songsettings.CurrentSong.Name, Songsettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
+        MenuPanels.ToList().ForEach(m => m.SetActive(false));
+        MenuPanels.ToList().First(m => m.name == activatePanel).SetActive(true);
     }
 }

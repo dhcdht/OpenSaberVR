@@ -17,31 +17,34 @@ public class ObstacleHandling : MonoBehaviour
 
     void Update()
     {
-        _songTime = _refNotesSpawner.audioSource.time + Time.smoothDeltaTime;
-        float songTimeDistance = _songTime - (((float)_obstacle.Time * _refNotesSpawner._BeatPerSec) - _refNotesSpawner._spawnOffset);
-        float _songTimeOffset = _songTime - ((((float)_obstacle.Time * _refNotesSpawner._BeatPerSec) - _refNotesSpawner._spawnOffset) + (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin));
-        float _songTimeOffsetPercent = _songTimeOffset / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
-
-        if (songTimeDistance >= BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin)
+        if (_refNotesSpawner != null && _refNotesSpawner.audioSource != null)
         {
-            float t = (songTimeDistance - (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin)) / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
-            _timeJump.x = this._startPos.x;
-            _timeJump.y = this._startPos.y;
-            _timeJump.z = Mathf.LerpUnclamped(_midPos.z + BeatsConstants.SWORD_OFFSET * Mathf.Min(1f, t * 2f), _endPos.z + BeatsConstants.SWORD_OFFSET, t);
-        }
-        else
-        {
-            _timeJump = Vector3.LerpUnclamped(_startPos, _midPos, songTimeDistance / (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin));
-        }
+            _songTime = _refNotesSpawner.audioSource.time + Time.smoothDeltaTime;
+            float songTimeDistance = _songTime - (((float)_obstacle.Time * _refNotesSpawner._BeatPerSec) - _refNotesSpawner._spawnOffset);
+            float _songTimeOffset = _songTime - ((((float)_obstacle.Time * _refNotesSpawner._BeatPerSec) - _refNotesSpawner._spawnOffset) + (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin));
+            float _songTimeOffsetPercent = _songTimeOffset / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
 
-        transform.position = _timeJump;
+            if (songTimeDistance >= BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin && _obstacle.Duration > 0)
+            {
+                float t = (songTimeDistance - (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin)) / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);
+                _timeJump.x = this._startPos.x;
+                _timeJump.y = this._startPos.y;
+                _timeJump.z = Mathf.LerpUnclamped(_midPos.z + BeatsConstants.SWORD_OFFSET * Mathf.Min(1f, t * 2f), _endPos.z + BeatsConstants.SWORD_OFFSET, t);
+            }
+            else
+            {
+                _timeJump = Vector3.LerpUnclamped(_startPos, _midPos, songTimeDistance / (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin));
+            }
 
-        if (_songTimeOffsetPercent >= 1f + (_obstacle.Duration * _refNotesSpawner._BeatPerSec))
-        {
-            transform.position = new Vector3(_startPos.x, _startPos.y += 1000f, _startPos.z);
-            transform.rotation = Quaternion.identity;
-            transform.gameObject.SetActive(false);
-            return;
+            transform.position = _timeJump;
+
+            if (_songTimeOffsetPercent >= 1f + (_obstacle.Duration * _refNotesSpawner._BeatPerSec))
+            {
+                transform.position = new Vector3(_startPos.x, _startPos.y += 1000f, _startPos.z);
+                transform.rotation = Quaternion.identity;
+                transform.gameObject.SetActive(false);
+                return;
+            }
         }
     }
 
