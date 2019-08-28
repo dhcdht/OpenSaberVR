@@ -465,6 +465,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2db01cfe0b5c6234bab702fcb7115879, type: 3}
   - {fileID: 8300000, guid: 094e0a3a11b8a3e4a9a6fbe363ce24ba, type: 3}
   - {fileID: 8300000, guid: f7989050debaa4e44a7efb75872a97da, type: 3}
+  UseSoundFX: 0
 --- !u!4 &309968753
 Transform:
   m_ObjectHideFlags: 0
@@ -1668,6 +1669,7 @@ GameObject:
   - component: {fileID: 1476361898}
   - component: {fileID: 1476361897}
   - component: {fileID: 1476361895}
+  - component: {fileID: 1476361896}
   m_Layer: 0
   m_Name: OverviewCamera
   m_TagString: Untagged
@@ -1688,6 +1690,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profile: {fileID: 11400000, guid: c5db7bd10fb06224f9f37bc358b18717, type: 2}
+--- !u!114 &1476361896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476361894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71707d560a6e0444cb9411fba5fe7c6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!20 &1476361897
 Camera:
   m_ObjectHideFlags: 0
@@ -1695,7 +1709,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1476361894}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
@@ -1742,7 +1756,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 11.992001, y: -20.641, z: 1.8230001}
 --- !u!1 &1496292466
 GameObject:
