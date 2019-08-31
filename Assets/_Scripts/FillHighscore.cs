@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 
@@ -18,15 +19,20 @@ public class FillHighscore : MonoBehaviour
     {
         SongSettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         ScoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
+        var playingMethod = SongSettings.CurrentSong.PlayingMethods[SongSettings.CurrentSong.SelectedPlayingMethod]?.CharacteristicName;
+        if (playingMethod == null || playingMethod.Equals("Standard", StringComparison.InvariantCultureIgnoreCase))
+        {
+            playingMethod = string.Empty;
+        }
 
-        highScoreLocal.AddHighScoreToSong(SongSettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), SongSettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
+        highScoreLocal.AddHighScoreToSong(SongSettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), SongSettings.CurrentSong.SelectedDifficulty, playingMethod, ScoreHandling.ActualScore);
 
         if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
         {
             HighScoreTitle.text = "GLOBAL HIGHSCORES";
 
-            highScore.AddHighScoreToSong(SongSettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), SongSettings.CurrentSong.Name, SongSettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
-            var highscoreList = highScore.GetFirstTenHighScoreOfSong(SongSettings.CurrentSong.Hash, SongSettings.CurrentSong.SelectedDifficulty);
+            highScore.AddHighScoreToSong(SongSettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), SongSettings.CurrentSong.Name, SongSettings.CurrentSong.SelectedDifficulty, playingMethod, ScoreHandling.ActualScore);
+            var highscoreList = highScore.GetFirstTenHighScoreOfSong(SongSettings.CurrentSong.Hash, SongSettings.CurrentSong.SelectedDifficulty, playingMethod);
             string formatString = Highscore[0].text;
 
             for (int i = 0; i < highscoreList.Count; i++)
@@ -38,7 +44,7 @@ public class FillHighscore : MonoBehaviour
         {
             HighScoreTitle.text = "LOCAL HIGHSCORES";
 
-            var highscoreListLocal = highScoreLocal.GetFirstTenHighScoreOfSong(SongSettings.CurrentSong.Hash, SongSettings.CurrentSong.SelectedDifficulty);
+            var highscoreListLocal = highScoreLocal.GetFirstTenHighScoreOfSong(SongSettings.CurrentSong.Hash, SongSettings.CurrentSong.SelectedDifficulty, playingMethod);
             string formatStringLocal = Highscore[0].text;
 
             for (int i = 0; i < highscoreListLocal.Count; i++)
@@ -46,7 +52,7 @@ public class FillHighscore : MonoBehaviour
                 Highscore[i].text = string.Format(formatStringLocal, highscoreListLocal[i].Username, highscoreListLocal[i].Score);
             }
         }
-        
+
         CurrentScore.text = ScoreHandling.ActualScore.ToString();
     }
 }
