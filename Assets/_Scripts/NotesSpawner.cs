@@ -61,17 +61,15 @@ public class NotesSpawner : MonoBehaviour
                 JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(path, "info.dat")));
 
                 var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
-                foreach (var beatmapSets in difficultyBeatmapSets)
+                var beatmapSets = difficultyBeatmapSets[Songsettings.CurrentSong.SelectedPlayingMethod];
+                foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
                 {
-                    foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
+                    if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
                     {
-                        if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
-                        {
-                            _noteSpeed = (float)difficultyBeatmaps.Obj.GetNumber("_noteJumpMovementSpeed");
-                            audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
-                            jsonString = File.ReadAllText(Path.Combine(path, difficultyBeatmaps.Obj.GetString("_beatmapFilename")));
-                            break;
-                        }
+                        _noteSpeed = (float)difficultyBeatmaps.Obj.GetNumber("_noteJumpMovementSpeed");
+                        audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
+                        jsonString = File.ReadAllText(Path.Combine(path, difficultyBeatmaps.Obj.GetString("_beatmapFilename")));
+                        break;
                     }
                 }
             }

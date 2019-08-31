@@ -138,14 +138,14 @@ namespace HighScore
             }
         }
 
-        public void AddHighScoreToSong(string songHash, string userName, string songName, string difficulty, long score)
+        public void AddHighScoreToSong(string songHash, string userName, string songName, string difficulty, string playingMethod, long score)
         {
             if (!Directory.Exists(Path.Combine(HighScorePath, songHash)))
             {
                 Directory.CreateDirectory(Path.Combine(HighScorePath, songHash));
             }
 
-            var existingHighScores = GetHighScoreOfSong(songHash, difficulty);
+            var existingHighScores = GetHighScoreOfSong(songHash, difficulty, playingMethod);
 
             var found = false;
 
@@ -168,9 +168,9 @@ namespace HighScore
             }
 
             existingHighScores.Add(new HighScoreEntry { Username = userName, Score = score });
-            File.WriteAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty, existingHighScores.Select(e => e.ToString()).ToArray());
+            File.WriteAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty + playingMethod, existingHighScores.Select(e => e.ToString()).ToArray());
 
-            CommitToRepo(songHash + "/" + difficulty, $"{songName}: {userName} with {score} on {difficulty}");
+            CommitToRepo(songHash + "/" + difficulty + playingMethod , $"{songName}: {userName} with {score} on {difficulty} {playingMethod}");
 
             try
             {
@@ -181,26 +181,26 @@ namespace HighScore
                 CheckoutBranch();
                 UpdateRepo();
                 ResetRepo();
-                AddHighScoreToSong(songHash, userName, songName, difficulty, score);
+                AddHighScoreToSong(songHash, userName, songName, difficulty, playingMethod, score);
             }
         }
 
-        public List<HighScoreEntry> GetHighScoreOfSong(string songHash, string difficulty)
+        public List<HighScoreEntry> GetHighScoreOfSong(string songHash, string difficulty, string playingMethod)
         {
             CheckoutBranch();
             UpdateRepo();
 
-            if (!Directory.Exists(Path.Combine(HighScorePath, songHash)) || !File.Exists(Path.Combine(HighScorePath, songHash) + "/" + difficulty))
+            if (!Directory.Exists(Path.Combine(HighScorePath, songHash)) || !File.Exists(Path.Combine(HighScorePath, songHash) + "/" + difficulty + playingMethod))
             {
                 return new List<HighScoreEntry>();
             }
 
-            return File.ReadAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty).Select(entry => new HighScoreEntry(entry)).ToList();
+            return File.ReadAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty + playingMethod).Select(entry => new HighScoreEntry(entry)).ToList();
         }
 
-        public List<HighScoreEntry> GetFirstTenHighScoreOfSong(string songHash, string difficulty)
+        public List<HighScoreEntry> GetFirstTenHighScoreOfSong(string songHash, string difficulty, string playingMethod)
         {
-            var completeHighscore = GetHighScoreOfSong(songHash, difficulty);
+            var completeHighscore = GetHighScoreOfSong(songHash, difficulty, playingMethod);
             if (completeHighscore.Count > 0)
             {
                 return completeHighscore.OrderByDescending(h => h.Score).Take(10).ToList();
@@ -224,32 +224,32 @@ namespace HighScore
             }
         }
 
-        public void AddHighScoreToSong(string songHash, string userName, string difficulty, long score)
+        public void AddHighScoreToSong(string songHash, string userName, string difficulty, string playingMethod, long score)
         {
             if (!Directory.Exists(Path.Combine(HighScorePath, songHash)))
             {
                 Directory.CreateDirectory(Path.Combine(HighScorePath, songHash));
             }
 
-            var existingHighScores = GetHighScoreOfSong(songHash, difficulty);
+            var existingHighScores = GetHighScoreOfSong(songHash, difficulty, playingMethod);
 
             existingHighScores.Add(new HighScoreEntry { Username = userName, Score = score });
-            File.WriteAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty, existingHighScores.Select(e => e.ToString()).ToArray());
+            File.WriteAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty + playingMethod, existingHighScores.Select(e => e.ToString()).ToArray());
         }
 
-        public List<HighScoreEntry> GetHighScoreOfSong(string songHash, string difficulty)
+        public List<HighScoreEntry> GetHighScoreOfSong(string songHash, string difficulty, string playingMethod)
         {
-            if (!Directory.Exists(Path.Combine(HighScorePath, songHash)) || !File.Exists(Path.Combine(HighScorePath, songHash) + "/" + difficulty))
+            if (!Directory.Exists(Path.Combine(HighScorePath, songHash)) || !File.Exists(Path.Combine(HighScorePath, songHash) + "/" + difficulty + playingMethod))
             {
                 return new List<HighScoreEntry>();
             }
 
-            return File.ReadAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty).Select(entry => new HighScoreEntry(entry)).ToList();
+            return File.ReadAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty + playingMethod).Select(entry => new HighScoreEntry(entry)).ToList();
         }
 
-        public List<HighScoreEntry> GetFirstTenHighScoreOfSong(string songHash, string difficulty)
+        public List<HighScoreEntry> GetFirstTenHighScoreOfSong(string songHash, string difficulty, string playingMethod)
         {
-            var completeHighscore = GetHighScoreOfSong(songHash, difficulty);
+            var completeHighscore = GetHighScoreOfSong(songHash, difficulty, playingMethod);
             if (completeHighscore.Count > 0)
             {
                 return completeHighscore.OrderByDescending(h => h.Score).Take(10).ToList();

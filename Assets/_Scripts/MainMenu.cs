@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -93,7 +94,7 @@ public class MainMenu : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(PlayerPrefs.GetString("Username")))
         {
-            Username.text = "Player" + Random.Range(0, int.MaxValue);
+            Username.text = "Player" + UnityEngine.Random.Range(0, int.MaxValue);
             PlayerPrefs.SetString("Username", Username.text);
         }
         else
@@ -210,9 +211,11 @@ public class MainMenu : MonoBehaviour
     {
         SongPreview.Stop();
         var song = SongInfos.GetCurrentSong();
-        if (song.PlayingMethods[0].Difficulties.Count > 1)
+        if (song.PlayingMethods[0].Difficulties.Count > 1 ||
+            song.PlayingMethods.Count > 1)
         {
             var LevelChooser = MenuPanels.ToList().First(m => m.name == "DifficultChooser");
+            var moreThanOnePlayingMethod = song.PlayingMethods.Count > 1;
 
             foreach (var gameObj in LevelChooser.GetComponentsInChildren<Button>(true))
             {
@@ -224,27 +227,76 @@ public class MainMenu : MonoBehaviour
 
             DisplayPanel("DifficultChooser");
 
+            if (song.PlayingMethods.Count > 1)
+            {
+                for (int i = 0; i < song.PlayingMethods.Count; i++)
+                {
+                    PlayingMethod method = song.PlayingMethods[i];
+                    var button = GameObject.Instantiate(LevelButtonTemplate, LevelChooser.transform);
+                    var buttonText = string.Empty;
+
+                    if (method.CharacteristicName.Equals("Standard", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        buttonText = "Two sabers";
+                    }
+                    else if (method.CharacteristicName.Equals("OneSaber", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        buttonText = "One saber";
+                    }
+                    else
+                    {
+                        buttonText = method.CharacteristicName;
+                    }
+
+                    button.GetComponentInChildren<Text>().text = buttonText;
+                    int curi = i;
+                    button.GetComponentInChildren<Button>().onClick.AddListener(() => SelectPlayingMethod(curi));
+                    button.SetActive(true);
+                    if (i == SongInfos.GetCurrentSong().SelectedPlayingMethod)
+                    {
+                        button.GetComponentInChildren<Button>().Select();
+                    }
+
+                    float left = (-250 - 36) * (song.PlayingMethods.Count / 2);
+                    if (song.PlayingMethods.Count % 2 == 0)
+                    {
+                        left -= ((-250 - 36) / 2);
+                    }
+                    left += i * (250 + 36);
+                    button.GetComponent<RectTransform>().localPosition = new Vector3(left, button.GetComponent<RectTransform>().localPosition.y);
+                }
+            }
+
             var buttonsCreated = new List<GameObject>();
 
-            PlayingMethod playingMethod = song.PlayingMethods[0];
+            PlayingMethod playingMethod = song.PlayingMethods[SongInfos.GetCurrentSong().SelectedPlayingMethod];
             foreach (var difficulty in playingMethod.Difficulties)
             {
                 var button = GameObject.Instantiate(LevelButtonTemplate, LevelChooser.transform);
 
                 button.GetComponentInChildren<Text>().text = difficulty;
-                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(0, difficulty));
+                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(Songsettings.CurrentSong.SelectedPlayingMethod, difficulty));
                 button.SetActive(true);
                 buttonsCreated.Add(button);
             }
 
             float leftAlign = (-250 - 36) * (buttonsCreated.Count / 2);
+
             if (buttonsCreated.Count % 2 == 0)
             {
                 leftAlign -= ((-250 - 36) / 2);
             }
+
             foreach (var button in buttonsCreated)
             {
-                button.GetComponent<RectTransform>().localPosition = new Vector3(leftAlign, buttonsCreated[0].GetComponent<RectTransform>().localPosition.y);
+                var y = button.GetComponent<RectTransform>().localPosition.y;
+
+                if (moreThanOnePlayingMethod)
+                {
+                    y -= (104 + 36);
+                }
+
+                button.GetComponent<RectTransform>().localPosition = new Vector3(leftAlign, y);
                 leftAlign += (250 + 36);
             }
         }
@@ -252,6 +304,12 @@ public class MainMenu : MonoBehaviour
         {
             StartSceneWithDifficulty(0, song.PlayingMethods[0].Difficulties[0]);
         }
+    }
+
+    private void SelectPlayingMethod(int playingMethod)
+    {
+        SongInfos.GetCurrentSong().SelectedPlayingMethod = playingMethod;
+        LoadSong();
     }
 
     private void StartSceneWithDifficulty(int playingMethod, string difficulty)
