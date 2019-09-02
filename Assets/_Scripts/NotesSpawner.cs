@@ -253,14 +253,14 @@ public class NotesSpawner : MonoBehaviour
             note.Hand += 2;
         }
 
-        GameObject cube = Instantiate(Cubes[(int)note.Hand]);
+        GameObject cube = Instantiate(Cubes[(int)note.Hand], transform);
         var handling = cube.GetComponent<CubeHandling>();
         handling.SetupNote(moveStartPos, moveEndPos, jumpEndPos, this, note);
     }
 
     public void GenerateObstacle(Obstacle obstacle, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
     {
-        GameObject wall = Instantiate(Wall);
+        GameObject wall = Instantiate(Wall, transform);
         var wallHandling = wall.GetComponent<ObstacleHandling>();
         wallHandling.SetupObstacle(obstacle, this, moveStartPos ,moveEndPos, jumpEndPos);
     }
