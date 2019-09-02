@@ -140,6 +140,11 @@ namespace HighScore
 
         public void AddHighScoreToSong(string songHash, string userName, string songName, string difficulty, string playingMethod, long score)
         {
+            if (score == 0)
+            {
+                return;
+            }
+
             if (!Directory.Exists(Path.Combine(HighScorePath, songHash)))
             {
                 Directory.CreateDirectory(Path.Combine(HighScorePath, songHash));
