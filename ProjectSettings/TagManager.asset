@@ -12,6 +12,7 @@ TagManager:
   - ScoreHandling
   - ExcludeTeleport
   - AudioHandling
+  - CancelSceneHandling
   layers:
   - Default
   - TransparentFX
