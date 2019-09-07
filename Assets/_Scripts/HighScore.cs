@@ -190,10 +190,13 @@ namespace HighScore
             }
         }
 
-        public List<HighScoreEntry> GetHighScoreOfSong(string songHash, string difficulty, string playingMethod)
+        public List<HighScoreEntry> GetHighScoreOfSong(string songHash, string difficulty, string playingMethod, bool updateRepo = true)
         {
-            CheckoutBranch();
-            UpdateRepo();
+            if (updateRepo)
+            {
+                CheckoutBranch();
+                UpdateRepo();
+            }
 
             if (!Directory.Exists(Path.Combine(HighScorePath, songHash)) || !File.Exists(Path.Combine(HighScorePath, songHash) + "/" + difficulty + playingMethod))
             {
@@ -203,9 +206,9 @@ namespace HighScore
             return File.ReadAllLines(Path.Combine(HighScorePath, songHash) + "/" + difficulty + playingMethod).Select(entry => new HighScoreEntry(entry)).ToList();
         }
 
-        public List<HighScoreEntry> GetFirstTenHighScoreOfSong(string songHash, string difficulty, string playingMethod)
+        public List<HighScoreEntry> GetFirstTenHighScoreOfSong(string songHash, string difficulty, string playingMethod, bool updateRepo = true)
         {
-            var completeHighscore = GetHighScoreOfSong(songHash, difficulty, playingMethod);
+            var completeHighscore = GetHighScoreOfSong(songHash, difficulty, playingMethod, updateRepo);
             if (completeHighscore.Count > 0)
             {
                 return completeHighscore.OrderByDescending(h => h.Score).Take(10).ToList();
