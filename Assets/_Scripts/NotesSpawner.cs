@@ -61,17 +61,15 @@ public class NotesSpawner : MonoBehaviour
                 JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(path, "info.dat")));
 
                 var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
-                foreach (var beatmapSets in difficultyBeatmapSets)
+                var beatmapSets = difficultyBeatmapSets[Songsettings.CurrentSong.SelectedPlayingMethod];
+                foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
                 {
-                    foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
+                    if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
                     {
-                        if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
-                        {
-                            _noteSpeed = (float)difficultyBeatmaps.Obj.GetNumber("_noteJumpMovementSpeed");
-                            audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
-                            jsonString = File.ReadAllText(Path.Combine(path, difficultyBeatmaps.Obj.GetString("_beatmapFilename")));
-                            break;
-                        }
+                        _noteSpeed = (float)difficultyBeatmaps.Obj.GetNumber("_noteJumpMovementSpeed");
+                        audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
+                        jsonString = File.ReadAllText(Path.Combine(path, difficultyBeatmaps.Obj.GetString("_beatmapFilename")));
+                        break;
                     }
                 }
             }
@@ -255,14 +253,14 @@ public class NotesSpawner : MonoBehaviour
             note.Hand += 2;
         }
 
-        GameObject cube = Instantiate(Cubes[(int)note.Hand]);
+        GameObject cube = Instantiate(Cubes[(int)note.Hand], transform);
         var handling = cube.GetComponent<CubeHandling>();
         handling.SetupNote(moveStartPos, moveEndPos, jumpEndPos, this, note);
     }
 
     public void GenerateObstacle(Obstacle obstacle, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
     {
-        GameObject wall = Instantiate(Wall);
+        GameObject wall = Instantiate(Wall, transform);
         var wallHandling = wall.GetComponent<ObstacleHandling>();
         wallHandling.SetupObstacle(obstacle, this, moveStartPos ,moveEndPos, jumpEndPos);
     }

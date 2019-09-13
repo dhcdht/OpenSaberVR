@@ -27,7 +27,19 @@ After the song finished, just wait for 5 seconds and you will be pushed back to 
 
 ## Features
  - fully support for the songs from BeastSaber and BeatSaver
+ - support for one or two saber songs
  - global and local highscore
+ 
+## Controls
+ - pressing both trigger buttons longer than 4 seconds will cancel the current song
+
+## Keyboard shortcuts
+ - 'C' - switch on/off headset mirror and activate in game camera
+ - 'M' - turn on/off mouse and keyboard movement of the camera, you can look around with the mouse
+ - 'W''A''S''D' - movement of the camera with the keyboard, like any shooter out there
+ - 'Space' - move camera up
+ - 'Left control' - move camera down
+ - 'R' - reset the position to the start position
 
 
 ## Hints

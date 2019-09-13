@@ -4,8 +4,8 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Security.Cryptography;
-using System;
 using System.Text;
+using System.Linq;
 
 public class LoadSongInfos : MonoBehaviour
 {
@@ -72,6 +72,8 @@ public class LoadSongInfos : MonoBehaviour
                     AllSongs.Add(song);
                 }
             }
+
+            AllSongs = AllSongs.OrderBy(song => song.Name).ToList();
         }
     }
 

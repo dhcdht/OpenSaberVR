@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,15 +13,19 @@ public class MainMenu : MonoBehaviour
 {
     public LoadSongInfos SongInfos;
     public GameObject LevelButtonTemplate;
+    public GameObject DifficultyChooser;
     public GameObject[] MenuPanels;
     public Text UseGlobalHighscore;
     public Text Username;
     public InputField UserInputField;
+    public Text UseSoundFX;
     public AudioSource SongPreview;
+    public FillHighscoreInMenu MenuHighscore;
 
     private SongSettings Songsettings;
     private SceneHandling SceneHandling;
     private ScoreHandling ScoreHandling;
+    private AudioHandling AudioHandling;
 
     private HighScore.HighScore score = new HighScore.HighScore();
 
@@ -32,6 +37,7 @@ public class MainMenu : MonoBehaviour
         Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
         ScoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
+        AudioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
     }
 
     public void ShowSongs()
@@ -61,6 +67,9 @@ public class MainMenu : MonoBehaviour
             SongInfos.Cover.texture = sampleTexture;
         }
 
+        LoadSong();
+        MenuHighscore.ShowHighscore();
+
         StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
     }
 
@@ -79,9 +88,18 @@ public class MainMenu : MonoBehaviour
             UseGlobalHighscore.text = "on";
         }
 
+        if (PlayerPrefs.GetInt("UseSoundFX") == 0)
+        {
+            UseSoundFX.text = "off";
+        }
+        else if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        {
+            UseSoundFX.text = "on";
+        }
+
         if (string.IsNullOrWhiteSpace(PlayerPrefs.GetString("Username")))
         {
-            Username.text = "Player" + Random.Range(0, int.MaxValue);
+            Username.text = "Player" + UnityEngine.Random.Range(0, int.MaxValue);
             PlayerPrefs.SetString("Username", Username.text);
         }
         else
@@ -170,6 +188,9 @@ public class MainMenu : MonoBehaviour
             SongInfos.Cover.texture = sampleTexture;
         }
 
+        LoadSong();
+        MenuHighscore.ShowHighscore();
+
         StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
     }
 
@@ -191,61 +212,121 @@ public class MainMenu : MonoBehaviour
             SongInfos.Cover.texture = sampleTexture;
         }
 
+        LoadSong();
+        MenuHighscore.ShowHighscore();
+
         StartCoroutine(PreviewSong(Songsettings.CurrentSong.AudioFilePath));
     }
 
     public void LoadSong()
     {
-        SongPreview.Stop();
         var song = SongInfos.GetCurrentSong();
-        if (song.PlayingMethods[0].Difficulties.Count > 1)
+
+        var LevelChooser = DifficultyChooser;
+        var moreThanOnePlayingMethod = song.PlayingMethods.Count > 1;
+
+        foreach (var gameObj in LevelChooser.GetComponentsInChildren<Button>(true))
         {
-            var LevelChooser = MenuPanels.ToList().First(m => m.name == "DifficultChooser");
+            if (gameObj.gameObject.name == "ButtonTemplate")
+                continue;
 
-            foreach (var gameObj in LevelChooser.GetComponentsInChildren<Button>(true))
+            Destroy(gameObj.gameObject);
+        }
+
+        if (song.PlayingMethods.Count > 1)
+        {
+            for (int i = 0; i < song.PlayingMethods.Count; i++)
             {
-                if (gameObj.gameObject.name == "ButtonTemplate")
-                    continue;
-
-                Destroy(gameObj.gameObject);
-            }
-
-            DisplayPanel("DifficultChooser");
-
-            var buttonsCreated = new List<GameObject>();
-
-            PlayingMethod playingMethod = song.PlayingMethods[0];
-            foreach (var difficulty in playingMethod.Difficulties)
-            {
+                PlayingMethod method = song.PlayingMethods[i];
                 var button = GameObject.Instantiate(LevelButtonTemplate, LevelChooser.transform);
+                var buttonText = string.Empty;
 
-                button.GetComponentInChildren<Text>().text = difficulty;
-                button.GetComponentInChildren<Button>().onClick.AddListener(() => StartSceneWithDifficulty(0, difficulty));
+                if (method.CharacteristicName.Equals("Standard", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    buttonText = "Two sabers";
+                }
+                else if (method.CharacteristicName.Equals("OneSaber", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    buttonText = "One saber";
+                }
+                else
+                {
+                    buttonText = method.CharacteristicName;
+                }
+
+                button.GetComponentInChildren<Text>().text = buttonText;
+                int curi = i;
+                button.GetComponentInChildren<Button>().onClick.AddListener(() => SelectPlayingMethod(curi));
                 button.SetActive(true);
-                buttonsCreated.Add(button);
-            }
+                if (i == SongInfos.GetCurrentSong().SelectedPlayingMethod)
+                {
+                    button.GetComponentInChildren<Button>().Select();
+                }
 
-            float leftAlign = (-250 - 36) * (buttonsCreated.Count / 2);
-            if (buttonsCreated.Count % 2 == 0)
-            {
-                leftAlign -= ((-250 - 36) / 2);
-            }
-            foreach (var button in buttonsCreated)
-            {
-                button.GetComponent<RectTransform>().localPosition = new Vector3(leftAlign, buttonsCreated[0].GetComponent<RectTransform>().localPosition.y);
-                leftAlign += (250 + 36);
+                float left = (-250 - 5) * (song.PlayingMethods.Count / 2);
+                if (song.PlayingMethods.Count % 2 == 0)
+                {
+                    left -= ((-250 - 5) / 2);
+                }
+                left += i * (250 + 5);
+                button.GetComponent<RectTransform>().localPosition = new Vector3(left, button.GetComponent<RectTransform>().localPosition.y);
             }
         }
-        else
+
+        var buttonsCreated = new List<GameObject>();
+
+        PlayingMethod playingMethod = song.PlayingMethods[SongInfos.GetCurrentSong().SelectedPlayingMethod];
+        foreach (var difficulty in playingMethod.Difficulties)
         {
-            StartSceneWithDifficulty(0, song.PlayingMethods[0].Difficulties[0]);
+            var button = GameObject.Instantiate(LevelButtonTemplate, LevelChooser.transform);
+            button.GetComponentInChildren<Text>().text = difficulty;
+            var btn = button.GetComponentInChildren<Button>();
+            var diff = difficulty;
+            btn.onClick.AddListener(() => { SelectDifficulty(diff, btn); });
+            button.SetActive(true);
+            buttonsCreated.Add(button);
+        }
+
+        buttonsCreated[0].GetComponentInChildren<Button>().Select();
+        SelectDifficulty(buttonsCreated[0].GetComponentInChildren<Text>().text, buttonsCreated[0].GetComponentInChildren<Button>());
+
+        float leftAlign = (-250 - 5) * (buttonsCreated.Count / 2);
+
+        if (buttonsCreated.Count % 2 == 0)
+        {
+            leftAlign -= ((-250 - 5) / 2);
+        }
+
+        foreach (var button in buttonsCreated)
+        {
+            var y = button.GetComponent<RectTransform>().localPosition.y;
+
+            if (moreThanOnePlayingMethod)
+            {
+                y -= (104 + 5);
+            }
+
+            button.GetComponent<RectTransform>().localPosition = new Vector3(leftAlign, y);
+            leftAlign += (250 + 5);
         }
     }
 
-    private void StartSceneWithDifficulty(int playingMethod, string difficulty)
+    private void SelectDifficulty(string difficulty, Button btn)
+    {
+        SongInfos.GetCurrentSong().SelectedDifficulty = difficulty;
+        btn.Select();
+        MenuHighscore.ShowHighscore();
+    }
+
+    private void SelectPlayingMethod(int playingMethod)
     {
         SongInfos.GetCurrentSong().SelectedPlayingMethod = playingMethod;
-        SongInfos.GetCurrentSong().SelectedDifficulty = difficulty;
+        LoadSong();
+        MenuHighscore.ShowHighscore();
+    }
+
+    public void StartSceneWithDifficulty()
+    {
         StartCoroutine(LoadSongScene());
     }
 
@@ -291,25 +372,23 @@ public class MainMenu : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         score.Init();
-
-        if (ScoreHandling.ActualScore > 0)
-        {
-            //AddUserScoreToHighscore();
-        }
     }
 
-    //public void ShowHighscore()
-    //{
-    //    if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
-    //    {
-    //        Highscore.gameObject.SetActive(true);
-    //    }
-    //}
-
-    //private void AddUserScoreToHighscore()
-    //{
-    //    score.AddHighScoreToSong(Songsettings.CurrentSong.Hash, PlayerPrefs.GetString("Username"), Songsettings.CurrentSong.Name, Songsettings.CurrentSong.SelectedDifficulty, ScoreHandling.ActualScore);
-    //}
+    public void SetSoundFX()
+    {
+        if (PlayerPrefs.GetInt("UseSoundFX") == 0)
+        {
+            PlayerPrefs.SetInt("UseSoundFX", 1);
+            UseSoundFX.text = "on";
+            AudioHandling.UseSoundFX = true;
+        }
+        else if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        {
+            PlayerPrefs.SetInt("UseSoundFX", 0);
+            UseSoundFX.text = "off";
+            AudioHandling.UseSoundFX = false;
+        }
+    }
 
     public void DisplayPanel(string activatePanel)
     {

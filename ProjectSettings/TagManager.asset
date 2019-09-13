@@ -11,6 +11,8 @@ TagManager:
   - CubeNonDirection
   - ScoreHandling
   - ExcludeTeleport
+  - AudioHandling
+  - CancelSceneHandling
   layers:
   - Default
   - TransparentFX
@@ -23,7 +25,7 @@ TagManager:
   - RedLayer
   - BlueLayer
   - Wall
-  - 
+  - ThirdCamera
   - 
   - 
   - 
