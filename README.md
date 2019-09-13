@@ -1,4 +1,12 @@
 ![alt text](https://img.itch.zone/aW1nLzIxNzU5MTkucG5n/original/88KBuM.png "")
+# Current development state
+After four releases (latest v0.1.3) I'm totally happy with the current development state of the game. It's fully working and has more features included like I ever wanted in the beginning of the development of OpenSaberVR. That said I won't active develop any further on OpenSaberVR. 
+
+Like I wrote on my profile pageat itch.io, I like to play around with VR and try different game styles with it. My main goal is always to develop a small little game which is fully playable and which makes fun to play. I'm sure that OpenSaberVR has reached that state.
+
+Nevertheless you are able to go on with the development based on this work. Have a look at the repo and learn from it, develop something new, improve it, do whatever you want with it. If you have created something, then let me know.
+The itch.io project page and the GitHub repo will stay online. Also the global highscore will be stay online. Have fun playing OpenSaberVR.
+
 # Open Saber VR
 
 Open Saber VR is an open source clone of the famous and fabolous game Beat Saber. 
