@@ -15,7 +15,7 @@ public class ObstacleHandling : MonoBehaviour
     public float _songTime;
     public float _height;
 
-    void Update()
+    void FixedUpdate()
     {
         if (_refNotesSpawner != null && _refNotesSpawner.audioSource != null)
         {

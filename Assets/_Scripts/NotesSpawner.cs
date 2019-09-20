@@ -87,9 +87,17 @@ public class NotesSpawner : MonoBehaviour
         var notes = json.GetArray("_notes");
         foreach (var note in notes)
         {
+            var type = note.Obj.GetNumber("_type");
+
+            // ignore bombs, will lead to a bug in GenerateNote which spawns a blue note
+            if (type > 1)
+            {
+                continue;
+            }
+
             var n = new Note
             {
-                Hand = (NoteType)note.Obj.GetNumber("_type"),
+                Hand = (NoteType)type,
                 CutDirection = (CutDirection)note.Obj.GetNumber("_cutDirection"),
                 LineIndex = (int)note.Obj.GetNumber("_lineIndex"),
                 LineLayer = (int)note.Obj.GetNumber("_lineLayer"),

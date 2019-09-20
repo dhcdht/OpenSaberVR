@@ -1,5 +1,9 @@
 # Released
 
+# 0.1.3.1
+
+* Fixed bug: Bombs were spawned as blue non-direction notes
+
 # 0.1.3
 
 * New Feature: One saber songs are now supported (thanks to dhcdht)

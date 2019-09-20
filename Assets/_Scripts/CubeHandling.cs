@@ -22,7 +22,7 @@ public class CubeHandling : MonoBehaviour
     public Vector3 _midPos;
     public Vector3 _endPos;
 
-    void Update()
+    void FixedUpdate()
     {
         _songTime = _refNotesSpawner.audioSource.time + Time.smoothDeltaTime;
         float songTimeDistance = _songTime - (((float)_note.Time * _refNotesSpawner._BeatPerSec - _refNotesSpawner._spawnOffset));
