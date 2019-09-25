@@ -1,5 +1,5 @@
 ![alt text](https://img.itch.zone/aW1nLzIxNzU5MTkucG5n/original/88KBuM.png "")
-# Current development state
+# Development stopped
 After four releases (latest v0.1.3) I'm totally happy with the current development state of the game. It's fully working and has more features included like I ever wanted in the beginning of the development of OpenSaberVR. That said I won't active develop any further on OpenSaberVR. 
 
 Like I wrote on my profile pageat itch.io, I like to play around with VR and try different game styles with it. My main goal is always to develop a small little game which is fully playable and which makes fun to play. I'm sure that OpenSaberVR has reached that state.
