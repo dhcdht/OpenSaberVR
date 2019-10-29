@@ -2,17 +2,17 @@
 # Oculus Quest Fork
 
 # Instructions
-Load apk with SideQuest.
-Add maps.
+Load apk with SideQuest.\
+Add maps.\
 Play.
 
 ## Loading Maps
-Maps can be zip files or folders.
-Place maps into a folder called "Playlists" (root directory in SideQuest's explorer).
+Maps can be zip files or folders.\
+Place maps into a folder called "Playlists" (root directory in SideQuest's explorer).\
 Maps can also be downloaded using the Quest's browser.
 
 ## Notes
-App must be restarted to load new maps.
+App must be restarted to load new maps.\
 Steam SDK left for testing on desktop.
 
 ## Links
