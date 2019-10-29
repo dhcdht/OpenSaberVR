@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 7426095961651493878}
   m_Layer: 9
   m_Name: Blue Cube
-  m_TagString: Untagged
+  m_TagString: Cube
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -182,6 +182,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6555c85f10c6e2d46a44fe1bec838b07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AnticipationPosition: 0
-  Speed: 0
-  WarmUpPosition: 0
+  _songTime: 0
+  _refNotesSpawner: {fileID: 0}
+  _startPos: {x: 0, y: 0, z: 0}
+  _midPos: {x: 0, y: 0, z: 0}
+  _endPos: {x: 0, y: 0, z: 0}

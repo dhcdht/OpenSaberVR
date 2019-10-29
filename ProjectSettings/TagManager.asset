@@ -13,6 +13,8 @@ TagManager:
   - ExcludeTeleport
   - AudioHandling
   - CancelSceneHandling
+  - Cube
+  - Saber
   layers:
   - Default
   - TransparentFX

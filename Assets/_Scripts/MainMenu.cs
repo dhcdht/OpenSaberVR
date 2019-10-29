@@ -19,6 +19,9 @@ public class MainMenu : MonoBehaviour
     public Text Username;
     public InputField UserInputField;
     public Text UseSoundFX;
+    public Text SaberVibrationLevelLabel;
+    public Slider SaberVibrationLevel;
+    public Text PerformanceProfiler;
     public AudioSource SongPreview;
     public FillHighscoreInMenu MenuHighscore;
 
@@ -79,23 +82,34 @@ public class MainMenu : MonoBehaviour
 
         DisplayPanel("Settings");
 
-        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 0)
+        if (PlayerPrefs.GetInt(PrefConstants.UseGlobalHighscore) == 0)
         {
             UseGlobalHighscore.text = "off";
         }
-        else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        else if (PlayerPrefs.GetInt(PrefConstants.UseGlobalHighscore) == 1)
         {
             UseGlobalHighscore.text = "on";
         }
 
-        if (PlayerPrefs.GetInt("UseSoundFX") == 0)
+        if (PlayerPrefs.GetInt(PrefConstants.UseSoundFx) == 0)
         {
             UseSoundFX.text = "off";
         }
-        else if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        else if (PlayerPrefs.GetInt(PrefConstants.UseSoundFx) == 1)
         {
             UseSoundFX.text = "on";
         }
+
+        if (PlayerPrefs.GetInt(PrefConstants.SaberCollisionVibrationLevel) == 0) {
+            SaberVibrationLevelLabel.text = "off";
+            SaberVibrationLevel.value = 0;
+        } else {
+            var level = PlayerPrefs.GetInt(PrefConstants.SaberCollisionVibrationLevel);
+            SaberVibrationLevelLabel.text = level.ToString();
+            SaberVibrationLevel.value = level;
+        }
+
+        PerformanceProfiler.text = PlayerPrefs.GetInt(PrefConstants.ShowProfiler) == 1 ? "enabled" : "disabled";
 
         if (string.IsNullOrWhiteSpace(PlayerPrefs.GetString("Username")))
         {
@@ -142,20 +156,7 @@ public class MainMenu : MonoBehaviour
 
         yield return null;
 
-        var downloadHandler = new DownloadHandlerAudioClip(Songsettings.CurrentSong.AudioFilePath, AudioType.OGGVORBIS);
-        downloadHandler.compressed = false;
-        downloadHandler.streamAudio = true;
-        var uwr = new UnityWebRequest(
-                Songsettings.CurrentSong.AudioFilePath,
-                UnityWebRequest.kHttpVerbGET,
-                downloadHandler,
-                null);
-
-        var request = uwr.SendWebRequest();
-        while(!request.isDone)
-            yield return null;
-
-        PreviewAudioClip = DownloadHandlerAudioClip.GetContent(uwr);
+        PreviewAudioClip = OggClipLoader.LoadClip(audioFilePath);
     }
 
     private void FixedUpdate()
@@ -355,15 +356,15 @@ public class MainMenu : MonoBehaviour
 
     public void SetGlobalHighscore()
     {
-        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 0)
+        if (PlayerPrefs.GetInt(PrefConstants.UseGlobalHighscore) == 0)
         {
-            PlayerPrefs.SetInt("UseGlobalHighscore", 1);
+            PlayerPrefs.SetInt(PrefConstants.UseGlobalHighscore, 1);
             UseGlobalHighscore.text = "on";
             StartCoroutine(InitializeGlobalHighscore());
         }
-        else if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
+        else if (PlayerPrefs.GetInt(PrefConstants.UseGlobalHighscore) == 1)
         {
-            PlayerPrefs.SetInt("UseGlobalHighscore", 0);
+            PlayerPrefs.SetInt(PrefConstants.UseGlobalHighscore, 0);
             UseGlobalHighscore.text = "off";
         }
     }
@@ -376,18 +377,37 @@ public class MainMenu : MonoBehaviour
 
     public void SetSoundFX()
     {
-        if (PlayerPrefs.GetInt("UseSoundFX") == 0)
+        if (PlayerPrefs.GetInt(PrefConstants.UseSoundFx) == 0)
         {
-            PlayerPrefs.SetInt("UseSoundFX", 1);
+            PlayerPrefs.SetInt(PrefConstants.UseSoundFx, 1);
             UseSoundFX.text = "on";
             AudioHandling.UseSoundFX = true;
         }
-        else if (PlayerPrefs.GetInt("UseSoundFX") == 1)
+        else if (PlayerPrefs.GetInt(PrefConstants.UseSoundFx) == 1)
         {
-            PlayerPrefs.SetInt("UseSoundFX", 0);
+            PlayerPrefs.SetInt(PrefConstants.UseSoundFx, 0);
             UseSoundFX.text = "off";
             AudioHandling.UseSoundFX = false;
         }
+    }
+
+    public void SetSabersVibrationLevel() {
+        var level = (int)SaberVibrationLevel.value;
+
+        PlayerPrefs.SetInt(PrefConstants.SaberCollisionVibrationLevel, level);
+
+        if (level == 0) {
+            SaberVibrationLevelLabel.text = "off";
+        } else {
+            SaberVibrationLevelLabel.text = level.ToString();
+        }
+    }
+
+    public void TogglePerformanceProfiler() {
+        var enabled = PlayerPrefs.GetInt(PrefConstants.ShowProfiler) == 0;
+        PlayerPrefs.SetInt(PrefConstants.ShowProfiler, enabled ? 1 : 0);
+        PerformanceProfiler.text = enabled ? "enabled" : "disabled";
+
     }
 
     public void DisplayPanel(string activatePanel)

@@ -10,11 +10,9 @@ public class SceneHandling : MonoBehaviour
     GameObject RightController;
 
     GameObject LeftSaber;
-    GameObject LeftShaft;
     GameObject LeftModel;
 
     GameObject RightSaber;
-    GameObject RightShaft;
     GameObject RightModel;
 
     VRTK_Pointer RightUIPointer;
@@ -22,6 +20,8 @@ public class SceneHandling : MonoBehaviour
     bool VRTK_Loaded = false;
 
     HighScore.HighScore score = new HighScore.HighScore();
+
+    public GameObject debugProfiler;
 
     private void Awake()
     {
@@ -39,11 +39,9 @@ public class SceneHandling : MonoBehaviour
         RightController = e.currentSetup.actualRightController;
 
         LeftSaber = LeftController.transform.Find("Saber").gameObject;
-        LeftShaft = LeftController.transform.Find("Shaft").gameObject;
         LeftModel = LeftController.transform.Find("Model").gameObject;
 
         RightSaber = RightController.transform.Find("Saber").gameObject;
-        RightShaft = RightController.transform.Find("Shaft").gameObject;
         RightModel = RightController.transform.Find("Model").gameObject;
 
         RightUIPointer = RightController.transform.Find("RightController").GetComponent<VRTK_Pointer>();
@@ -58,10 +56,8 @@ public class SceneHandling : MonoBehaviour
             return;
 
         LeftSaber.SetActive(false);
-        LeftShaft.SetActive(false);
         
         RightSaber.SetActive(false);
-        RightShaft.SetActive(false);
 
         LeftModel.SetActive(true);
         RightModel.SetActive(true);
@@ -70,11 +66,16 @@ public class SceneHandling : MonoBehaviour
 
     private void SaberSceneLoaded()
     {
-        LeftSaber.SetActive(true);
-        LeftShaft.SetActive(true);
+        var saberCollisionVibrationLevel = 2;
+        if (PlayerPrefs.HasKey(PrefConstants.SaberCollisionVibrationLevel))
+            saberCollisionVibrationLevel = PlayerPrefs.GetInt(PrefConstants.SaberCollisionVibrationLevel);
+        else
+            PlayerPrefs.SetInt(PrefConstants.SaberCollisionVibrationLevel, saberCollisionVibrationLevel);
 
+        LeftSaber.SetActive(true);
+        LeftSaber.GetComponentInChildren<Saber>(true).saberCollisionVibrationLevel = saberCollisionVibrationLevel;
         RightSaber.SetActive(true);
-        RightShaft.SetActive(true);
+        RightSaber.GetComponentInChildren<Saber>(true).saberCollisionVibrationLevel = saberCollisionVibrationLevel;
 
         LeftModel.SetActive(false);
         RightModel.SetActive(false);
@@ -101,6 +102,8 @@ public class SceneHandling : MonoBehaviour
 
     internal IEnumerator LoadScene(string sceneName, LoadSceneMode mode)
     {
+        debugProfiler.SetActive(PlayerPrefs.GetInt(PrefConstants.ShowProfiler) == 1);
+
         if (sceneName == "OpenSaber")
         {
             SaberSceneLoaded();

@@ -36,44 +36,65 @@ public class LoadSongInfos : MonoBehaviour
 
     private void OnEnable()
     {
-        string path = Path.Combine(Application.dataPath + "/Playlists");
-        if (Directory.Exists(path))
+        string[] songPaths = new string[]
         {
-            foreach (var dir in Directory.GetDirectories(path))
-            {
-                if (Directory.Exists(dir) && Directory.GetFiles(dir, "info.dat").Length > 0)
-                {
-                    JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir, "info.dat")));
+#if UNITY_ANDROID
+            Path.Combine(Application.persistentDataPath, "Playlists"),
+            "/sdcard/Playlists",
+            "/sdcard/Download"
+#else
+            Path.Combine(Application.dataPath + "/Playlists")
+#endif
+        };
 
-                    var song = new Song();
-                    song.Path = dir;
-                    song.Name = infoFile.GetString("_songName");
-                    song.AuthorName = infoFile.GetString("_songAuthorName");
-                    song.BPM = infoFile.GetNumber("_beatsPerMinute").ToString();
-                    song.CoverImagePath = Path.Combine(dir, infoFile.GetString("_coverImageFilename"));
-                    song.AudioFilePath = Path.Combine(dir, infoFile.GetString("_songFilename"));
-                    song.PlayingMethods = new List<PlayingMethod>();
+        // Process zip files first
+        foreach (var path in songPaths) {
+            if (Directory.Exists(path)) {
+                foreach (var f in Directory.GetFiles(path, "*.zip")) {
+                    var outputFolder = Path.Combine("/sdcard/Playlists", Path.GetFileNameWithoutExtension(f));
+                    if (!Directory.Exists(outputFolder))
+                        Directory.CreateDirectory(outputFolder);
 
-                    var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
-                    foreach (var beatmapSets in difficultyBeatmapSets)
-                    {
-                        PlayingMethod playingMethod = new PlayingMethod();
-                        playingMethod.CharacteristicName = beatmapSets.Obj.GetString("_beatmapCharacteristicName");
-                        playingMethod.Difficulties = new List<string>();
-
-                        foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
-                        {
-                            playingMethod.Difficulties.Add(difficultyBeatmaps.Obj.GetString("_difficulty"));
-                        }
-
-                        song.PlayingMethods.Add(playingMethod);
-                    }
-
-                    AllSongs.Add(song);
+                    System.IO.Compression.ZipFile.ExtractToDirectory(f, outputFolder);
+                    File.Delete(f);
                 }
             }
+        }
 
-            AllSongs = AllSongs.OrderBy(song => song.Name).ToList();
+        foreach (var path in songPaths) {
+            if (Directory.Exists(path)) {
+                foreach (var dir in Directory.GetDirectories(path)) {
+                    if (Directory.Exists(dir) && Directory.GetFiles(dir, "info.dat").Length > 0) {
+                        JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(dir, "info.dat")));
+
+                        var song = new Song();
+                        song.Path = dir;
+                        song.Name = infoFile.GetString("_songName");
+                        song.AuthorName = infoFile.GetString("_songAuthorName");
+                        song.BPM = infoFile.GetNumber("_beatsPerMinute").ToString();
+                        song.CoverImagePath = Path.Combine(dir, infoFile.GetString("_coverImageFilename"));
+                        song.AudioFilePath = Path.Combine(dir, infoFile.GetString("_songFilename"));
+                        song.PlayingMethods = new List<PlayingMethod>();
+
+                        var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
+                        foreach (var beatmapSets in difficultyBeatmapSets) {
+                            PlayingMethod playingMethod = new PlayingMethod();
+                            playingMethod.CharacteristicName = beatmapSets.Obj.GetString("_beatmapCharacteristicName");
+                            playingMethod.Difficulties = new List<string>();
+
+                            foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps")) {
+                                playingMethod.Difficulties.Add(difficultyBeatmaps.Obj.GetString("_difficulty"));
+                            }
+
+                            song.PlayingMethods.Add(playingMethod);
+                        }
+
+                        AllSongs.Add(song);
+                    }
+                }
+
+                AllSongs = AllSongs.OrderBy(song => song.Name).ToList();
+            }
         }
     }
 

@@ -151,13 +151,14 @@ public class NotesSpawner : MonoBehaviour
 
     public void UpdateNotes()
     {
-        for (int i = 0; i < NotesToSpawn.Count; i++)
-        {
-            if (_noteIndex < NotesToSpawn.Count && (NotesToSpawn[_noteIndex].Time * _BeatPerSec) - _spawnOffset < BeatsTime && audioSource.isPlaying)
-            {
-                SetupNoteData(NotesToSpawn[_noteIndex]);
+        if (audioSource.isPlaying) {
+            for (int i = _noteIndex; i < NotesToSpawn.Count; i++) {
+                if ((NotesToSpawn[i].Time * _BeatPerSec) - _spawnOffset < BeatsTime) {
+                    SetupNoteData(NotesToSpawn[i]);
 
-                _noteIndex++;
+                    _noteIndex++;
+                } else
+                    break;
             }
         }
     }
@@ -204,21 +205,10 @@ public class NotesSpawner : MonoBehaviour
 
     private IEnumerator LoadAudio()
     {
-        var downloadHandler = new DownloadHandlerAudioClip(Songsettings.CurrentSong.AudioFilePath, AudioType.OGGVORBIS);
-        downloadHandler.compressed = false;
-        downloadHandler.streamAudio = true;
-        var uwr = new UnityWebRequest(
-                Songsettings.CurrentSong.AudioFilePath,
-                UnityWebRequest.kHttpVerbGET,
-                downloadHandler,
-                null);
-
-        var request = uwr.SendWebRequest();
-        while (!request.isDone)
-            yield return null;
-
-        audioSource.clip = DownloadHandlerAudioClip.GetContent(uwr);
+        audioSource.clip = OggClipLoader.LoadClip(audioFilePath);
         audioLoaded = true;
+
+        yield return null;
     }
 
     void Update()
@@ -249,7 +239,8 @@ public class NotesSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
 
-        yield return SceneHandling.LoadScene("ScoreSummary", LoadSceneMode.Additive);
+        //yield return SceneHandling.LoadScene("ScoreSummary", LoadSceneMode.Additive);
+        yield return SceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
         yield return SceneHandling.UnloadScene("OpenSaber");
     }
 

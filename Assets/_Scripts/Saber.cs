@@ -5,6 +5,7 @@ using DG.Tweening;
 public class Saber : MonoBehaviour
 {
     public LayerMask layer;
+    public int saberCollisionVibrationLevel = 4;
     private Vector3 previousPos;
     private Slice slicer;
 
@@ -18,14 +19,18 @@ public class Saber : MonoBehaviour
 
     private bool UseSoundFX = false;
 
+    private void UpdateControllerReference() {
+        var controller = transform.parent.parent.gameObject;
+        var controllerEvent = controller.GetComponentInChildren<VRTK_ControllerEvents>(true);
+        if (controllerEvent != null) {
+            controllerReference = VRTK_ControllerReference.GetControllerReference(controllerEvent.gameObject);
+        }
+    }
+
     private void Start()
     {
         slicer = GetComponentInChildren<Slice>(true);
-        var controllerEvent = GetComponentInChildren<VRTK_ControllerEvents>(true);
-        if (controllerEvent != null && controllerEvent.gameObject != null)
-        {
-            controllerReference = VRTK_ControllerReference.GetControllerReference(controllerEvent.gameObject);
-        }
+        UpdateControllerReference();
 
         scoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
         audioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
@@ -35,20 +40,18 @@ public class Saber : MonoBehaviour
     {
         var hapticStrength = 0f;
 
-        if (VRTK_ControllerReference.IsValid(controllerReference))
-        {
+        if (VRTK_ControllerReference.IsValid(controllerReference)) {
             collisionForce = VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier;
             hapticStrength = collisionForce / maxCollisionForce;
+
+#if UNITY_ANDROID
+            var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
+            StartCoroutine(controller.HapticPulse(0.5f, 0.01f, 0.5f, hapticStrength, false));
+#else
             VRTK_ControllerHaptics.TriggerHapticPulse(controllerReference, hapticStrength, 0.5f, 0.01f);
-        }
-        else
-        {
-            var controllerEvent = GetComponentInChildren<VRTK_ControllerEvents>();
-            if (controllerEvent != null && controllerEvent.gameObject != null)
-            {
-                controllerReference = VRTK_ControllerReference.GetControllerReference(controllerEvent.gameObject);
-            }
-        }
+#endif
+        } else
+            UpdateControllerReference();
 
         return hapticStrength;
     }
@@ -58,7 +61,8 @@ public class Saber : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.forward, out hit, 1f, layer))
         {
-            float hapticStrength = 0f;
+            float hapticStrength = 0.1f;
+            Debug.Log("Cube Hit: " + transform.tag);
 
             if (VRTK_ControllerReference.IsValid(controllerReference))
             {
@@ -66,9 +70,9 @@ public class Saber : MonoBehaviour
                 hapticStrength = collisionForce / maxCollisionForce;
             }
 
-            if (hapticStrength > 0.05f)
+            if (hapticStrength > 0.05f && !string.IsNullOrWhiteSpace(hit.transform.tag))
             {
-                if (!string.IsNullOrWhiteSpace(hit.transform.tag) && hit.transform.CompareTag("CubeNonDirection"))
+                if (hit.transform.CompareTag("CubeNonDirection"))
                 {
                     if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130 ||
                         Vector3.Angle(transform.position - previousPos, hit.transform.right) > 130 ||
@@ -78,7 +82,7 @@ public class Saber : MonoBehaviour
                         SliceObject(hit.transform);
                     }
                 }
-                else
+                else if (hit.transform.CompareTag("Cube"))
                 {
                     if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130)
                     {
@@ -89,6 +93,28 @@ public class Saber : MonoBehaviour
         }
         
         previousPos = transform.position;
+    }
+
+    private void OnTriggerEnter(Collider collider) {
+        if (saberCollisionVibrationLevel > 0 && collider.gameObject.CompareTag("Saber")) {
+#if UNITY_ANDROID
+            var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
+            StartCoroutine(controller.HapticPulse(0.5f, 0.01f, 0.0f, saberCollisionVibrationLevel / 10.0f, true));
+#else
+            VRTK_ControllerHaptics.TriggerHapticPulse(controllerReference, 0.4f, 10000.0f, 0.01f);
+#endif
+        }
+    }
+
+    private void OnTriggerExit(Collider collider) {
+        if (saberCollisionVibrationLevel > 0 && collider.gameObject.CompareTag("Saber")) {
+#if UNITY_ANDROID
+            var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
+            controller.CancelHapticPulse();
+#else
+            VRTK_ControllerHaptics.CancelHapticPulse(controllerReference);
+#endif
+        }
     }
 
     private void SliceObject(Transform hittedObject)
