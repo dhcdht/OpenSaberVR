@@ -19,18 +19,11 @@ public class SceneHandling : MonoBehaviour
 
     bool VRTK_Loaded = false;
 
-    HighScore.HighScore score = new HighScore.HighScore();
-
     public GameObject debugProfiler;
 
     private void Awake()
     {
         VRTK_SDKManager.SubscribeLoadedSetupChanged(VRSetupLoaded);
-
-        if (PlayerPrefs.GetInt("UseGlobalHighscore") == 1)
-        {
-            Task.Factory.StartNew(() => score.Init());
-        }
     }
 
     private void VRSetupLoaded(VRTK_SDKManager sender, VRTK_SDKManager.LoadedSetupChangeEventArgs e)
@@ -114,6 +107,13 @@ public class SceneHandling : MonoBehaviour
         }
 
         yield return SceneManager.LoadSceneAsync(sceneName, mode);
+
+        
+        /*if (sceneName == "OpenSaber") {
+            // Testing scores
+            StartCoroutine(LoadScene("ScoreSummary", LoadSceneMode.Additive));
+            StartCoroutine(UnloadScene("OpenSaber"));
+        }*/
     }
 
     internal IEnumerator UnloadScene(string sceneName)

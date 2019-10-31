@@ -32,7 +32,7 @@ public class NotesSpawner : MonoBehaviour
 
     public int _noteIndex = 0;
     public int _eventIndex = 0;
-    public int _obstilcleIndex = 0;
+    public int _obstacleIndex = 0;
 
     public float _BeatPerMin;
     public float _BeatPerSec;
@@ -47,6 +47,7 @@ public class NotesSpawner : MonoBehaviour
     private SceneHandling SceneHandling;
     private bool menuLoadInProgress = false;
     private bool audioLoaded = false;
+    private bool paused = false;
 
     void Start()
     {
@@ -165,12 +166,13 @@ public class NotesSpawner : MonoBehaviour
 
     public void UpdateObstilcles()
     {
-        for (int i = 0; i < ObstaclesToSpawn.Count; i++)
-        {
-            if (_obstilcleIndex < ObstaclesToSpawn.Count && ( ObstaclesToSpawn[_obstilcleIndex].Time * _BeatPerSec) - _spawnOffset < BeatsTime && audioSource.isPlaying)
-            {
-                SetupObstacleData(ObstaclesToSpawn[_obstilcleIndex]);
-                _obstilcleIndex++;
+        if (audioSource.isPlaying) {
+            for (int i = _obstacleIndex; i < ObstaclesToSpawn.Count; i++) {
+                if ((ObstaclesToSpawn[_obstacleIndex].Time * _BeatPerSec) - _spawnOffset < BeatsTime) {
+                    SetupObstacleData(ObstaclesToSpawn[_obstacleIndex]);
+                    _obstacleIndex++;
+                } else
+                    break;
             }
         }
     }
@@ -223,15 +225,13 @@ public class NotesSpawner : MonoBehaviour
         UpdateNotes();
         UpdateObstilcles();
 
-        if (_noteIndex == NotesToSpawn.Count && _obstilcleIndex == ObstaclesToSpawn.Count && !audioSource.isPlaying)
+        if (_noteIndex > 0 && !audioSource.isPlaying && !paused)
         {
             if (!menuLoadInProgress)
             {
                 menuLoadInProgress = true;
                 StartCoroutine(LoadMenu());
             }
-
-            return;
         }
     }
 
@@ -239,8 +239,7 @@ public class NotesSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
 
-        //yield return SceneHandling.LoadScene("ScoreSummary", LoadSceneMode.Additive);
-        yield return SceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
+        yield return SceneHandling.LoadScene("ScoreSummary", LoadSceneMode.Additive);
         yield return SceneHandling.UnloadScene("OpenSaber");
     }
 

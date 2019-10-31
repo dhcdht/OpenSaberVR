@@ -1,32 +1,66 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class ScoreSummaryMenu : MonoBehaviour
 {
-    private SongSettings Songsettings;
-    private SceneHandling SceneHandling;
-    private ScoreHandling ScoreHandling;
+    private SongSettings songSettings;
+    private SceneHandling sceneHandling;
+    private ScoreHandling scoreHandling;
+    private HighScoreSystem scoreSystem;
+    private HighScoreBoard scoreBoard;
 
-    private HighScore.HighScore score = new HighScore.HighScore();
+    public Text PlayerName;
+    public Text CurrentScore;
+
+    public GameObject MainPanel;
+    public GameObject SongsPanel;
 
     private void Awake()
     {
-        Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
-        SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
-        ScoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
+        songSettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        sceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
+        scoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
+        scoreSystem = GameObject.FindGameObjectWithTag("HighScore").GetComponent<HighScoreSystem>();
+        scoreBoard = GetComponentInChildren<HighScoreBoard>(true);
     }
 
-    public void Retry()
+    private void Start() {
+        // Add current score to high score system
+        var playingMethod = songSettings.CurrentSong.PlayingMethods[songSettings.CurrentSong.SelectedPlayingMethod]?.CharacteristicName;
+        if (playingMethod == null || playingMethod.Equals("Standard", StringComparison.InvariantCultureIgnoreCase)) {
+            playingMethod = string.Empty;
+        }
+        var playerName = PlayerPrefs.GetString(PrefConstants.UserName);
+        var score = scoreHandling.ActualScore;
+        scoreSystem.AddHighScoreToSong(songSettings.CurrentSong.Hash, playerName, songSettings.CurrentSong.SelectedDifficulty, playingMethod, score);
+
+        // Fill score board
+        scoreBoard.Fill(songSettings.CurrentSong.Hash, songSettings.CurrentSong.SelectedDifficulty, playingMethod);
+
+        PlayerName.text = playerName;
+        CurrentScore.text = score.ToString();
+    }
+
+    public void ShowSongChooser() {
+        MainPanel.SetActive(false);
+        SongsPanel.SetActive(true);
+
+        SongsPanel.GetComponentInChildren<SongChooser>().ShowChooser();
+    }
+
+    public void PlayAgain()
     {
         StartCoroutine(LoadSongScene());
     }
 
     private IEnumerator LoadSongScene()
     {
-        ScoreHandling.ResetScoreHandling();
-        yield return SceneHandling.LoadScene("OpenSaber", LoadSceneMode.Additive);
-        yield return SceneHandling.UnloadScene("ScoreSummary");
+        scoreHandling.ResetScoreHandling();
+        yield return sceneHandling.LoadScene("OpenSaber", LoadSceneMode.Additive);
+        yield return sceneHandling.UnloadScene("ScoreSummary");
     }
 
     public void Menu()
@@ -36,8 +70,8 @@ public class ScoreSummaryMenu : MonoBehaviour
 
     private IEnumerator LoadMenuScene()
     {
-        ScoreHandling.ResetScoreHandling();
-        yield return SceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
-        yield return SceneHandling.UnloadScene("ScoreSummary");
+        scoreHandling.ResetScoreHandling();
+        yield return sceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
+        yield return sceneHandling.UnloadScene("ScoreSummary");
     }
 }

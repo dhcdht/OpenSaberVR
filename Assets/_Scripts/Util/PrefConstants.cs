@@ -10,4 +10,5 @@ public static class PrefConstants
     public const string SaberCollisionVibrationLevel = "SaberCollisionVibrationLevel";
     public const string UseGlobalHighscore = "UseGlobalHighscore";
     public const string ShowProfiler = "ShowProfiler";
+    public const string UserName = "UserName";
 }

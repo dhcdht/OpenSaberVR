@@ -15,6 +15,7 @@ TagManager:
   - CancelSceneHandling
   - Cube
   - Saber
+  - HighScore
   layers:
   - Default
   - TransparentFX

@@ -36,6 +36,8 @@ public class LoadSongInfos : MonoBehaviour
 
     private void OnEnable()
     {
+        AllSongs = new List<Song>();
+
         string[] songPaths = new string[]
         {
 #if UNITY_ANDROID

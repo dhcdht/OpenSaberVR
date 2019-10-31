@@ -7,10 +7,10 @@ public class CancelSceneHandling : MonoBehaviour
 {
     public TextMeshPro CancelText;
     public TextMeshPro CancelTimeoutText;
+    public NotesSpawner NotesSpawner;
 
     float CancelTime = 3.0f;
-    bool TriggerOnePressed;
-    bool TriggerTwoPressed;
+    int triggersPressed = 0;
     SceneHandling SceneHandling;
     
 
@@ -21,12 +21,11 @@ public class CancelSceneHandling : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (TriggerOnePressed && TriggerTwoPressed)
+        if (triggersPressed == 2)
         {
             if (CancelTime == 0)
             {
-                TriggerOnePressed = false;
-                TriggerTwoPressed = false;
+                triggersPressed = 0;
                 CancelText.gameObject.SetActive(false);
                 CancelTimeoutText.gameObject.SetActive(false);
                 StartCoroutine(LoadMenu());
@@ -56,14 +55,7 @@ public class CancelSceneHandling : MonoBehaviour
             return;
         }
 
-        if (TriggerTwoPressed)
-        {
-            TriggerTwoPressed = false;
-        }
-        else
-        {
-            TriggerOnePressed = false;
-        }
+        triggersPressed = Mathf.Max(0, triggersPressed - 1);
 
         Reset();
     }
@@ -75,14 +67,11 @@ public class CancelSceneHandling : MonoBehaviour
             return;
         }
 
-        if (TriggerOnePressed)
+        triggersPressed = Mathf.Min(2, triggersPressed + 1);
+
+        if (triggersPressed == 2)
         {
-            TriggerTwoPressed = true;
             ShowText();
-        }
-        else
-        {
-            TriggerOnePressed = true;
         }
     }
 
