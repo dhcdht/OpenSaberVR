@@ -41,7 +41,7 @@ MonoBehaviour:
         stationaryBlending: 0.95
         motionBlending: 0.85
   ambientOcclusion:
-    m_Enabled: 0
+    m_Enabled: 1
     m_Settings:
       intensity: 1
       radius: 0.3
@@ -101,7 +101,7 @@ MonoBehaviour:
     m_Enabled: 1
     m_Settings:
       bloom:
-        intensity: 6.24
+        intensity: 4.66
         threshold: 1.1
         softKnee: 0.76
         radius: 4.97
@@ -110,7 +110,7 @@ MonoBehaviour:
         texture: {fileID: 0}
         intensity: 3
   colorGrading:
-    m_Enabled: 0
+    m_Enabled: 1
     m_Settings:
       tonemapping:
         tonemapper: 1
@@ -128,7 +128,7 @@ MonoBehaviour:
         saturation: 1
         contrast: 1
       channelMixer:
-        red: {x: 0, y: 0, z: 0}
+        red: {x: 1, y: 0, z: 0}
         green: {x: 0, y: 1, z: 0}
         blue: {x: 0, y: 0, z: 1}
         currentEditingChannel: 0

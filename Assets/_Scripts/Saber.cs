@@ -6,8 +6,9 @@ public class Saber : MonoBehaviour
 {
     public LayerMask layer;
     public int saberCollisionVibrationLevel = 4;
+
     private Vector3 previousPos;
-    private Slice slicer;
+    private CubeSlicer slicer;
 
     private float impactMagnifier = 120f;
     private float collisionForce = 0f;
@@ -16,6 +17,7 @@ public class Saber : MonoBehaviour
 
     private ScoreHandling scoreHandling;
     private AudioHandling audioHandling;
+    private Material bladeMaterial;
 
     private bool UseSoundFX = false;
 
@@ -29,11 +31,12 @@ public class Saber : MonoBehaviour
 
     private void Start()
     {
-        slicer = GetComponentInChildren<Slice>(true);
+        slicer = GameObject.FindGameObjectWithTag("CubeSlicer").GetComponent<CubeSlicer>();
         UpdateControllerReference();
 
         scoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
         audioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
+        bladeMaterial = GetComponent<Renderer>().material;
     }
 
     private float Pulse()
@@ -62,7 +65,6 @@ public class Saber : MonoBehaviour
         if (Physics.Raycast(transform.position, transform.forward, out hit, 1f, layer))
         {
             float hapticStrength = 0.1f;
-            Debug.Log("Cube Hit: " + transform.tag);
 
             if (VRTK_ControllerReference.IsValid(controllerReference))
             {
@@ -79,14 +81,14 @@ public class Saber : MonoBehaviour
                         Vector3.Angle(transform.position - previousPos, -hit.transform.up) > 130 ||
                         Vector3.Angle(transform.position - previousPos, -hit.transform.right) > 130)
                     {
-                        SliceObject(hit.transform);
+                        SliceCube(hit.transform);
                     }
                 }
                 else if (hit.transform.CompareTag("Cube"))
                 {
                     if (Vector3.Angle(transform.position - previousPos, hit.transform.up) > 130)
                     {
-                        SliceObject(hit.transform);
+                        SliceCube(hit.transform);
                     }
                 }
             }
@@ -117,52 +119,29 @@ public class Saber : MonoBehaviour
         }
     }
 
-    private void SliceObject(Transform hittedObject)
+    // Use pre-sliced cubes for android
+    private void SliceCube(Transform hitCubeTransform)
     {
-        var cutted = slicer.SliceObject(hittedObject.gameObject);
-        var go = Instantiate(hittedObject.gameObject);
-
-        var cubeHandling = hittedObject.gameObject.GetComponent<CubeHandling>();
-        var cutDirection = cubeHandling._note.CutDirection;
-        var lineIndex = cubeHandling._note.LineIndex;
-        var lineLayer = cubeHandling._note.LineLayer;
-        go.GetComponent<CubeHandling>().enabled = false;
-        go.GetComponentInChildren<BoxCollider>().enabled = false;
-        go.layer = 0;
-
-        foreach (var renderer in go.transform.GetComponentsInChildren<MeshRenderer>())
-        {
-            renderer.enabled = false;
-        }
-
-        foreach (var cut in cutted)
-        {
-            cut.transform.SetParent(go.transform);
-            cut.AddComponent<BoxCollider>();
-            var rigid = cut.AddComponent<Rigidbody>();
-            rigid.useGravity = true;
-            cut.transform.DOScale(0, 1f);
-        }
+        var slicedCube = slicer.SliceCube(hitCubeTransform, bladeMaterial);
+        var cubeHandling = hitCubeTransform.gameObject.GetComponent<CubeHandling>();
 
         AudioSource audioSource = null;
 
         if (audioHandling.UseSoundFX)
         {
-            audioSource = go.AddComponent<AudioSource>();
+            var cutDirection = cubeHandling._note.CutDirection;
+            var lineLayer = cubeHandling._note.LineLayer;
+
+            audioSource = slicedCube.AddComponent<AudioSource>();
             audioSource.volume = 0.15f;
             audioSource.clip = audioHandling.GetAudioClip(cutDirection);
             audioSource.loop = false;
             audioSource.pitch = PitchValue(lineLayer);
         }
 
-        go.transform.SetPositionAndRotation(hittedObject.position, hittedObject.rotation);
-
         var strength = Pulse();
         AddPointsToScore(strength);
-
-        Destroy(hittedObject.gameObject);
         audioSource?.Play();
-        Destroy(go, 2f);
     }
 
     private float PitchValue(int lineLayer)

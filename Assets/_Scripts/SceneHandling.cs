@@ -59,11 +59,7 @@ public class SceneHandling : MonoBehaviour
 
     private void SaberSceneLoaded()
     {
-        var saberCollisionVibrationLevel = 2;
-        if (PlayerPrefs.HasKey(PrefConstants.SaberCollisionVibrationLevel))
-            saberCollisionVibrationLevel = PlayerPrefs.GetInt(PrefConstants.SaberCollisionVibrationLevel);
-        else
-            PlayerPrefs.SetInt(PrefConstants.SaberCollisionVibrationLevel, saberCollisionVibrationLevel);
+        var saberCollisionVibrationLevel = PlayerPrefs.GetInt(PrefConstants.SaberCollisionVibrationLevel, 2);
 
         LeftSaber.SetActive(true);
         LeftSaber.GetComponentInChildren<Saber>(true).saberCollisionVibrationLevel = saberCollisionVibrationLevel;

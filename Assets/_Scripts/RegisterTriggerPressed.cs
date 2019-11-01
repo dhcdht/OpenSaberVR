@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using VRTK;
 
+[RequireComponent(typeof(VRTK_ControllerEvents))]
 public class RegisterTriggerPressed : MonoBehaviour
 {
     public CancelSceneHandling CancelSceneHandling { get; private set; }

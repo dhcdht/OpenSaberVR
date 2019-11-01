@@ -7,7 +7,6 @@ public class CancelSceneHandling : MonoBehaviour
 {
     public TextMeshPro CancelText;
     public TextMeshPro CancelTimeoutText;
-    public NotesSpawner NotesSpawner;
 
     float CancelTime = 3.0f;
     int triggersPressed = 0;

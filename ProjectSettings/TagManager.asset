@@ -16,6 +16,7 @@ TagManager:
   - Cube
   - Saber
   - HighScore
+  - CubeSlicer
   layers:
   - Default
   - TransparentFX
@@ -29,7 +30,7 @@ TagManager:
   - BlueLayer
   - Wall
   - ThirdCamera
-  - 
+  - PostProcessing
   - 
   - 
   - 
