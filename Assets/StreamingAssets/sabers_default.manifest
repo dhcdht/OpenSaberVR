@@ -1,0 +1,32 @@
+ManifestFileVersion: 0
+CRC: 198785271
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 92e3934dc380389e82bd7102957fbfba
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: c5a749c7bce26bf94a5c49b0fb8ee825
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+Assets:
+- Assets/_Prefabs/Sabers.prefab
+Dependencies: []

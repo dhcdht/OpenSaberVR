@@ -36,7 +36,7 @@ public class Saber : MonoBehaviour
 
         scoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
         audioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
-        bladeMaterial = GetComponent<Renderer>().material;
+        bladeMaterial = transform.Find("Material").GetComponent<Renderer>().material;
     }
 
     private float Pulse()
@@ -98,24 +98,32 @@ public class Saber : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider collider) {
-        if (saberCollisionVibrationLevel > 0 && collider.gameObject.CompareTag("Saber")) {
+        if (saberCollisionVibrationLevel > 0) {
+            var saber = collider.gameObject.GetComponent<Saber>();
+
+            if (saber != null) {
 #if UNITY_ANDROID
-            var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
-            StartCoroutine(controller.HapticPulse(0.5f, 0.01f, 0.0f, saberCollisionVibrationLevel / 10.0f, true));
+                var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
+                StartCoroutine(controller.HapticPulse(0.5f, 0.01f, 0.0f, saberCollisionVibrationLevel / 10.0f, true));
 #else
-            VRTK_ControllerHaptics.TriggerHapticPulse(controllerReference, 0.4f, 10000.0f, 0.01f);
+                VRTK_ControllerHaptics.TriggerHapticPulse(controllerReference, 0.4f, 10000.0f, 0.01f);
 #endif
+            }
         }
     }
 
     private void OnTriggerExit(Collider collider) {
-        if (saberCollisionVibrationLevel > 0 && collider.gameObject.CompareTag("Saber")) {
+        if (saberCollisionVibrationLevel > 0) {
+            var saber = collider.gameObject.GetComponent<Saber>();
+
+            if (saber != null) {
 #if UNITY_ANDROID
-            var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
-            controller.CancelHapticPulse();
+                var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
+                controller.CancelHapticPulse();
 #else
-            VRTK_ControllerHaptics.CancelHapticPulse(controllerReference);
+                VRTK_ControllerHaptics.CancelHapticPulse(controllerReference);
 #endif
+            }
         }
     }
 

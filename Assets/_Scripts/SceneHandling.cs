@@ -6,14 +6,14 @@ using VRTK;
 
 public class SceneHandling : MonoBehaviour
 {
+    [SerializeField]
+    SaberManager saberManager;
+
+    GameObject LeftModel;
+    GameObject RightModel;
+
     GameObject LeftController;
     GameObject RightController;
-
-    GameObject LeftSaber;
-    GameObject LeftModel;
-
-    GameObject RightSaber;
-    GameObject RightModel;
 
     VRTK_Pointer RightUIPointer;
 
@@ -24,6 +24,9 @@ public class SceneHandling : MonoBehaviour
     private void Awake()
     {
         VRTK_SDKManager.SubscribeLoadedSetupChanged(VRSetupLoaded);
+
+        // Wait for the sabers to be loaded before loading any scenes
+        saberManager.OnSabersLoaded.AddListener(SabersLoaded);
     }
 
     private void VRSetupLoaded(VRTK_SDKManager sender, VRTK_SDKManager.LoadedSetupChangeEventArgs e)
@@ -31,16 +34,14 @@ public class SceneHandling : MonoBehaviour
         LeftController = e.currentSetup.actualLeftController;
         RightController = e.currentSetup.actualRightController;
 
-        LeftSaber = LeftController.transform.Find("Saber").gameObject;
         LeftModel = LeftController.transform.Find("Model").gameObject;
-
-        RightSaber = RightController.transform.Find("Saber").gameObject;
         RightModel = RightController.transform.Find("Model").gameObject;
 
         RightUIPointer = RightController.transform.Find("RightController").GetComponent<VRTK_Pointer>();
 
         VRTK_Loaded = true;
-        MenuSceneLoaded();
+
+        saberManager.LoadSabers(e.currentSetup.actualLeftController, e.currentSetup.actualRightController);
     }
 
     private void MenuSceneLoaded()
@@ -48,9 +49,8 @@ public class SceneHandling : MonoBehaviour
         if (!VRTK_Loaded)
             return;
 
-        LeftSaber.SetActive(false);
-        
-        RightSaber.SetActive(false);
+        saberManager.GetSaberObject(false).SetActive(false);
+        saberManager.GetSaberObject(true).SetActive(false);
 
         LeftModel.SetActive(true);
         RightModel.SetActive(true);
@@ -61,10 +61,13 @@ public class SceneHandling : MonoBehaviour
     {
         var saberCollisionVibrationLevel = PlayerPrefs.GetInt(PrefConstants.SaberCollisionVibrationLevel, 2);
 
-        LeftSaber.SetActive(true);
-        LeftSaber.GetComponentInChildren<Saber>(true).saberCollisionVibrationLevel = saberCollisionVibrationLevel;
-        RightSaber.SetActive(true);
-        RightSaber.GetComponentInChildren<Saber>(true).saberCollisionVibrationLevel = saberCollisionVibrationLevel;
+        var leftSaber = saberManager.GetSaberObject(false);
+        var rightSaber = saberManager.GetSaberObject(true);
+
+        leftSaber.SetActive(true);
+        leftSaber.GetComponentInChildren<Saber>(true).saberCollisionVibrationLevel = saberCollisionVibrationLevel;
+        rightSaber.SetActive(true);
+        rightSaber.GetComponentInChildren<Saber>(true).saberCollisionVibrationLevel = saberCollisionVibrationLevel;
 
         LeftModel.SetActive(false);
         RightModel.SetActive(false);
@@ -76,15 +79,12 @@ public class SceneHandling : MonoBehaviour
         VRTK_SDKManager.UnsubscribeLoadedSetupChanged(VRSetupLoaded);
     }
 
-    private void Start()
-    {
-        if (!IsSceneLoaded("Menu"))
-        {
+    void SabersLoaded() {
+        if (!IsSceneLoaded("Menu")) {
             StartCoroutine(LoadScene("Menu", LoadSceneMode.Additive));
         }
 
-        if (VRTK_Loaded)
-        {
+        if (VRTK_Loaded) {
             MenuSceneLoaded();
         }
     }

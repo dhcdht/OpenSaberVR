@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 2243676968
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: sabers_default
+      Dependencies: {}
