@@ -1378,7 +1378,7 @@ GameObject:
   - component: {fileID: 659505117}
   m_Layer: 12
   m_Name: SaberManager
-  m_TagString: Untagged
+  m_TagString: SaberManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1395,8 +1395,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 965a7408a3087904eba93af20f33f970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LeftSaberHolder: {fileID: 1131777695}
-  RightSaberHolder: {fileID: 279151769}
   OnSabersLoaded:
     m_PersistentCalls:
       m_Calls: []
@@ -4781,3 +4779,8 @@ MonoBehaviour:
     type: 3}
   SplitCubeNonDirectional: {fileID: 5089034330109808136, guid: 003b53c61a9bfa54e99e87fedaaab5a0,
     type: 3}
+  RedMaterial: {fileID: 2100000, guid: 05b9d1de2482b13439618ad8441bad0f, type: 2}
+  BlueMaterial: {fileID: 2100000, guid: 12bc0438b05712b498517086c163e6d0, type: 2}
+  BlueLayer:
+    serializedVersion: 2
+    m_Bits: 512

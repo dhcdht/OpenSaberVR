@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/ScoreSummary.unity
     guid: e647770003f11f54aa9d7ae2870d1ad2
+  - enabled: 1
+    path: Assets/_Scenes/SaberSelection.unity
+    guid: 9f09e1609ce3d4749a1b29a3dc26e6d0
   m_configObjects: {}

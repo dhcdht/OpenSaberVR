@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 198785271
+CRC: 1690983144
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 92e3934dc380389e82bd7102957fbfba
+    Hash: bafc446ece1e0c6b3464a62abaf80799
   TypeTreeHash:
     serializedVersion: 2
-    Hash: c5a749c7bce26bf94a5c49b0fb8ee825
+    Hash: cb5cff3a1350143ce413b676b0fb473f
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -17,16 +17,15 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 23
   Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
 - Class: 33
   Script: {instanceID: 0}
 - Class: 43
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
-- Class: 54
-  Script: {instanceID: 0}
-- Class: 65
-  Script: {instanceID: 0}
 Assets:
-- Assets/_Prefabs/Sabers.prefab
+- Assets/Sabers.prefab
+- Assets/Icon.png
 Dependencies: []

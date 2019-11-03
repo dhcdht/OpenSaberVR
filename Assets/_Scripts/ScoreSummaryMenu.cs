@@ -59,8 +59,8 @@ public class ScoreSummaryMenu : MonoBehaviour
     private IEnumerator LoadSongScene()
     {
         scoreHandling.ResetScoreHandling();
-        yield return sceneHandling.LoadScene("OpenSaber", LoadSceneMode.Additive);
-        yield return sceneHandling.UnloadScene("ScoreSummary");
+        yield return sceneHandling.LoadScene(SceneConstants.GAME, LoadSceneMode.Additive);
+        yield return sceneHandling.UnloadScene(SceneConstants.SCORE_SUMMARY);
     }
 
     public void Menu()
@@ -71,7 +71,7 @@ public class ScoreSummaryMenu : MonoBehaviour
     private IEnumerator LoadMenuScene()
     {
         scoreHandling.ResetScoreHandling();
-        yield return sceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
-        yield return sceneHandling.UnloadScene("ScoreSummary");
+        yield return sceneHandling.LoadScene(SceneConstants.MENU_MAIN, LoadSceneMode.Additive);
+        yield return sceneHandling.UnloadScene(SceneConstants.SCORE_SUMMARY);
     }
 }

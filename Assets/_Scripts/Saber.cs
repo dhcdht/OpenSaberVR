@@ -17,7 +17,6 @@ public class Saber : MonoBehaviour
 
     private ScoreHandling scoreHandling;
     private AudioHandling audioHandling;
-    private Material bladeMaterial;
 
     private bool UseSoundFX = false;
 
@@ -36,7 +35,6 @@ public class Saber : MonoBehaviour
 
         scoreHandling = GameObject.FindGameObjectWithTag("ScoreHandling").GetComponent<ScoreHandling>();
         audioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
-        bladeMaterial = transform.Find("Material").GetComponent<Renderer>().material;
     }
 
     private float Pulse()
@@ -99,9 +97,7 @@ public class Saber : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider) {
         if (saberCollisionVibrationLevel > 0) {
-            var saber = collider.gameObject.GetComponent<Saber>();
-
-            if (saber != null) {
+            if (collider.CompareTag("Saber")) {
 #if UNITY_ANDROID
                 var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
                 StartCoroutine(controller.HapticPulse(0.5f, 0.01f, 0.0f, saberCollisionVibrationLevel / 10.0f, true));
@@ -114,9 +110,7 @@ public class Saber : MonoBehaviour
 
     private void OnTriggerExit(Collider collider) {
         if (saberCollisionVibrationLevel > 0) {
-            var saber = collider.gameObject.GetComponent<Saber>();
-
-            if (saber != null) {
+            if (collider.CompareTag("Saber")) {
 #if UNITY_ANDROID
                 var controller = controllerReference.actual.GetComponent<QuestHapticFeedback>();
                 controller.CancelHapticPulse();
@@ -130,7 +124,7 @@ public class Saber : MonoBehaviour
     // Use pre-sliced cubes for android
     private void SliceCube(Transform hitCubeTransform)
     {
-        var slicedCube = slicer.SliceCube(hitCubeTransform, bladeMaterial);
+        var slicedCube = slicer.SliceCube(hitCubeTransform, layer);
         var cubeHandling = hitCubeTransform.gameObject.GetComponent<CubeHandling>();
 
         AudioSource audioSource = null;

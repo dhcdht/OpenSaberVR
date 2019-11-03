@@ -80,8 +80,8 @@ public class SceneHandling : MonoBehaviour
     }
 
     void SabersLoaded() {
-        if (!IsSceneLoaded("Menu")) {
-            StartCoroutine(LoadScene("Menu", LoadSceneMode.Additive));
+        if (!IsSceneLoaded(SceneConstants.MENU_MAIN)) {
+            StartCoroutine(LoadScene(SceneConstants.MENU_MAIN, LoadSceneMode.Additive));
         }
 
         if (VRTK_Loaded) {
@@ -93,11 +93,11 @@ public class SceneHandling : MonoBehaviour
     {
         debugProfiler.SetActive(PlayerPrefs.GetInt(PrefConstants.ShowProfiler) == 1);
 
-        if (sceneName == "OpenSaber")
+        if (sceneName == SceneConstants.GAME)
         {
             SaberSceneLoaded();
         }
-        else if (sceneName == "Menu" || sceneName == "ScoreSummary")
+        else if (sceneName == SceneConstants.MENU_MAIN || sceneName == SceneConstants.SCORE_SUMMARY)
         {
             MenuSceneLoaded();
         }

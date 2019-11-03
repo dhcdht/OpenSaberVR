@@ -11,7 +11,14 @@ public class CubeSlicer : MonoBehaviour
     private GameObject SplitCube;
     [SerializeField]
     private GameObject SplitCubeNonDirectional;
-    public GameObject SliceCube(Transform hitCubeTransform, Material bladeMaterial) {
+    [SerializeField]
+    private Material RedMaterial;
+    [SerializeField]
+    private Material BlueMaterial;
+    [SerializeField]
+    private LayerMask BlueLayer;
+
+    public GameObject SliceCube(Transform hitCubeTransform, LayerMask bladeLayer) {
         var cubeHandling = hitCubeTransform.gameObject.GetComponent<CubeHandling>();
         var splitCubePrefab = cubeHandling._note.CutDirection == NotesSpawner.CutDirection.NONDIRECTION ? SplitCubeNonDirectional : SplitCube;
         var sliceContainer = Instantiate(splitCubePrefab, hitCubeTransform.position, hitCubeTransform.rotation);
@@ -20,7 +27,7 @@ public class CubeSlicer : MonoBehaviour
             sliceT.DOScale(0, 1f);
 
             foreach (Transform childT in sliceT)
-                childT.GetComponent<MeshRenderer>().material = bladeMaterial;
+                childT.GetComponent<MeshRenderer>().material = bladeLayer == BlueLayer? BlueMaterial: RedMaterial;
         }
 
         Destroy(hitCubeTransform.gameObject);

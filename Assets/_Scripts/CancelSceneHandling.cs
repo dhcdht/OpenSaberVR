@@ -43,13 +43,13 @@ public class CancelSceneHandling : MonoBehaviour
 
     private IEnumerator LoadMenu()
     {
-        yield return SceneHandling.LoadScene("Menu", LoadSceneMode.Additive);
-        yield return SceneHandling.UnloadScene("OpenSaber");
+        yield return SceneHandling.LoadScene(SceneConstants.MENU_MAIN, LoadSceneMode.Additive);
+        yield return SceneHandling.UnloadScene(SceneConstants.GAME);
     }
 
     internal void TriggerReleased()
     {
-        if (!SceneHandling.IsSceneLoaded("OpenSaber"))
+        if (!SceneHandling.IsSceneLoaded(SceneConstants.GAME))
         {
             return;
         }
@@ -61,7 +61,7 @@ public class CancelSceneHandling : MonoBehaviour
 
     internal void TriggerPressed()
     {
-        if (!SceneHandling.IsSceneLoaded("OpenSaber"))
+        if (!SceneHandling.IsSceneLoaded(SceneConstants.GAME))
         {
             return;
         }

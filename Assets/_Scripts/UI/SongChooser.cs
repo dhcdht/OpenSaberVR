@@ -188,7 +188,7 @@ public class SongChooser : MonoBehaviour
 
     private IEnumerator LoadSongScene() {
         scoreHandling.ResetScoreHandling();
-        yield return sceneHandling.LoadScene("OpenSaber", LoadSceneMode.Additive);
+        yield return sceneHandling.LoadScene(SceneConstants.GAME, LoadSceneMode.Additive);
         yield return sceneHandling.UnloadScene(SceneName);
     }
 

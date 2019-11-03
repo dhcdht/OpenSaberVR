@@ -21,11 +21,13 @@ public class MainMenu : MonoBehaviour
     public HighScoreBoard ScoreBoard;
     public SongChooser songChooser;
 
-    private AudioHandling AudioHandling;
+    private AudioHandling audioHandling;
+    private SceneHandling sceneHandling;
 
     private void Awake()
     {
-        AudioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
+        audioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
+        sceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
     }
 
     public void ShowSongs()
@@ -119,13 +121,13 @@ public class MainMenu : MonoBehaviour
         {
             PlayerPrefs.SetInt(PrefConstants.UseSoundFx, 1);
             UseSoundFX.text = "on";
-            AudioHandling.UseSoundFX = true;
+            audioHandling.UseSoundFX = true;
         }
         else if (PlayerPrefs.GetInt(PrefConstants.UseSoundFx) == 1)
         {
             PlayerPrefs.SetInt(PrefConstants.UseSoundFx, 0);
             UseSoundFX.text = "off";
-            AudioHandling.UseSoundFX = false;
+            audioHandling.UseSoundFX = false;
         }
     }
 
@@ -152,5 +154,14 @@ public class MainMenu : MonoBehaviour
     {
         MenuPanels.ToList().ForEach(m => m.SetActive(false));
         MenuPanels.ToList().First(m => m.name == activatePanel).SetActive(true);
+    }
+
+    IEnumerator LoadSaberSelection() {
+        yield return sceneHandling.LoadScene(SceneConstants.MENU_SABER_SELECTION, LoadSceneMode.Additive);
+        yield return sceneHandling.UnloadScene(SceneConstants.MENU_MAIN);
+    }
+
+    public void ShowSaberSelection() {
+        StartCoroutine(LoadSaberSelection());
     }
 }

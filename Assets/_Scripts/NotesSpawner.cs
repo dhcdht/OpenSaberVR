@@ -239,8 +239,8 @@ public class NotesSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
 
-        yield return SceneHandling.LoadScene("ScoreSummary", LoadSceneMode.Additive);
-        yield return SceneHandling.UnloadScene("OpenSaber");
+        yield return SceneHandling.LoadScene(SceneConstants.SCORE_SUMMARY, LoadSceneMode.Additive);
+        yield return SceneHandling.UnloadScene(SceneConstants.GAME);
     }
 
     void GenerateNote(Note note, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)

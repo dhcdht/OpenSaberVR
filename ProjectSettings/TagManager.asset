@@ -14,9 +14,10 @@ TagManager:
   - AudioHandling
   - CancelSceneHandling
   - Cube
-  - Saber
   - HighScore
   - CubeSlicer
+  - SaberManager
+  - Saber
   layers:
   - Default
   - TransparentFX
