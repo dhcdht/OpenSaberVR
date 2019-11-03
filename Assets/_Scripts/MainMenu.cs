@@ -18,16 +18,23 @@ public class MainMenu : MonoBehaviour
     public Text SaberVibrationLevelLabel;
     public Slider SaberVibrationLevel;
     public Text PerformanceProfiler;
+    public Text UsePostProcessing;
     public HighScoreBoard ScoreBoard;
     public SongChooser songChooser;
 
     private AudioHandling audioHandling;
     private SceneHandling sceneHandling;
 
+    void UpdatePostProcessingText() {
+        UsePostProcessing.text = GraphicsSettings.IsPostProcessingEnabled ? "enabled" : "disabled";
+    }
+
     private void Awake()
     {
         audioHandling = GameObject.FindGameObjectWithTag("AudioHandling").GetComponent<AudioHandling>();
         sceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
+
+        GraphicsSettings.PostProcessingChanged.AddListener(UpdatePostProcessingText);
     }
 
     public void ShowSongs()
@@ -71,6 +78,8 @@ public class MainMenu : MonoBehaviour
         {
             Username.text = PlayerPrefs.GetString(PrefConstants.UserName);
         }
+
+        UpdatePostProcessingText();
     }
 
     public void ShowCredits()
@@ -147,7 +156,10 @@ public class MainMenu : MonoBehaviour
         var enabled = PlayerPrefs.GetInt(PrefConstants.ShowProfiler) == 0;
         PlayerPrefs.SetInt(PrefConstants.ShowProfiler, enabled ? 1 : 0);
         PerformanceProfiler.text = enabled ? "enabled" : "disabled";
+    }
 
+    public void TogglePostProcessing() {
+        GraphicsSettings.SetPostProcessing(!GraphicsSettings.IsPostProcessingEnabled);
     }
 
     public void DisplayPanel(string activatePanel)
