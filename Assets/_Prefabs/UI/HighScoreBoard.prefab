@@ -197,7 +197,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 12.79, y: 2.11}
+  m_AnchoredPosition: {x: 12.789993, y: 2.1099854}
   m_SizeDelta: {x: 800, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &4629489395693239329
@@ -275,7 +275,5 @@ MonoBehaviour:
   LinePrefab: {fileID: 8617775248732792918, guid: ab092852bd3be15498604e268c29da40,
     type: 3}
   ScoreLineHolder: {fileID: 3309571946353931686}
-  CurrentScore: {fileID: 0}
-  PlayerName: {fileID: 0}
   HighScoreTitle: {fileID: 5570519309688507726}
   MaxScores: 10

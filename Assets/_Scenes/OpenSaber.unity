@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731713, g: 0.13414736, b: 0.12107852, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1098,6 +1098,7 @@ GameObject:
   - component: {fileID: 735382884}
   - component: {fileID: 735382886}
   - component: {fileID: 735382885}
+  - component: {fileID: 735382883}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -1105,6 +1106,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &735382883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 735382882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc6501334d67df84086f91a3e744e969, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &735382884
 Transform:
   m_ObjectHideFlags: 0
@@ -1245,17 +1258,17 @@ MonoBehaviour:
   - {fileID: 2267269557703769182, guid: d1b9a357b66c1bb4d94ece8d834540b0, type: 3}
   - {fileID: 5089034330109808136, guid: 651bdfd30a8c9e145bc376e53a71582a, type: 3}
   Wall: {fileID: 4307119938621768877, guid: 047102afd6534544fafcdc12fb9c83a7, type: 3}
-  CameraHead: {fileID: 0}
+  cameraHead: {fileID: 0}
   _noteIndex: 0
   _eventIndex: 0
-  _obstilcleIndex: 0
+  _obstacleIndex: 0
   _BeatPerMin: 0
   _BeatPerSec: 0
   _SecPerBeat: 0
   _spawnOffset: 0
   _noteSpeed: 0
   BeatsTime: 0
-  audioSource: {fileID: 0}
+  songData: {fileID: 735382883}
 --- !u!1 &819751433
 GameObject:
   m_ObjectHideFlags: 0

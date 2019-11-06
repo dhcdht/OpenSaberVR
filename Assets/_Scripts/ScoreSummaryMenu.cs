@@ -16,7 +16,6 @@ public class ScoreSummaryMenu : MonoBehaviour
     public Text CurrentScore;
 
     public GameObject MainPanel;
-    public GameObject SongsPanel;
 
     private void Awake()
     {
@@ -29,26 +28,28 @@ public class ScoreSummaryMenu : MonoBehaviour
 
     private void Start() {
         // Add current score to high score system
-        var playingMethod = songSettings.CurrentSong.PlayingMethods[songSettings.CurrentSong.SelectedPlayingMethod]?.CharacteristicName;
+        var playingMethod = songSettings.SelectedPlayingMethod;
         if (playingMethod == null || playingMethod.Equals("Standard", StringComparison.InvariantCultureIgnoreCase)) {
             playingMethod = string.Empty;
         }
         var playerName = PlayerPrefs.GetString(PrefConstants.UserName);
         var score = scoreHandling.ActualScore;
-        scoreSystem.AddHighScoreToSong(songSettings.CurrentSong.Hash, playerName, songSettings.CurrentSong.SelectedDifficulty, playingMethod, score);
+        var entry = scoreSystem.AddHighScoreToSong(songSettings.CurrentSong.Hash, playerName, songSettings.SelectedDifficulty, playingMethod, score);
 
         // Fill score board
-        scoreBoard.Fill(songSettings.CurrentSong.Hash, songSettings.CurrentSong.SelectedDifficulty, playingMethod);
+        scoreBoard.Fill(songSettings.CurrentSong.Hash, songSettings.SelectedDifficulty, playingMethod, entry);
 
         PlayerName.text = playerName;
         CurrentScore.text = score.ToString();
     }
 
-    public void ShowSongChooser() {
-        MainPanel.SetActive(false);
-        SongsPanel.SetActive(true);
+    IEnumerator LoadSongChooser() {
+        yield return sceneHandling.LoadScene(SceneConstants.SONG_SELECTION, LoadSceneMode.Additive);
+        yield return sceneHandling.UnloadScene(SceneConstants.SCORE_SUMMARY);
+    }
 
-        SongsPanel.GetComponentInChildren<SongChooser>().ShowChooser();
+    public void ShowSongChooser() {
+        StartCoroutine(LoadSongChooser());
     }
 
     public void PlayAgain()

@@ -3,5 +3,6 @@
 public class SongSettings : MonoBehaviour
 {
     public Song CurrentSong;
-    public int CurrentSongIndex;
+    public string SelectedPlayingMethod;
+    public string SelectedDifficulty;
 }

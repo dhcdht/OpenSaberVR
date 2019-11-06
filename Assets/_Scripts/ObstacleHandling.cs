@@ -17,9 +17,9 @@ public class ObstacleHandling : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (_refNotesSpawner != null && _refNotesSpawner.audioSource != null)
+        if (_refNotesSpawner != null && _refNotesSpawner.AudioSource != null)
         {
-            _songTime = _refNotesSpawner.audioSource.time + Time.smoothDeltaTime;
+            _songTime = _refNotesSpawner.AudioSource.time + Time.smoothDeltaTime;
             float songTimeDistance = _songTime - (((float)_obstacle.Time * _refNotesSpawner._BeatPerSec) - _refNotesSpawner._spawnOffset);
             float _songTimeOffset = _songTime - ((((float)_obstacle.Time * _refNotesSpawner._BeatPerSec) - _refNotesSpawner._spawnOffset) + (BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin));
             float _songTimeOffsetPercent = _songTimeOffset / (BeatsConstants.BEAT_WARMUP_OFFSET / _refNotesSpawner._noteSpeed);

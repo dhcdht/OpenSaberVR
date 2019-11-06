@@ -19,7 +19,7 @@ public class HighScoreBoard : MonoBehaviour
         content.SetActive(false);
     }
 
-    public void Fill(string songHash, string difficulty, string playingMethod)
+    public void Fill(string songHash, string difficulty, string playingMethod, HighScoreEntry entryToHighlight = null)
     {
         foreach (var line in GetComponentsInChildren<HighScoreLine>())
             GameObject.Destroy(line.gameObject);
@@ -30,18 +30,18 @@ public class HighScoreBoard : MonoBehaviour
             content.SetActive(true);
             HighScoreTitle.text = "HIGHSCORES";
 
-            var yOffset = 0;
+            var yOffset = 0.0f;
 
             for (int i = 0; i < scores.Count; i++) {
                 var obj = Instantiate(LinePrefab, ScoreLineHolder.transform, false);
                 obj.transform.localPosition = new Vector3(0, yOffset, 0);
 
                 var line = obj.GetComponent<HighScoreLine>();
-                line.Display(i + 1, scores[i].Score.ToString(), scores[i].Username, false);
+                line.Display(i + 1, scores[i].Score.ToString(), scores[i].Username, entryToHighlight != null && entryToHighlight.Equals(scores[i]));
 
                 line.gameObject.SetActive(true);
 
-                yOffset -= 70;
+                yOffset -= line.GetComponent<RectTransform>().rect.height;
             }
         } else
             content.SetActive(false);

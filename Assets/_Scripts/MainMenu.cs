@@ -20,7 +20,6 @@ public class MainMenu : MonoBehaviour
     public Text PerformanceProfiler;
     public Text UsePostProcessing;
     public HighScoreBoard ScoreBoard;
-    public SongChooser songChooser;
 
     private AudioHandling audioHandling;
     private SceneHandling sceneHandling;
@@ -37,16 +36,20 @@ public class MainMenu : MonoBehaviour
         GraphicsSettings.PostProcessingChanged.AddListener(UpdatePostProcessingText);
     }
 
+    IEnumerator LoadSongSelection() {
+        yield return sceneHandling.LoadScene(SceneConstants.SONG_SELECTION, LoadSceneMode.Additive);
+        yield return sceneHandling.UnloadScene(SceneConstants.MENU_MAIN);
+    }
+
     public void ShowSongs()
     {
-        DisplayPanel("SongChooserPanel");
-        songChooser.ShowChooser();
+        StartCoroutine(LoadSongSelection());
+        /*DisplayPanel("SongChooserPanel");
+        songChooser.ShowChooser();*/
     }
 
     public void ShowSettings()
     {
-        songChooser.Stop();
-
         DisplayPanel("Settings");
 
         if (PlayerPrefs.GetInt(PrefConstants.UseSoundFx) == 0)
@@ -84,7 +87,6 @@ public class MainMenu : MonoBehaviour
 
     public void ShowCredits()
     {
-        songChooser.Stop();
         DisplayPanel("Credits");
     }
 
@@ -110,7 +112,6 @@ public class MainMenu : MonoBehaviour
 
     public void AreYouSure()
     {
-        songChooser.Stop();
         DisplayPanel("AreYouSurePanel");
     }
 

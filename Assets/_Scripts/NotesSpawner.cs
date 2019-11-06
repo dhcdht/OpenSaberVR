@@ -17,12 +17,17 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
+[RequireComponent(typeof(AudioSource))]
 public class NotesSpawner : MonoBehaviour
 {
-    public GameObject[] Cubes;
-    public GameObject Wall;
-    public GameObject CameraHead;
+    [SerializeField]
+    GameObject[] Cubes;
+    [SerializeField]
+    private SongData songData;
+    [SerializeField]
+    GameObject Wall;
 
     private string jsonString;
     private string audioFilePath;
@@ -41,31 +46,65 @@ public class NotesSpawner : MonoBehaviour
     public float _noteSpeed;
     public float BeatsTime;
 
-    public AudioSource audioSource;
+    SceneHandling sceneHandling;
+    AudioSource audioSource;
+    GameObject cameraHead;
 
-    private SongSettings Songsettings;
-    private SceneHandling SceneHandling;
     private bool menuLoadInProgress = false;
     private bool audioLoaded = false;
     private bool paused = false;
+    bool songPlaying;
 
-    void Start()
+
+    public AudioSource AudioSource {
+        get {
+            return audioSource;
+        }
+    }
+
+    void Start() {
+        cameraHead = GameObject.FindGameObjectWithTag("MainCamera");
+        sceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    private IEnumerator LoadAudio() {
+        yield return null;
+        audioSource.clip = OggClipLoader.LoadClip(audioFilePath);
+        audioLoaded = true;
+        yield return null;
+    }
+
+    public void PlaySongWithDifficulty(string songHash, string difficulty, string playingMethod)
     {
-        Songsettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
-        CameraHead = GameObject.FindGameObjectWithTag("MainCamera");
-        SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
-        string path = Songsettings.CurrentSong.Path;
+        var song = songData.Songs.First(x => x.Hash == songHash);
+
+        // Still using Songsettings to pass song data to the song summary scene
+        // TODO: Change
+        var songSettings = GameObject.FindGameObjectWithTag("SongSettings").GetComponent<SongSettings>();
+        songSettings.CurrentSong = song;
+        songSettings.SelectedPlayingMethod = playingMethod;
+        songSettings.SelectedDifficulty = difficulty;
+        
+        string path = song.Path;
         if (Directory.Exists(path))
         {
             if (Directory.GetFiles(path, "info.dat").Length > 0)
             {
                 JSONObject infoFile = JSONObject.Parse(File.ReadAllText(Path.Combine(path, "info.dat")));
 
-                var difficultyBeatmapSets = infoFile.GetArray("_difficultyBeatmapSets");
-                var beatmapSets = difficultyBeatmapSets[Songsettings.CurrentSong.SelectedPlayingMethod];
-                foreach (var difficultyBeatmaps in beatmapSets.Obj.GetArray("_difficultyBeatmaps"))
+                JSONArray beatmapSets = null;
+                foreach (var obj in infoFile.GetArray("_difficultyBeatmapSets")) {
+                    if (obj.Obj.GetString("_beatmapCharacteristicName") == playingMethod) {
+                        beatmapSets = obj.Obj.GetArray("_difficultyBeatmaps");
+                        break;
+                    }
+                }
+
+                // TODO: Fix. Null pointer here if the playing method doesn't exist.
+                foreach (var difficultyBeatmaps in beatmapSets)
                 {
-                    if (difficultyBeatmaps.Obj.GetString("_difficulty") == Songsettings.CurrentSong.SelectedDifficulty)
+                    if (difficultyBeatmaps.Obj.GetString("_difficulty") == difficulty)
                     {
                         _noteSpeed = (float)difficultyBeatmaps.Obj.GetNumber("_noteJumpMovementSpeed");
                         audioFilePath = Path.Combine(path, infoFile.GetString("_songFilename"));
@@ -76,13 +115,11 @@ public class NotesSpawner : MonoBehaviour
             }
         }
 
-        audioSource = GetComponent<AudioSource>();
-
-        StartCoroutine("LoadAudio");
+        StartCoroutine(LoadAudio());
 
         JSONObject json = JSONObject.Parse(jsonString);
 
-        var bpm = Convert.ToDouble(Songsettings.CurrentSong.BPM);
+        var bpm = Convert.ToDouble(song.BPM);
 
         //Notes
         var notes = json.GetArray("_notes");
@@ -134,6 +171,8 @@ public class NotesSpawner : MonoBehaviour
         BeatsPerMinute = bpm;
         
         UpdateBeats();
+
+        songPlaying = true;
     }
 
     public void UpdateBeats()
@@ -205,32 +244,23 @@ public class NotesSpawner : MonoBehaviour
         GenerateNote(_note, _startZ, _midZ, _endZ);
     }
 
-    private IEnumerator LoadAudio()
-    {
-        audioSource.clip = OggClipLoader.LoadClip(audioFilePath);
-        audioLoaded = true;
-
-        yield return null;
-    }
-
     void Update()
     {
-        if (audioLoaded)
-        {
-            audioLoaded = false;
-            audioSource.Play();
-        }
+        if (songPlaying) {
+            if (audioLoaded) {
+                audioLoaded = false;
+                audioSource.Play();
+            }
 
-        BeatsTime = audioSource.time;
-        UpdateNotes();
-        UpdateObstilcles();
+            BeatsTime = audioSource.time;
+            UpdateNotes();
+            UpdateObstilcles();
 
-        if (_noteIndex > 0 && !audioSource.isPlaying && !paused)
-        {
-            if (!menuLoadInProgress)
-            {
-                menuLoadInProgress = true;
-                StartCoroutine(LoadMenu());
+            if (_noteIndex > 0 && !audioSource.isPlaying && !paused) {
+                if (!menuLoadInProgress) {
+                    menuLoadInProgress = true;
+                    StartCoroutine(LoadMenu());
+                }
             }
         }
     }
@@ -239,8 +269,8 @@ public class NotesSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
 
-        yield return SceneHandling.LoadScene(SceneConstants.SCORE_SUMMARY, LoadSceneMode.Additive);
-        yield return SceneHandling.UnloadScene(SceneConstants.GAME);
+        yield return sceneHandling.LoadScene(SceneConstants.SCORE_SUMMARY, LoadSceneMode.Additive);
+        yield return sceneHandling.UnloadScene(SceneConstants.GAME);
     }
 
     void GenerateNote(Note note, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)

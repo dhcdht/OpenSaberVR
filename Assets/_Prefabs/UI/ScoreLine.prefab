@@ -252,12 +252,12 @@ GameObject:
   - component: {fileID: 2136937459552713731}
   - component: {fileID: 1689622000344108796}
   m_Layer: 5
-  m_Name: ScoreLine2
+  m_Name: ScoreLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8175527590950790249
 RectTransform:
   m_ObjectHideFlags: 0
@@ -333,6 +333,6 @@ MonoBehaviour:
   Score: {fileID: 9092470679687651832}
   PositionLabel: {fileID: 5124648701826096288}
   PlayerName: {fileID: 5996605284005973709}
-  TextColor: {r: 0.7490196, g: 0, b: 0, a: 0}
-  HighlightedTextColor: {r: 1, g: 1, b: 1, a: 0}
-  HighlightColor: {r: 1, g: 0.47058824, b: 0.8235294, a: 0}
+  TextColor: {r: 0.7490196, g: 0, b: 0, a: 1}
+  HighlightedTextColor: {r: 1, g: 1, b: 1, a: 1}
+  HighlightColor: {r: 1, g: 0.47058824, b: 0.8235294, a: 1}

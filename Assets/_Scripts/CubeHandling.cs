@@ -24,7 +24,7 @@ public class CubeHandling : MonoBehaviour
 
     void FixedUpdate()
     {
-        _songTime = _refNotesSpawner.audioSource.time + Time.smoothDeltaTime;
+        _songTime = _refNotesSpawner.AudioSource.time + Time.smoothDeltaTime;
         float songTimeDistance = _songTime - (((float)_note.Time * _refNotesSpawner._BeatPerSec - _refNotesSpawner._spawnOffset));
 
         if (songTimeDistance >= BeatsConstants.BEAT_WARMUP_SPEED / _refNotesSpawner._BeatPerMin)

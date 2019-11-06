@@ -36,4 +36,5 @@ sysinfo.txt
 *.unitypackage
 Logs/
 Playlists/
+Assets/scores
 Assets/_TerrainAutoUpgrade/

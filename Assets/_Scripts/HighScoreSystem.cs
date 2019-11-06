@@ -9,14 +9,18 @@ public class HighScoreSystem : MonoBehaviour
     private string highScorePath;
 
     private void Start() {
+#if UNITY_ANDROID
         highScorePath = Path.Combine(Application.persistentDataPath, "scores");
+#else
+        highScorePath = Path.Combine(Application.dataPath, "scores");
+#endif
     }
 
     private string GetScorePath(string songHash, string difficulty, string playingMethod) {
         return Path.Combine(highScorePath, songHash, difficulty + playingMethod);
     }
 
-    public void AddHighScoreToSong(string songHash, string userName, string difficulty, string playingMethod, long score)
+    public HighScoreEntry AddHighScoreToSong(string songHash, string userName, string difficulty, string playingMethod, long score)
     {
         if (!string.IsNullOrWhiteSpace(userName) && score > 0) {
             if (!Directory.Exists(Path.Combine(highScorePath, songHash))) {
@@ -25,9 +29,14 @@ public class HighScoreSystem : MonoBehaviour
 
             var scorePath = GetScorePath(songHash, difficulty, playingMethod);
             var existingHighScores = GetHighScoreOfSong(scorePath);
-            existingHighScores.Add(new HighScoreEntry { Username = userName, Score = score, Time = DateTime.Now.ToFileTimeUtc() });
+            var entry = new HighScoreEntry { Username = userName, Score = score, Time = DateTime.Now.ToFileTimeUtc() };
+            existingHighScores.Add(entry);
 
             File.WriteAllText(scorePath, JsonUtility.ToJson(HighScores.Create(existingHighScores)));
+
+            return entry;
+        } else {
+            return null;
         }
     }
 
@@ -42,7 +51,7 @@ public class HighScoreSystem : MonoBehaviour
     }
 
     public List<HighScoreEntry> GetHighScoresOfSong(string songHash, string difficulty, string playingMethod, int maxScores) {
-        var completeHighscore = GetHighScoreOfSong(GetScorePath(songHash, difficulty, playingMethod));
+        var completeHighscore = GetHighScoreOfSong(GetScorePath(songHash, difficulty, playingMethod == "Standard" ? "" : playingMethod));
         if (completeHighscore.Count > 0) {
             return completeHighscore.OrderByDescending(h => h.Score).Take(maxScores).ToList();
         } else {
@@ -62,6 +71,12 @@ public class HighScoreEntry
     public string Username;
     public long Score;
     public long Time;
+
+    public override bool Equals(object obj) {
+        if (obj is HighScoreEntry o) {
+            return o.Username == Username && o.Score == Score && o.Time == Time;
+        } else return false;
+    }
 }
 
 [Serializable]

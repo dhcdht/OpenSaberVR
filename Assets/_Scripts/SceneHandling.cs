@@ -105,7 +105,7 @@ public class SceneHandling : MonoBehaviour
         yield return SceneManager.LoadSceneAsync(sceneName, mode);
 
         
-        /*if (sceneName == "OpenSaber") {
+        /*if (sceneName == SceneConstants.GAME) {
             // Testing scores
             StartCoroutine(LoadScene("ScoreSummary", LoadSceneMode.Additive));
             StartCoroutine(UnloadScene("OpenSaber"));

@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/SaberSelection.unity
     guid: 9f09e1609ce3d4749a1b29a3dc26e6d0
+  - enabled: 1
+    path: Assets/_Scenes/SongSelection.unity
+    guid: ef0c46dee69259c42b23e6897979481d
   m_configObjects: {}
