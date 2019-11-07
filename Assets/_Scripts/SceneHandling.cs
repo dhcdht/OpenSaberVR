@@ -80,8 +80,8 @@ public class SceneHandling : MonoBehaviour
     }
 
     void SabersLoaded() {
-        if (!IsSceneLoaded(SceneConstants.MENU_MAIN)) {
-            StartCoroutine(LoadScene(SceneConstants.MENU_MAIN, LoadSceneMode.Additive));
+        if (!IsSceneLoaded(SceneConstants.SONG_SELECTION)) {
+            StartCoroutine(LoadScene(SceneConstants.SONG_SELECTION, LoadSceneMode.Additive));
         }
 
         if (VRTK_Loaded) {
@@ -97,10 +97,7 @@ public class SceneHandling : MonoBehaviour
         {
             SaberSceneLoaded();
         }
-        else if (sceneName == SceneConstants.MENU_MAIN || sceneName == SceneConstants.SCORE_SUMMARY)
-        {
-            MenuSceneLoaded();
-        }
+        else MenuSceneLoaded();
 
         yield return SceneManager.LoadSceneAsync(sceneName, mode);
 

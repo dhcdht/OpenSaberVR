@@ -43,10 +43,12 @@ namespace UI.General
                 this.text.text = text;
                 TextChanged?.Invoke(text);
             }
+
+            placeholder.gameObject.SetActive(string.IsNullOrWhiteSpace(text));
         }
 
         public void SetPlaceholder(string text) {
-            this.placeholder.text = text;
+            placeholder.text = text;
         }
 
         private void Awake() {

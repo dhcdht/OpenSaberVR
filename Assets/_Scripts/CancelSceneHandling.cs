@@ -18,6 +18,11 @@ public class CancelSceneHandling : MonoBehaviour
         SceneHandling = GameObject.FindGameObjectWithTag("SceneHandling").GetComponent<SceneHandling>();
     }
 
+    private IEnumerator LoadMenu() {
+        yield return SceneHandling.LoadScene(SceneConstants.SONG_SELECTION, LoadSceneMode.Additive);
+        yield return SceneHandling.UnloadScene(SceneConstants.GAME);
+    }
+
     private void LateUpdate()
     {
         if (triggersPressed == 2)
@@ -39,12 +44,6 @@ public class CancelSceneHandling : MonoBehaviour
 
             CancelTimeoutText.text = (CancelTime % 60).ToString("F1");
         }
-    }
-
-    private IEnumerator LoadMenu()
-    {
-        yield return SceneHandling.LoadScene(SceneConstants.MENU_MAIN, LoadSceneMode.Additive);
-        yield return SceneHandling.UnloadScene(SceneConstants.GAME);
     }
 
     internal void TriggerReleased()

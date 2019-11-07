@@ -4149,7 +4149,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24fc5f6f8151dfa4f9059b8eec88c85b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentSongIndex: 0
+  SelectedPlayingMethod: 
+  SelectedDifficulty: 
 --- !u!4 &1684214073
 Transform:
   m_ObjectHideFlags: 0

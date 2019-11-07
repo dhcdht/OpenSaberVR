@@ -111,6 +111,8 @@ namespace UI.SongSelection
         public string previewFilePath;
         public SongPreviewState previewState;
 
+        public bool resetSongScrollPosition;
+
         public Model(Model m) {
             filter = m.filter;
             difficulty = m.difficulty;
@@ -132,6 +134,8 @@ namespace UI.SongSelection
             selectedPlayingMethod = m.selectedPlayingMethod;
 
             allPlayingMethods = m.allPlayingMethods;
+
+            resetSongScrollPosition = m.resetSongScrollPosition;
         }
 
         public static Model Initial() {
@@ -149,7 +153,8 @@ namespace UI.SongSelection
                 sortTypes = SortType.SortTypes.ToImmutableList(),
                 categories = ImmutableList<CategoryItem>.Empty,
                 selectedPlayingMethod = PlayingMethods.PLAYING_METHOD_STANDARD,
-                allPlayingMethods = PlayingMethods.All
+                allPlayingMethods = PlayingMethods.All,
+                resetSongScrollPosition = false
             };
         }
     }
@@ -269,8 +274,6 @@ namespace UI.SongSelection
         }
     }
 
-    sealed class ClearSongStateResult : IntentResult { }
-
     sealed class SongSelectedResult : IntentResult
     {
         public SongItem Song { get; }
@@ -280,7 +283,7 @@ namespace UI.SongSelection
         }
     }
 
-    sealed class ClearPreviewStateResult : IntentResult { }
+    sealed class ClearSongSelectionResult : IntentResult { }
 
     sealed class StopPreviewResult : IntentResult { }
     #endregion
@@ -333,11 +336,11 @@ namespace UI.SongSelection
                     .Where(
                         s => {
                             return
-                                (String.IsNullOrWhiteSpace(filter) || s.songName.ToLower().Contains(filter.ToLower()));
-                                /*(s.playingMethods.Exists(m => m.name == playingMethod)) &&
+                                //(String.IsNullOrWhiteSpace(filter) || s.songName.ToLower().Contains(filter.ToLower()));
+                                (s.playingMethods.Exists(m => m.name == playingMethod)) &&
                                 (difficulty == null || difficulty == DIFFICULTY_FILTER_ALL || s.playingMethods.First(m => m.name == playingMethod).difficulties.Contains(difficulty)) &&
                                 (category == null || (category == CATEGORY_ALL) || (s.categories.Contains(category))) &&
-                                (String.IsNullOrWhiteSpace(filter) || s.songName.ToLower().Contains(filter.ToLower()));*/
+                                (String.IsNullOrWhiteSpace(filter) || s.songName.ToLower().Contains(filter.ToLower()));
                         })
                     .ToList();
             songs.Sort(new SongComparer(sortType));
@@ -349,28 +352,25 @@ namespace UI.SongSelection
             var userSongs =
                 db
                     .GetAll()
-                    .ToDictionary(x => x.songHash, x => x);
+                    .ToDictionary(x => x.SongHash, x => x);
 
             return
                 allSongs
+                    .Where(s => s.PlayingMethods.Exists(m => m.CharacteristicName == playingMethod))
                     .Select(
                         s => {
                             var playingMethods =
                                 s.PlayingMethods
                                     .Select(m => new PlayingMethod(m.CharacteristicName, m.Difficulties))
                                     .ToList();
-                            IEnumerable<string> difficulties;
-                            if (playingMethods.Exists(m => m.name == playingMethod))
-                                difficulties = playingMethods.First(m => m.name == playingMethod).difficulties;
-                            else
-                                difficulties = new List<string>();
+                            var difficulties = playingMethods.First(m => m.name == playingMethod).difficulties;
 
                             byte starCount = 0;
                             List<string> categories;
                             if (userSongs.ContainsKey(s.Hash)) {
                                 var userSong = userSongs[s.Hash];
-                                starCount = userSong.starCount;
-                                categories = userSong.categories;
+                                starCount = userSong.StarCount;
+                                categories = userSong.Categories;
                             } else {
                                 categories = new List<string>();
                             }
@@ -406,8 +406,9 @@ namespace UI.SongSelection
             switch (intent)
             {
                 case ChangeFilterIntent changeFilterIntent:
-                    /*yield return new StopPreviewResult();
-                    yield return new ClearPreviewStateResult();*/
+                    yield return new StopPreviewResult();
+                    yield return new ClearSongSelectionResult();
+
                     yield return new FilterChangedResult(changeFilterIntent.Text);
                     break;
                 case ChangeSortIntent changeSortIntent:
@@ -415,42 +416,43 @@ namespace UI.SongSelection
 
                     if (sortType.Count == 1) {
                         yield return new StopPreviewResult();
-                        yield return new ClearPreviewStateResult();
+                        yield return new ClearSongSelectionResult();
+
                         yield return new SortChangedResult(sortType.First());
                     }
                     break;
                 case ChangeDifficultyIntent changeDifficultyIntent:
                     yield return new StopPreviewResult();
-                    yield return new ClearPreviewStateResult();
+
                     yield return new DifficultyChangedResult(changeDifficultyIntent.Difficulty);
                     break;
                 case ChangeCategoryIntent changeCategoryIntent:
                     yield return new StopPreviewResult();
-                    yield return new ClearPreviewStateResult();
+                    yield return new ClearSongSelectionResult();
+
                     yield return new CategoryChangedResult(changeCategoryIntent.Category);
                     break;
                 case SelectSongIntent selectSongIntent:
                     yield return new StopPreviewResult();
                     yield return new SongSelectedResult(selectSongIntent.Song);
-                    yield return new ClearPreviewStateResult();
                     break;
                 case ForceRefreshIntent _:
                     yield return new StopPreviewResult();
-                    yield return new ClearPreviewStateResult();
+                    yield return new ClearSongSelectionResult();
 
                     yield return new SongsLoadingResult();
                     yield return new SongsLoadedResult(getAllSongs());
-                    yield return new ClearSongStateResult();
                     break;
                 case InitialIntent _:
                     yield return new SongsLoadingResult();
                     yield return new SongsLoadedResult(getAllSongs(), PlayingMethods.PLAYING_METHOD_STANDARD);
-                    yield return new ClearSongStateResult();
                     break;
                 case ChangePlayingMethod changeMethodIntent:
+                    yield return new StopPreviewResult();
+                    yield return new ClearSongSelectionResult();
+
                     yield return new SongsLoadingResult();
                     yield return new SongsLoadedResult(getAllSongs(), changeMethodIntent.PlayingMethodName);
-                    yield return new ClearSongStateResult();
                     break;
             }
         }
@@ -476,34 +478,62 @@ namespace UI.SongSelection
                         selectedDifficulty = selectedDifficulty
                     };
                 };
+            
+            // These states are only used to notify the view of changes, so they don't need to be cleared immediately to have any effect on the view.
+            Func<Model, Model> clearStates =
+                (Model model) => {
+                    return new Model(model) {
+                        previewState = SongPreviewState.NONE,
+                        songState = SongState.NONE,
+                        resetSongScrollPosition = false
+                    };
+                };
+            curModel = clearStates(curModel);
 
             if (result is FilterChangedResult filterChangedResult) {
                 return filterModel(
                     new Model(curModel) {
-                        filter = filterChangedResult.Filter
+                        filter = filterChangedResult.Filter,
+                        resetSongScrollPosition = true
                     });
             } else if (result is SortChangedResult sortChangedResult) {
                 return filterModel(
                     new Model(curModel) {
-                        selectedSortType = sortChangedResult.SortType
+                        selectedSortType = sortChangedResult.SortType,
+                        resetSongScrollPosition = true
                     });
             } else if (result is DifficultyChangedResult difficultyChangedResult) {
-                return filterModel(
+                var model = filterModel(
                     new Model(curModel) {
                         selectedDifficulty = difficultyChangedResult.Difficulty,
-                        songs = filterSongs(curModel.allSongs)
+                        songs = filterSongs(curModel.allSongs),
+                        resetSongScrollPosition = true
                     });
+
+                // Keep the song selected if it is still shown.
+                SongItem? song = null;
+                if (model.selectedSong.HasValue && model.songs.Exists(m => m.hash == model.selectedSong?.hash)) {
+                    song = model.songs.Find(m => m.hash == model.selectedSong?.hash);
+                }
+
+                return
+                    new Model(model) {
+                        selectedSong = song
+                    };
             } else if (result is CategoryChangedResult categoryChangedResult) {
-                return filterModel(
-                    new Model(curModel) {
-                        selectedCategory = categoryChangedResult.Category
-                    });
+                return
+                    filterModel(
+                        new Model(curModel) {
+                            selectedCategory = categoryChangedResult.Category,
+                            resetSongScrollPosition = true
+                        });
             } else if (result is SongsLoadingResult) {
                 return new Model(curModel) {
                     songState = SongState.LOADING,
                     songs = ImmutableList<SongItem>.Empty,
                     allSongs = ImmutableList<SongItem>.Empty,
-                    categories = ImmutableList<CategoryItem>.Empty
+                    categories = ImmutableList<CategoryItem>.Empty,
+                    resetSongScrollPosition = true
                 };
             } else if (result is SongsLoadedResult songsLoadedResult) {
                 var playingMethod = songsLoadedResult.PlayingMethod == null ? curModel.selectedPlayingMethod : songsLoadedResult.PlayingMethod;
@@ -513,10 +543,10 @@ namespace UI.SongSelection
                 var userSongs = db.GetAll();
                 var songCategories =
                     userSongs
-                        .SelectMany(s => s.categories.Select(c => (c, s)))
+                        .SelectMany(s => s.Categories.Select(c => (c, s)))
                         .GroupBy(x => x.c)
-                        .Select(x => new CategoryItem(x.Key, (ushort)x.Count()));
-                var categories = new List<CategoryItem>() { new CategoryItem(CATEGORY_ALL, (ushort)songs.Count) };
+                        .Select(x => new CategoryItem(x.Key, (ushort) x.Count()));
+                var categories = new List<CategoryItem>() { new CategoryItem(CATEGORY_ALL, (ushort) songs.Count) };
                 categories.AddRange(songCategories);
 
                 return filterModel(
@@ -527,10 +557,6 @@ namespace UI.SongSelection
                         selectedCategory = CATEGORY_ALL,
                         selectedPlayingMethod = playingMethod
                     });
-            } else if (result is ClearSongStateResult) {
-                return new Model(curModel) {
-                    songState = SongState.NONE
-                };
             } else if (result is SongSelectedResult songSelectedResult) {
                 return new Model(curModel) {
                     previewState = SongPreviewState.START,
@@ -538,14 +564,14 @@ namespace UI.SongSelection
                     selectedSong = songSelectedResult.Song,
                     songDifficulties = ImmutableList<string>.Empty.AddRange(songSelectedResult.Song.difficulties)
                 };
-            } else if (result is ClearPreviewStateResult) {
-                return new Model(curModel) {
-                    previewState = SongPreviewState.NONE
-                };
             } else if (result is StopPreviewResult) {
                 return new Model(curModel) {
                     previewState = SongPreviewState.STOP,
                     previewFilePath = null
+                };
+            } else if (result is ClearSongSelectionResult) {
+                return new Model(curModel) {
+                    selectedSong = null
                 };
             } else {
                 return curModel;

@@ -12,6 +12,16 @@ namespace UI.SongSelection
     [RequireComponent(typeof(SongData), typeof(AudioSource), typeof(Database.UserSongDatabase))]
     public class SongSelectionView : MonoBehaviour
     {
+        /*
+         * User scrolls.
+         * Items removed and re-added on render.
+         * Scroll to previous position.
+         * 
+         * Scroll position reset when songs loaded, but kept when sorting.
+         * 
+         * scrollPosition (offset from top)
+         * */
+
         [SerializeField]
         GameObject Categories;
         [SerializeField]
@@ -66,7 +76,7 @@ namespace UI.SongSelection
             changeCategorySubject.OnNext(new ChangeCategoryIntent(category.Name));
         }
 
-        void AddSongItems(IEnumerable<SongItem> songs) {
+        void AddSongItems(IEnumerable<SongItem> songs, SongItem? selectedItem) {
             var yOffset = 0.0f;
 
             foreach (var song in songs) {
@@ -74,14 +84,13 @@ namespace UI.SongSelection
                 obj.transform.localPosition = new Vector3(0.0f, yOffset, 0.0f);
 
                 var item = obj.GetComponent<SongSelectionItem>();
-                item.Load(song);
+                item.Load(song, selectedItem.HasValue? selectedItem?.hash == song.hash: false);
                 item.Clicked.AddListener(() => SelectSong(song));
 
                 yOffset -= (SPACING_SONG_ITEM + obj.GetComponent<RectTransform>().rect.height);
             }
 
             Songs.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, -yOffset);
-            SongsScroll.ScrollToTop();
         }
 
         void AddCategoryItems(IEnumerable<CategoryItem> categories, string selectedName) {
@@ -99,7 +108,7 @@ namespace UI.SongSelection
             }
 
             Categories.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, -yOffset);
-            CategoriesScroll.ScrollToTop();
+            CategoriesScroll.ResetYScrollPosition();
         }
 
         IEnumerator LoadSaberLevel(string songHash, string difficulty, string playingMethod) {
@@ -147,7 +156,9 @@ namespace UI.SongSelection
 
             foreach (Transform child in Songs.transform)
                 Destroy(child.gameObject);
-            AddSongItems(model.songs);
+            AddSongItems(model.songs, model.selectedSong);
+            if (model.resetSongScrollPosition)
+                SongsScroll.ResetYScrollPosition();
 
             if (model.songState == SongState.LOADING) {
                 Songs.SetActive(false);

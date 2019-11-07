@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,23 +19,38 @@ public class MoveScrollRect : MonoBehaviour, IBeginDragHandler, IScrollHandler
     float vPos;
     float ySpeed;
 
+    float MaxYOffset
+    {
+        get
+        {
+            return Mathf.Max(0, Content.rect.height - Viewport.rect.height);
+        }
+    }
+
     void Awake() {
         vPos = Content.rect.y;
+    }
+
+    public void SetScrollYOffset(float offset) {
+        var pos = Content.transform.localPosition;
+        var x = pos.x;
+
+        var y = Mathf.Clamp(offset, 0, MaxYOffset);
+        Content.transform.localPosition = new Vector3(x, y, pos.z);
     }
 
     void Update() {
         ySpeed = Mathf.Lerp(ySpeed + scrollMagnitude * Time.deltaTime * pointsPerSecond, 0, 0.1f);
         scrollMagnitude = 0.0f;
 
-        if (Viewport.rect.height < Content.rect.height) {
-            vPos = Mathf.Clamp(vPos + ySpeed, 0, Content.rect.height - Viewport.rect.height);
+        var maxOffset = MaxYOffset;
+        if (maxOffset > 0) {
+            vPos = Mathf.Clamp(vPos + ySpeed, 0, maxOffset);
 
             var curPos = Content.transform.localPosition;
-            var nextPos = new Vector3(curPos.x, Mathf.Lerp(curPos.y, vPos, 0.1f), curPos.z);
-
-            if (curPos != nextPos)
-                Content.transform.localPosition = nextPos;
-        }
+            SetScrollYOffset(Mathf.Lerp(curPos.y, vPos, 0.1f));
+        } else
+            vPos = 0.0f;
     }
 
     public void OnBeginDrag(PointerEventData eventData) {
@@ -45,9 +61,8 @@ public class MoveScrollRect : MonoBehaviour, IBeginDragHandler, IScrollHandler
         scrollMagnitude = -e.scrollDelta.y;
     }
 
-    public void ScrollToTop() {
-        var pos = Content.transform.localPosition;
-        Content.transform.localPosition = new Vector3(pos.x, 0.0f, pos.z);
+    public void ResetYScrollPosition() {
         vPos = 0.0f;
+        SetScrollYOffset(0.0f);
     }
 }

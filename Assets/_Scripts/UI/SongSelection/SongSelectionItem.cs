@@ -25,6 +25,8 @@ namespace UI.SongSelection
         [SerializeField]
         Text AuthorName;
         [SerializeField]
+        Image Background;
+        [SerializeField]
         GameObject DifficultyPrefab;
         [SerializeField]
         GameObject Difficulties;
@@ -36,12 +38,16 @@ namespace UI.SongSelection
         Sprite EmptyStar;
         [SerializeField]
         Sprite FullStar;
+        [SerializeField]
+        Color SongBackgroundColor;
+        [SerializeField]
+        Color SongHighlightColor;
 
         public void OnPointerClick(PointerEventData eventData) {
             Clicked.Invoke();
         }
 
-        internal void Load(SongItem song) {
+        internal void Load(SongItem song, bool highlight = false) {
             foreach (Transform child in Difficulties.transform)
                 Destroy(child.gameObject);
             foreach (Transform child in Stars.transform)
@@ -67,6 +73,8 @@ namespace UI.SongSelection
                 obj.transform.localPosition = new Vector3(starX, 0.0f);
                 starX -= obj.GetComponent<RectTransform>().rect.width;
             }
+
+            Background.color = highlight ? SongHighlightColor : SongBackgroundColor;
         }
     }
 }
